@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="20dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="16dp">
+
+    <!-- Month Title -->
+    <TextView
+        android:id="@+id/tv_month_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="September"
+        android:textColor="@color/text_primary"
+        android:textSize="22sp"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="-0.02"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Weekday Headers -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
+        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="S" android:gravity="center" android:textColor="@color/text_muted" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="M" android:gravity="center" android:textColor="@color/text_muted" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="T" android:gravity="center" android:textColor="@color/text_muted" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="W" android:gravity="center" android:textColor="@color/text_muted" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="T" android:gravity="center" android:textColor="@color/text_muted" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="F" android:gravity="center" android:textColor="@color/text_muted" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="S" android:gravity="center" android:textColor="@color/text_muted" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+    </LinearLayout>
+
+    <!-- Days Grid -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_days"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:overScrollMode="never" />
+
+</LinearLayout>

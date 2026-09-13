@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- Hoode Connect — Neo-Bank Clean White & Emerald Theme     -->
+    <!-- All White Surfaces with Crisp Green Border Lines        -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+
+    <!-- Backgrounds (Pure Crisp White) -->
+    <color name="background">#FFFFFF</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_raised">#FFFFFF</color>
+    <color name="surface_dim">#F8FAFC</color>
+
+    <!-- Header Gradient (Clean Pure White with Soft Mint Hue) -->
+    <color name="header_gradient_start">#FFFFFF</color>
+    <color name="header_gradient_mid">#FFFFFF</color>
+    <color name="header_gradient_end">#FFFFFF</color>
+
+    <!-- Borders (Green as border lines everywhere) -->
+    <color name="border_green">#10B981</color>
+    <color name="border_green_dark">#059669</color>
+    <color name="border_green_soft">#A7F3D0</color>
+    <color name="border_primary">#10B981</color>
+    <color name="border_soft">#10B981</color>
+    <color name="border_faint">#D1FAE5</color>
+
+    <!-- Text (Deep Navy/Charcoal from Neo-Bank Reference) -->
+    <color name="text_primary">#0A192F</color>
+    <color name="text_secondary">#475569</color>
+    <color name="text_muted">#94A3B8</color>
+    <color name="text_on_accent">#FFFFFF</color>
+    <color name="text_on_dark">#FFFFFF</color>
+    <color name="text_link">#059669</color>
+
+    <!-- Accent — Premium Emerald & Dark Green -->
+    <color name="accent">#059669</color>
+    <color name="accent_dark">#047857</color>
+    <color name="accent_soft">#D1FAE5</color>
+    <color name="accent_ink">#064E3B</color>
+    <color name="accent_surface">#FFFFFF</color>
+
+    <!-- Category & Story Ring Colors (Neo-Bank & Islamic Finance) -->
+    <color name="canva_circle_coral">#059669</color>
+    <color name="canva_circle_orange">#0D9488</color>
+    <color name="canva_circle_purple">#10B981</color>
+    <color name="canva_circle_lavender">#0284C7</color>
+    <color name="canva_circle_blue">#0EA5E9</color>
+    <color name="canva_circle_pink">#059669</color>
+    <color name="canva_circle_teal">#0D9488</color>
+    <color name="canva_circle_green">#10B981</color>
+    <color name="canva_circle_indigo">#0284C7</color>
+    <color name="canva_circle_gold">#D97706</color>
+
+    <!-- UI Elements -->
+    <color name="canva_fab_purple">#064E3B</color>
+    <color name="canva_crown_gold">#D97706</color>
+    <color name="canva_crown_bg">#FFFFFF</color>
+    <color name="canva_badge_new">#064E3B</color>
+    <color name="canva_pill_border">#10B981</color>
+
+    <!-- Semantic -->
+    <color name="warning">#F59E0B</color>
+    <color name="warning_soft">#FEF3C7</color>
+    <color name="danger">#EF4444</color>
+    <color name="danger_soft">#FEE2E2</color>
+    <color name="success">#10B981</color>
+    <color name="success_soft">#D1FAE5</color>
+    <color name="info">#0EA5E9</color>
+    <color name="info_soft">#F0F9FF</color>
+
+    <!-- Emergency -->
+    <color name="emergency">#EF4444</color>
+    <color name="emergency_soft">#FEE2E2</color>
+
+    <!-- Bottom Navigation (Dark Green active effect, Light Green indicator) -->
+    <color name="nav_active">#064E3B</color>
+    <color name="nav_inactive">#64748B</color>
+    <color name="nav_indicator">#D1FAE5</color>
+
+    <!-- Shimmer/Skeleton -->
+    <color name="shimmer_base">#F8FAFC</color>
+    <color name="shimmer_highlight">#FFFFFF</color>
+
+    <!-- Overlay -->
+    <color name="overlay_dark">#66000000</color>
+    <color name="overlay_light">#40FFFFFF</color>
+
+    <!-- Carousel Indicator -->
+    <color name="indicator_active">#064E3B</color>
+    <color name="indicator_inactive">#E2E8F0</color>
+
+    <!-- Prayer Countdown Ring -->
+    <color name="prayer_ring_track">#DCFCE7</color>
+    <color name="prayer_ring_progress">#064E3B</color>
+    <color name="prayer_ring_urgent">#EF4444</color>
+
+    <!-- Sponsored Badge -->
+    <color name="sponsored_bg">#DCFCE7</color>
+    <color name="sponsored_text">#065F46</color>
+
+    <!-- Status Colors -->
+    <color name="status_open">#10B981</color>
+    <color name="status_pending">#F59E0B</color>
+    <color name="status_closed">#94A3B8</color>
+    <color name="status_urgent">#EF4444</color>
+
+    <!-- Standard Colors -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingVertical="10dp"
+    android:paddingHorizontal="2dp"
+    android:background="@drawable/bg_prayer_time_inactive">
+
+    <ImageView
+        android:id="@+id/iv_prayer_icon"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:src="@drawable/ic_prayer"
+        app:tint="@color/text_muted"
+        android:contentDescription="@null" />
+
+    <TextView
+        android:id="@+id/tv_prayer_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="Fajr"
+        android:textColor="@color/text_muted"
+        android:textSize="11sp"
+        android:fontFamily="sans-serif-medium" />
+
+    <TextView
+        android:id="@+id/tv_prayer_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="5:12 AM"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp"
+        android:fontFamily="sans-serif" />
+
+    <!-- Active dot indicator -->
+    <View
+        android:id="@+id/v_active_dot"
+        android:layout_width="4dp"
+        android:layout_height="4dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/indicator_dot_active"
+        android:visibility="gone" />
+
+</LinearLayout>

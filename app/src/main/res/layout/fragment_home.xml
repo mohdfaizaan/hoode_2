@@ -1,0 +1,1372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:overScrollMode="never">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="88dp">
+
+            <!-- ═══════════════════════════════════════════════════ -->
+            <!-- TOP BAR (CANVA PASTEL GRADIENT HEADER)              -->
+            <!-- (Search bar removed per user instructions)          -->
+            <!-- ═══════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_header_gradient"
+                android:paddingBottom="@dimen/spacing_lg">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/top_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/screen_padding_horizontal"
+                    android:paddingEnd="@dimen/screen_padding_horizontal"
+                    android:paddingTop="@dimen/spacing_md"
+                    android:paddingBottom="@dimen/spacing_xs">
+
+                    <!-- Left Column: Community Selector & Date -->
+                    <LinearLayout
+                        android:id="@+id/community_container"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginEnd="@dimen/spacing_sm"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btn_notification">
+
+                        <!-- Community selector pill -->
+                        <LinearLayout
+                            android:id="@+id/community_selector"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_search_bar"
+                            android:paddingHorizontal="@dimen/spacing_md"
+                            android:paddingVertical="@dimen/spacing_xs">
+
+                            <TextView
+                                android:id="@+id/tv_community_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/home_community_label"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_sm"
+                                android:fontFamily="sans-serif-medium" />
+
+                            <ImageView
+                                android:layout_width="@dimen/icon_xs"
+                                android:layout_height="@dimen/icon_xs"
+                                android:layout_marginStart="@dimen/spacing_xs"
+                                android:src="@drawable/ic_chevron_down"
+                                android:contentDescription="@string/cd_community_selector"
+                                android:importantForAccessibility="no" />
+                        </LinearLayout>
+
+                        <!-- Greeting & Date -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="@dimen/spacing_xs">
+
+                            <TextView
+                                android:id="@+id/tv_greeting"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_sm"
+                                tools:text="Assalamu Alaikum" />
+
+                            <TextView
+                                android:id="@+id/tv_date"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/spacing_sm"
+                                android:textColor="@color/text_muted"
+                                android:textSize="@dimen/text_xs"
+                                tools:text="• 10 Sep 2026" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Notification bell -->
+                    <FrameLayout
+                        android:id="@+id/btn_notification"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/cd_notification_bell"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent">
+
+                        <ImageView
+                            android:layout_width="@dimen/icon_md"
+                            android:layout_height="@dimen/icon_md"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_notification_bell" />
+
+                        <!-- Badge -->
+                        <TextView
+                            android:id="@+id/tv_notification_badge"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_gravity="end|top"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginEnd="2dp"
+                            android:background="@drawable/bg_circle_coral"
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:textSize="9sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:visibility="gone"
+                            tools:visibility="visible"
+                            tools:text="3" />
+                    </FrameLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
+
+            <!-- ═══════════════════════════════════════════════════ -->
+            <!-- 1. SPONSORED SECTION (IN THE BEGINNING)             -->
+            <!-- ═══════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal"
+                android:paddingTop="@dimen/spacing_md">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Sponsored"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_title"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:id="@+id/btn_carousel_see_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="See all"
+                    android:textColor="@color/accent"
+                    android:textSize="@dimen/text_sm"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+
+            <!-- 5-Slide Advertisement Carousel -->
+            <FrameLayout
+                android:id="@+id/carousel_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/carousel_height"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@color/surface"
+                    app:strokeColor="@color/border_green"
+                    app:strokeWidth="1.5dp">
+
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/carousel_pager"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                    <!-- Sponsored badge -->
+                    <TextView
+                        android:id="@+id/tv_sponsored"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|start"
+                        android:layout_margin="@dimen/spacing_md"
+                        android:background="@drawable/bg_sponsored_badge"
+                        android:text="@string/home_sponsored"
+                        android:textColor="@color/accent"
+                        android:textSize="@dimen/text_xs"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <!-- Canva 3-dot overflow menu -->
+                    <FrameLayout
+                        android:id="@+id/btn_carousel_menu"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="@dimen/spacing_md"
+                        android:background="@drawable/bg_card_menu_circle">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_more_horiz" />
+                    </FrameLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+            </FrameLayout>
+
+            <!-- Page indicator dots -->
+            <LinearLayout
+                android:id="@+id/carousel_indicators"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:gravity="center"
+                android:orientation="horizontal" />
+
+            <!-- ═══════════════════════════════════════════════════ -->
+            <!-- 2. NEXT PRAYER SECTION                              -->
+            <!-- ═══════════════════════════════════════════════════ -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xl"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal"
+                android:text="Next Prayer"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_title"
+                android:fontFamily="sans-serif-medium" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/prayer_hero_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/screen_padding_horizontal"
+                android:layout_marginTop="@dimen/spacing_sm"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/surface"
+                app:strokeColor="@color/border_green"
+                app:strokeWidth="1.5dp"
+                app:contentPadding="@dimen/spacing_lg">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <!-- Prayer label -->
+                    <TextView
+                        android:id="@+id/tv_prayer_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/prayer_next"
+                        android:textColor="@color/accent"
+                        android:textSize="@dimen/text_xs"
+                        android:fontFamily="sans-serif-medium"
+                        android:textAllCaps="true"
+                        android:letterSpacing="0.08"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <!-- Prayer name -->
+                    <TextView
+                        android:id="@+id/tv_prayer_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:textColor="@color/text_primary"
+                        android:textSize="@dimen/text_headline"
+                        android:fontFamily="sans-serif-medium"
+                        tools:text="Maghrib"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tv_prayer_label" />
+
+                    <!-- Prayer time -->
+                    <TextView
+                        android:id="@+id/tv_prayer_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/text_body"
+                        tools:text="6:15 PM • Iqamah 6:25 PM"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tv_prayer_name" />
+
+                    <!-- Mosque name -->
+                    <TextView
+                        android:id="@+id/tv_mosque_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:textColor="@color/accent"
+                        android:textSize="@dimen/text_sm"
+                        android:fontFamily="sans-serif-medium"
+                        android:drawablePadding="@dimen/spacing_xs"
+                        tools:text="Hoode Juma Masjid"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tv_prayer_time" />
+
+                    <!-- Manage reminders button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_manage_reminders"
+                        style="@style/Widget.Hoode.Button.Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/prayer_manage_reminders"
+                        android:textSize="@dimen/text_sm"
+                        android:textColor="@color/accent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tv_mosque_name"
+                        app:icon="@drawable/ic_chevron_right"
+                        app:iconTint="@color/accent"
+                        app:iconGravity="end"
+                        app:iconSize="@dimen/icon_xs" />
+
+                    <!-- Countdown ring -->
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/prayer_countdown_ring"
+                        android:layout_width="@dimen/prayer_ring_size"
+                        android:layout_height="@dimen/prayer_ring_size"
+                        android:contentDescription="@string/cd_prayer_countdown"
+                        app:indicatorColor="@color/accent"
+                        app:trackColor="@color/prayer_ring_track"
+                        app:trackThickness="@dimen/prayer_ring_stroke"
+                        app:indicatorSize="@dimen/prayer_ring_size"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        tools:progress="65" />
+
+                    <!-- Countdown text inside ring -->
+                    <TextView
+                        android:id="@+id/tv_countdown"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:gravity="center"
+                        android:textColor="@color/accent"
+                        android:textSize="@dimen/text_lg"
+                        android:fontFamily="sans-serif-medium"
+                        tools:text="1h 23m"
+                        app:layout_constraintStart_toStartOf="@id/prayer_countdown_ring"
+                        app:layout_constraintEnd_toEndOf="@id/prayer_countdown_ring"
+                        app:layout_constraintTop_toTopOf="@id/prayer_countdown_ring"
+                        app:layout_constraintBottom_toBottomOf="@id/prayer_countdown_ring" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ═══════════════════════════════════════════════════ -->
+            <!-- 3. ACTIVITIES SECTION (6 BOXES)                     -->
+            <!-- ═══════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal"
+                android:paddingTop="@dimen/spacing_xxl">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Activities"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_title"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:id="@+id/btn_activities_see_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="See all"
+                    android:textColor="@color/accent"
+                    android:textSize="@dimen/text_sm"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+
+            <!-- 6 Boxes Grid (2 Columns x 3 Rows) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal"
+                android:paddingTop="@dimen/spacing_sm">
+
+                <!-- Row 1: 1. Religious & 2. Community -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- 1. Religious -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/box_act_religious"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="@dimen/spacing_sm"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/surface"
+                        app:strokeColor="@color/border_green"
+                        app:strokeWidth="1.5dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_md">
+
+                            <FrameLayout
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
+                                android:background="@drawable/bg_ring_circle_green">
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_prayer"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_sm"
+                                android:text="1. Religious"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:fontFamily="sans-serif-medium" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Halaqa &amp; Classes"
+                                android:textColor="@color/text_muted"
+                                android:textSize="11sp"
+                                android:maxLines="1" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- 2. Community -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/box_act_community"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="@dimen/spacing_sm"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/surface"
+                        app:strokeColor="@color/border_green"
+                        app:strokeWidth="1.5dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_md">
+
+                            <FrameLayout
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
+                                android:background="@drawable/bg_ring_circle_teal">
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_community"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_sm"
+                                android:text="2. Community"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:fontFamily="sans-serif-medium" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Welfare &amp; Drives"
+                                android:textColor="@color/text_muted"
+                                android:textSize="11sp"
+                                android:maxLines="1" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+                <!-- Row 2: 3. Social & 4. Sports -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="@dimen/spacing_md">
+
+                    <!-- 3. Social -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/box_act_social"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="@dimen/spacing_sm"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/surface"
+                        app:strokeColor="@color/border_green"
+                        app:strokeWidth="1.5dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_md">
+
+                            <FrameLayout
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
+                                android:background="@drawable/bg_ring_circle_emerald">
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_social"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_sm"
+                                android:text="3. Social"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:fontFamily="sans-serif-medium" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Youth &amp; Meets"
+                                android:textColor="@color/text_muted"
+                                android:textSize="11sp"
+                                android:maxLines="1" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- 4. Sports -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/box_act_sports"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="@dimen/spacing_sm"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/surface"
+                        app:strokeColor="@color/border_green"
+                        app:strokeWidth="1.5dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_md">
+
+                            <FrameLayout
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
+                                android:background="@drawable/bg_ring_circle_cyan">
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_tournament"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_sm"
+                                android:text="4. Sports"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:fontFamily="sans-serif-medium" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="HPL &amp; Coaching"
+                                android:textColor="@color/text_muted"
+                                android:textSize="11sp"
+                                android:maxLines="1" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+                <!-- Row 3: 5. Condolences & 6. Dua Request -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="@dimen/spacing_md">
+
+                    <!-- 5. Condolences -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/box_act_condolences"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="@dimen/spacing_sm"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/surface"
+                        app:strokeColor="@color/border_green"
+                        app:strokeWidth="1.5dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_md">
+
+                            <FrameLayout
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
+                                android:background="@drawable/bg_ring_circle_teal">
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_condolences"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_sm"
+                                android:text="5. Condolences"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:fontFamily="sans-serif-medium" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Janazah &amp; Notices"
+                                android:textColor="@color/text_muted"
+                                android:textSize="11sp"
+                                android:maxLines="1" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- 6. Dua Request -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/box_act_dua"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="@dimen/spacing_sm"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/surface"
+                        app:strokeColor="@color/border_green"
+                        app:strokeWidth="1.5dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_md">
+
+                            <FrameLayout
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
+                                android:background="@drawable/bg_ring_circle_gold">
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_dua"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_sm"
+                                android:text="6. Dua Request"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:fontFamily="sans-serif-medium" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Healing &amp; Prayers"
+                                android:textColor="@color/text_muted"
+                                android:textSize="11sp"
+                                android:maxLines="1" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- ═══════════════════════════════════════════════════ -->
+            <!-- 4. DAILY PERSONALITY                                -->
+            <!-- ═══════════════════════════════════════════════════ -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xxl"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal"
+                android:text="@string/section_personality"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_title"
+                android:fontFamily="sans-serif-medium" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/personality_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/screen_padding_horizontal"
+                android:layout_marginTop="@dimen/spacing_sm"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/surface"
+                app:strokeColor="@color/border_green"
+                app:strokeWidth="1.5dp"
+                app:contentPadding="@dimen/spacing_lg">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:id="@+id/iv_personality_photo"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:scaleType="centerCrop"
+                        android:background="@drawable/bg_circle_lavender"
+                        tools:src="@drawable/ic_nav_profile" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="@dimen/spacing_lg"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_personality_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_primary"
+                            android:textSize="@dimen/text_lg"
+                            android:fontFamily="sans-serif-medium"
+                            tools:text="Ahmed Khan" />
+
+                        <TextView
+                            android:id="@+id/tv_personality_intro"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="@dimen/text_sm"
+                            android:maxLines="2"
+                            android:ellipsize="end"
+                            tools:text="Community leader, educator, and a beloved figure in Hoode" />
+
+                        <TextView
+                            android:id="@+id/btn_personality_read_more"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:text="Read Story →"
+                            android:textColor="@color/accent"
+                            android:textSize="@dimen/text_sm"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ═══════════════════════════════════════════════════ -->
+            <!-- 5. DAILY HIGHLIGHTS                                 -->
+            <!-- ═══════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="@dimen/spacing_xxl"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Daily Highlights"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_title"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:id="@+id/btn_today_see_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="See all"
+                    android:textColor="@color/accent"
+                    android:textSize="@dimen/text_sm"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+
+            <!-- Horizontal Highlights (Cards with 3-dot menus) -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_today_highlights"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:clipToPadding="false"
+                android:paddingStart="@dimen/screen_padding_horizontal"
+                android:paddingEnd="@dimen/screen_padding_horizontal"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_highlight_card"
+                tools:itemCount="3" />
+
+            <!-- ═══════════════════════════════════════════════════ -->
+            <!-- 6. CHOOSE HOW TO START SECTION                      -->
+            <!-- (10 Rainbow Circular Categories)                    -->
+            <!-- ═══════════════════════════════════════════════════ -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xxl"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal"
+                android:text="Choose how to start"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_title"
+                android:fontFamily="sans-serif-medium" />
+
+            <!-- Horizontal Scroll for Rainbow Circular Categories -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:overScrollMode="never"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="@dimen/screen_padding_horizontal">
+
+                    <!-- Row 1: First 5 Categories -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <!-- Emergency -->
+                        <LinearLayout
+                            android:id="@+id/action_emergency"
+                            android:layout_width="74dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="@dimen/spacing_md">
+
+                            <FrameLayout
+                                android:layout_width="54dp"
+                                android:layout_height="54dp"
+                                android:background="@drawable/bg_ring_circle_green">
+                                <ImageView
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_emergency"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Emergency"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:maxLines="1" />
+                        </LinearLayout>
+
+                        <!-- Blood Help -->
+                        <LinearLayout
+                            android:id="@+id/action_blood"
+                            android:layout_width="74dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="@dimen/spacing_md">
+
+                            <FrameLayout
+                                android:layout_width="54dp"
+                                android:layout_height="54dp"
+                                android:background="@drawable/bg_ring_circle_teal">
+                                <ImageView
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_blood"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Blood Help"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:maxLines="1" />
+                        </LinearLayout>
+
+                        <!-- Prayer Times -->
+                        <LinearLayout
+                            android:id="@+id/action_prayer"
+                            android:layout_width="74dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="@dimen/spacing_md">
+
+                            <FrameLayout
+                                android:layout_width="54dp"
+                                android:layout_height="54dp"
+                                android:background="@drawable/bg_ring_circle_emerald">
+                                <ImageView
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_prayer"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Prayers"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:maxLines="1" />
+                        </LinearLayout>
+
+                        <!-- Jobs & Gigs -->
+                        <LinearLayout
+                            android:id="@+id/action_jobs"
+                            android:layout_width="74dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="@dimen/spacing_md">
+
+                            <FrameLayout
+                                android:layout_width="54dp"
+                                android:layout_height="54dp"
+                                android:background="@drawable/bg_ring_circle_cyan">
+                                <ImageView
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_jobs"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Jobs"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:maxLines="1" />
+                        </LinearLayout>
+
+                        <!-- Tournaments -->
+                        <LinearLayout
+                            android:id="@+id/action_tournaments"
+                            android:layout_width="74dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <FrameLayout
+                                android:layout_width="54dp"
+                                android:layout_height="54dp"
+                                android:background="@drawable/bg_ring_circle_gold">
+                                <ImageView
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_tournament"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Tournaments"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:maxLines="1" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Row 2: Next 5 Categories -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="@dimen/spacing_md">
+
+                        <!-- Events -->
+                        <LinearLayout
+                            android:id="@+id/action_events"
+                            android:layout_width="74dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="@dimen/spacing_md">
+
+                            <FrameLayout
+                                android:layout_width="54dp"
+                                android:layout_height="54dp"
+                                android:background="@drawable/bg_ring_circle_green">
+                                <ImageView
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_events"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Events"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:maxLines="1" />
+                        </LinearLayout>
+
+                        <!-- Services -->
+                        <LinearLayout
+                            android:id="@+id/action_services"
+                            android:layout_width="74dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="@dimen/spacing_md">
+
+                            <FrameLayout
+                                android:layout_width="54dp"
+                                android:layout_height="54dp"
+                                android:background="@drawable/bg_ring_circle_teal">
+                                <ImageView
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_services"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Services"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:maxLines="1" />
+                        </LinearLayout>
+
+                        <!-- News -->
+                        <LinearLayout
+                            android:id="@+id/action_news"
+                            android:layout_width="74dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="@dimen/spacing_md">
+
+                            <FrameLayout
+                                android:layout_width="54dp"
+                                android:layout_height="54dp"
+                                android:background="@drawable/bg_ring_circle_cyan">
+                                <ImageView
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_news"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="News"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:maxLines="1" />
+                        </LinearLayout>
+
+                        <!-- Polls -->
+                        <LinearLayout
+                            android:id="@+id/action_polls"
+                            android:layout_width="74dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="@dimen/spacing_md">
+
+                            <FrameLayout
+                                android:layout_width="54dp"
+                                android:layout_height="54dp"
+                                android:background="@drawable/bg_ring_circle_emerald">
+                                <ImageView
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_polls"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Polls"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:maxLines="1" />
+                        </LinearLayout>
+
+                        <!-- Huffaz -->
+                        <LinearLayout
+                            android:id="@+id/action_huffaz"
+                            android:layout_width="74dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <FrameLayout
+                                android:layout_width="54dp"
+                                android:layout_height="54dp"
+                                android:background="@drawable/bg_ring_circle_gold">
+                                <ImageView
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_huffaz"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Huffaz"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:maxLines="1" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <!-- ═══════════════════════════════════════════════════ -->
+            <!-- 7. LATEST UPDATES SECTION                           -->
+            <!-- ═══════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xxl"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/section_updates"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_title"
+                    android:fontFamily="sans-serif-medium" />
+                <TextView
+                    android:id="@+id/btn_updates_see_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_see_all"
+                    android:textColor="@color/accent"
+                    android:textSize="@dimen/text_sm"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+
+            <!-- Filter chips for updates -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_updates"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_all"
+                    style="@style/Widget.Hoode.Chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="All"
+                    android:checked="true" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_news"
+                    style="@style/Widget.Hoode.Chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="News" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_polls"
+                    style="@style/Widget.Hoode.Chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Polls" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_community"
+                    style="@style/Widget.Hoode.Chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Community" />
+            </com.google.android.material.chip.ChipGroup>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_updates"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:nestedScrollingEnabled="false"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="3" />
+
+            <!-- ═══════════════════════════════════════════════════ -->
+            <!-- 8. HOODE GALLERY SECTION (AT LAST)                  -->
+            <!-- ═══════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xxl"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/section_gallery"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_title"
+                    android:fontFamily="sans-serif-medium" />
+                <TextView
+                    android:id="@+id/btn_gallery_see_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_see_all"
+                    android:textColor="@color/accent"
+                    android:textSize="@dimen/text_sm"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_gallery_preview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:clipToPadding="false"
+                android:paddingStart="@dimen/screen_padding_horizontal"
+                android:paddingEnd="@dimen/screen_padding_horizontal"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- CANVA PURPLE FLOATING ACTION BUTTON (Camera/Create) -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <FrameLayout
+        android:id="@+id/fab_quick_action"
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/screen_padding_horizontal"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/bg_fab_purple"
+        android:elevation="6dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_camera_fab"
+            android:contentDescription="Quick Action" />
+    </FrameLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

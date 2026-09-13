@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/spacing_sm"
+    app:cardCornerRadius="@dimen/radius_control"
+    app:cardElevation="@dimen/elevation_xs"
+    app:strokeColor="@color/border_soft"
+    app:strokeWidth="@dimen/card_stroke"
+    app:cardBackgroundColor="@color/surface"
+    app:contentPadding="@dimen/spacing_lg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_update_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_pill_accent"
+                android:paddingHorizontal="@dimen/spacing_sm"
+                android:paddingVertical="2dp"
+                android:textColor="@color/accent_ink"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                tools:text="News" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tv_update_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_muted"
+                android:textSize="@dimen/text_xs"
+                tools:text="Today" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_update_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_body"
+            android:fontFamily="sans-serif-medium"
+            tools:text="New Bengre–Hoode Coastal Seawall Project Approved" />
+
+        <TextView
+            android:id="@+id/tv_update_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_xs"
+            android:maxLines="2"
+            android:ellipsize="end"
+            tools:text="State fisheries and ports department sanctions ₹4.2 crore for sea erosion prevention." />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

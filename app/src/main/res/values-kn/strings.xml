@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ಹೂಡೆ ಕನೆಕ್ಟ್</string>
+    <string name="app_tagline">ನಿಮ್ಮ ಸಮುದಾಯ, ಸಂಪರ್ಕದಲ್ಲಿದೆ</string>
+
+    <string name="nav_home">ಮುಖಪುಟ</string>
+    <string name="nav_explore">ಅನ್ವೇಷಿಸಿ</string>
+    <string name="nav_create">ರಚಿಸಿ</string>
+    <string name="nav_inbox">ಸಂದೇಶಗಳು</string>
+    <string name="nav_profile">ಪ್ರೊಫೈಲ್</string>
+
+    <string name="home_greeting_morning">ಶುಭೋದಯ</string>
+    <string name="home_greeting_afternoon">ಶುಭ ಮಧ್ಯಾಹ್ನ</string>
+    <string name="home_greeting_evening">ಶುಭ ಸಂಜೆ</string>
+    <string name="home_greeting_default">ಅಸ್ಸಲಾಮು ಅಲೈಕುಮ್</string>
+    <string name="home_community_label">ಹೂಡೆ</string>
+    <string name="home_sponsored">ಪ್ರಾಯೋಜಿತ</string>
+
+    <string name="prayer_next">ಮುಂದಿನ ನಮಾಜ್</string>
+    <string name="prayer_fajr">ಫಜ್ರ್</string>
+    <string name="prayer_sunrise">ಸೂರ್ಯೋದಯ</string>
+    <string name="prayer_dhuhr">ಝುಹ್ರ್</string>
+    <string name="prayer_asr">ಅಸ್ರ್</string>
+    <string name="prayer_maghrib">ಮಗ್ರಿಬ್</string>
+    <string name="prayer_isha">ಇಶಾ</string>
+    <string name="prayer_manage_reminders">ಜ್ಞಾಪನೆಗಳನ್ನು ನಿರ್ವಹಿಸಿ</string>
+
+    <string name="action_emergency">ತುರ್ತು ಸೇವೆ</string>
+    <string name="action_blood">ರಕ್ತ ಸಹಾಯ</string>
+    <string name="action_jobs">ಉದ್ಯೋಗಗಳು</string>
+    <string name="action_events">ಕಾರ್ಯಕ್ರಮಗಳು</string>
+    <string name="action_services">ಸೇವೆಗಳು</string>
+
+    <string name="section_today">ಇಂದಿನ ಮುಖ್ಯಾಂಶಗಳು</string>
+    <string name="section_personality">ದೈನಂದಿನ ವ್ಯಕ್ತಿತ್ವ</string>
+    <string name="section_updates">ಇತ್ತೀಚಿನ ನವೀಕರಣಗಳು</string>
+    <string name="section_gallery">ಹೂಡೆ ಗ್ಯಾಲರಿ</string>
+    <string name="section_education">ಶಿಕ್ಷಣ</string>
+    <string name="section_activities">ಚಟುವಟಿಕೆಗಳು</string>
+    <string name="section_huffaz">ನಮ್ಮ ಹುಫ್ಫಾಝ್</string>
+    <string name="section_see_all">ಎಲ್ಲವನ್ನೂ ನೋಡಿ</string>
+
+    <string name="explore_faith_time">ನಂಬಿಕೆ ಮತ್ತು ಸಮಯ</string>
+    <string name="explore_help_services">ಸಹಾಯ ಮತ್ತು ಸೇವೆಗಳು</string>
+    <string name="explore_community">ಸಮುದಾಯ</string>
+    <string name="explore_learning_people">ಕಲಿಕೆ ಮತ್ತು ಜನರು</string>
+    <string name="explore_opportunities">ಅವಕಾಶಗಳು</string>
+    <string name="explore_search_hint">ಹೂಡೆ ಕನೆಕ್ಟ್ ಹುಡುಕಿ…</string>
+
+    <string name="feature_prayer">ನಮಾಜ್ ಸಮಯ</string>
+    <string name="feature_emergency">ತುರ್ತು ಸಂಪರ್ಕಗಳು</string>
+    <string name="feature_ramadan">ರಂಜಾನ್</string>
+    <string name="feature_jobs">ಉದ್ಯೋಗ ಮಂಡಳಿ</string>
+    <string name="feature_events">ಕಾರ್ಯಕ್ರಮಗಳು</string>
+    <string name="feature_tournaments">ಪಂದ್ಯಾವಳಿಗಳು</string>
+    <string name="feature_blood">ರಕ್ತ ದಾನಿಗಳ ಜಾಲ</string>
+    <string name="feature_polls">ಸಮೀಕ್ಷೆ ಮತ್ತು ನಾಗರಿಕ</string>
+    <string name="feature_badges">ಕೊಡುಗೆಗಳು</string>
+    <string name="feature_classifieds">ಮಾರುಕಟ್ಟೆ</string>
+    <string name="feature_news">ಸ್ಥಳೀಯ ಸುದ್ದಿ</string>
+    <string name="feature_providers">ಸೇವಾ ಪೂರೈಕೆದಾರರು</string>
+    <string name="feature_personality">ವ್ಯಕ್ತಿತ್ವ</string>
+    <string name="feature_gallery">ಫೋಟೋ ಗ್ಯಾಲರಿ</string>
+    <string name="feature_activities">ಚಟುವಟಿಕೆಗಳು</string>
+    <string name="feature_education">ಶಿಕ್ಷಣ</string>
+    <string name="feature_huffaz">ನಮ್ಮ ಹುಫ್ಫಾಝ್</string>
+    <string name="feature_lost_found">ಕಳೆದುಹೋದ ಮತ್ತು ಸಿಕ್ಕಿದ</string>
+
+    <string name="auth_sign_in">ಲಾಗಿನ್ ಮಾಡಿ</string>
+    <string name="auth_sign_up">ಖಾತೆ ತೆರೆಯಿರಿ</string>
+    <string name="auth_sign_out">ಲಾಗ್ ಔಟ್</string>
+    <string name="auth_email">ಇಮೇಲ್ ವಿಳಾಸ</string>
+    <string name="auth_password">ಪಾಸ್‌ವರ್ಡ್</string>
+
+    <string name="save">ಉಳಿಸಿ</string>
+    <string name="cancel">ರದ್ದುಮಾಡಿ</string>
+    <string name="submit">ಸಲ್ಲಿಸಿ</string>
+    <string name="back">ಹಿಂದೆ</string>
+    <string name="search">ಹುಡುಕಿ</string>
+</resources>

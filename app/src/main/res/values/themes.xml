@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- Hoode Connect — Canva-Inspired Material 3 Theme        -->
+    <!-- Royal Purple, Pastel Accents, Soft Elevated Surfaces    -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+
+    <style name="Theme.Hoode_app" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Primary colors — Canva Royal Purple -->
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/accent_soft</item>
+        <item name="colorOnPrimaryContainer">@color/accent_ink</item>
+
+        <!-- Secondary — Lavender Accent -->
+        <item name="colorSecondary">@color/canva_circle_lavender</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/accent_surface</item>
+        <item name="colorOnSecondaryContainer">@color/accent_ink</item>
+
+        <!-- Tertiary — Sky Blue / Info -->
+        <item name="colorTertiary">@color/canva_circle_blue</item>
+        <item name="colorOnTertiary">@color/white</item>
+
+        <!-- Background & Surface -->
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/surface_dim</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+
+        <!-- Outline -->
+        <item name="colorOutline">@color/border_soft</item>
+        <item name="colorOutlineVariant">@color/border_faint</item>
+
+        <!-- Error -->
+        <item name="colorError">@color/danger</item>
+        <item name="colorOnError">@color/white</item>
+        <item name="colorErrorContainer">@color/danger_soft</item>
+        <item name="colorOnErrorContainer">@color/danger</item>
+
+        <!-- System bars -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/surface</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+
+        <!-- Window -->
+        <item name="android:windowBackground">@color/background</item>
+
+        <!-- Default widget styles -->
+        <item name="materialCardViewStyle">@style/Widget.Hoode.Card</item>
+        <item name="chipStyle">@style/Widget.Hoode.Chip</item>
+        <item name="materialButtonStyle">@style/Widget.Hoode.Button.Primary</item>
+        <item name="textInputStyle">@style/Widget.Hoode.TextInput</item>
+
+        <!-- Bottom Navigation -->
+        <item name="bottomNavigationStyle">@style/Widget.Hoode.BottomNav</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">
+        <item name="cornerSize">50%</item>
+        <item name="cornerFamily">rounded</item>
+    </style>
+</resources>

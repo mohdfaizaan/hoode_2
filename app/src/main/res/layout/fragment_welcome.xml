@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="@dimen/screen_padding_horizontal">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.8" />
+
+    <!-- Brand Emblem -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="88dp"
+        android:layout_height="88dp"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/surface">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:background="@drawable/bg_card_bordered">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HC"
+                android:textColor="@color/accent_ink"
+                android:textSize="32sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_xl"
+        android:text="@string/auth_welcome_title"
+        android:textColor="@color/text_primary"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:lineSpacingExtra="4sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:layout_marginHorizontal="@dimen/spacing_lg"
+        android:text="@string/auth_welcome_subtitle"
+        android:textColor="@color/text_secondary"
+        android:textSize="15sp"
+        android:gravity="center"
+        android:lineSpacingExtra="3sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Action Buttons -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_google_sign_in"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height_primary"
+        android:text="Continue with Google"
+        android:textColor="@color/text_primary"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="15sp"
+        app:icon="@drawable/ic_google_color"
+        app:iconTint="@null"
+        app:iconGravity="textStart"
+        app:cornerRadius="24dp"
+        app:backgroundTint="@color/surface"
+        app:strokeColor="@color/border_green"
+        app:strokeWidth="1.5dp"
+        app:elevation="1dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_sign_in"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height_primary"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:text="Sign In with Email"
+        android:textColor="@color/white"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="15sp"
+        app:cornerRadius="24dp"
+        app:backgroundTint="@color/accent"
+        app:elevation="2dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_sign_up"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height_primary"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:text="@string/auth_sign_up"
+        android:textColor="@color/text_primary"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="15sp"
+        app:cornerRadius="24dp"
+        app:backgroundTint="@color/surface"
+        app:strokeColor="@color/border_green"
+        app:strokeWidth="1.5dp"
+        app:elevation="1dp" />
+
+    <TextView
+        android:id="@+id/btn_guest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_lg"
+        android:padding="@dimen/spacing_sm"
+        android:text="Continue as Guest"
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_xl"
+        android:layout_marginBottom="@dimen/spacing_md"
+        android:text="By continuing, you agree to our Terms of Service and Privacy Policy."
+        android:textColor="@color/text_muted"
+        android:textSize="12sp"
+        android:gravity="center" />
+
+</LinearLayout>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ہوڈے کنیکٹ</string>
+    <string name="app_tagline">آپ کی برادری، مربوط و متحد</string>
+
+    <string name="nav_home">ہوم</string>
+    <string name="nav_explore">دریافت</string>
+    <string name="nav_create">شامل کریں</string>
+    <string name="nav_inbox">پیغامات</string>
+    <string name="nav_profile">پروفائل</string>
+
+    <string name="home_greeting_morning">صبح بخیر</string>
+    <string name="home_greeting_afternoon">دوپہر بخیر</string>
+    <string name="home_greeting_evening">شام بخیر</string>
+    <string name="home_greeting_default">السلام علیکم</string>
+    <string name="home_community_label">ہوڈے</string>
+    <string name="home_sponsored">اشتہار</string>
+
+    <string name="prayer_next">اگلی نماز</string>
+    <string name="prayer_fajr">فجر</string>
+    <string name="prayer_sunrise">طلوع آفتاب</string>
+    <string name="prayer_dhuhr">ظہر</string>
+    <string name="prayer_asr">عصر</string>
+    <string name="prayer_maghrib">مغرب</string>
+    <string name="prayer_isha">عشاء</string>
+    <string name="prayer_manage_reminders">اوقات اور یاد دہانی</string>
+
+    <string name="action_emergency">ایمرجنسی</string>
+    <string name="action_blood">خون کا عطیہ</string>
+    <string name="action_jobs">ملازمتیں</string>
+    <string name="action_events">تقاریب</string>
+    <string name="action_services">خدمات</string>
+
+    <string name="section_today">آج کی اہم جھلکیاں</string>
+    <string name="section_personality">روزانہ کی شخصیت</string>
+    <string name="section_updates">تازہ ترین خبریں</string>
+    <string name="section_gallery">ہوڈے گیلری</string>
+    <string name="section_education">تعلیم و تربیت</string>
+    <string name="section_activities">سرگرمیاں</string>
+    <string name="section_huffaz">ہمارے حفاظ کرام</string>
+    <string name="section_see_all">سب دیکھیں</string>
+
+    <string name="explore_faith_time">دین اور وقت</string>
+    <string name="explore_help_services">مدد اور خدمات</string>
+    <string name="explore_community">برادری</string>
+    <string name="explore_learning_people">تعلیم اور شخصیات</string>
+    <string name="explore_opportunities">مواقع</string>
+    <string name="explore_search_hint">ہوڈے کنیکٹ میں تلاش کریں…</string>
+
+    <string name="feature_prayer">اوقات نماز</string>
+    <string name="feature_emergency">ہنگامی نمبرات</string>
+    <string name="feature_ramadan">رمضان المبارک</string>
+    <string name="feature_jobs">ملازمت کے مواقع</string>
+    <string name="feature_events">تقاریب</string>
+    <string name="feature_tournaments">کھیل اور مقابلے</string>
+    <string name="feature_blood">بلڈ ڈونر نیٹ ورک</string>
+    <string name="feature_polls">رائے دہی اور مسائل</string>
+    <string name="feature_badges">خدمات اور انعامات</string>
+    <string name="feature_classifieds">مارکیٹ پلیس</string>
+    <string name="feature_news">مصدقہ خبریں</string>
+    <string name="feature_providers">ماہر کاریگر</string>
+    <string name="feature_personality">روزانہ کی شخصیت</string>
+    <string name="feature_gallery">تصویری گیلری</string>
+    <string name="feature_activities">سرگرمیاں</string>
+    <string name="feature_education">تعلیمی مواقع</string>
+    <string name="feature_huffaz">حفاظ کرام</string>
+    <string name="feature_lost_found">گمشدہ اور دستیاب</string>
+
+    <string name="auth_sign_in">داخل ہوں</string>
+    <string name="auth_sign_up">نیا اکاؤنٹ بنائیں</string>
+    <string name="auth_sign_out">باہر نکلیں</string>
+    <string name="auth_email">ای میل ایڈریس</string>
+    <string name="auth_password">پاس ورڈ</string>
+
+    <string name="save">محفوظ کریں</string>
+    <string name="cancel">منسوخ</string>
+    <string name="submit">جمع کریں</string>
+    <string name="back">واپس</string>
+    <string name="search">تلاش کریں</string>
+</resources>

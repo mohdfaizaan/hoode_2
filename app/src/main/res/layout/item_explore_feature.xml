@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/spacing_sm"
+    app:cardCornerRadius="@dimen/radius_control"
+    app:cardElevation="@dimen/elevation_sm"
+    app:strokeColor="@color/border_soft"
+    app:strokeWidth="@dimen/card_stroke"
+    app:contentPadding="@dimen/spacing_lg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="@dimen/touch_target_preferred"
+            android:layout_height="@dimen/touch_target_preferred"
+            android:background="@drawable/bg_quick_action">
+
+            <ImageView
+                android:id="@+id/iv_feature_icon"
+                android:layout_width="@dimen/icon_md"
+                android:layout_height="@dimen/icon_md"
+                android:layout_gravity="center"
+                tools:src="@drawable/ic_events" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_feature_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_body"
+                android:fontFamily="sans-serif-medium"
+                tools:text="Events" />
+
+            <TextView
+                android:id="@+id/tv_feature_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xxs"
+                android:textColor="@color/text_muted"
+                android:textSize="@dimen/text_xs"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="Community gatherings" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="@dimen/icon_sm"
+            android:layout_height="@dimen/icon_sm"
+            android:src="@drawable/ic_chevron_right"
+            android:alpha="0.4" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

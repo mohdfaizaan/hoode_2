@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/spacing_xxxl">
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- PROFILE HEADER                                      -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/spacing_xxl"
+            android:paddingBottom="@dimen/spacing_lg">
+
+            <!-- Avatar with Accent Edit Badge -->
+            <FrameLayout
+                android:layout_width="@dimen/avatar_xl"
+                android:layout_height="@dimen/avatar_xl">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/iv_avatar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_quick_action"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                    android:contentDescription="@string/cd_profile_avatar"
+                    tools:src="@drawable/ic_nav_profile" />
+
+                <ImageView
+                    android:id="@+id/btn_edit_avatar"
+                    android:layout_width="@dimen/icon_lg"
+                    android:layout_height="@dimen/icon_lg"
+                    android:layout_gravity="bottom|end"
+                    android:background="@drawable/bg_button_accent_gradient"
+                    android:padding="@dimen/spacing_xs"
+                    android:src="@drawable/ic_nav_create"
+                    android:scaleType="center"
+                    android:contentDescription="Edit Avatar" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tv_display_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:textAppearance="@style/TextAppearance.Hoode.Headline"
+                tools:text="Faizan" />
+
+            <TextView
+                android:id="@+id/tv_community_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:background="@drawable/bg_sponsored_badge"
+                android:paddingHorizontal="@dimen/spacing_md"
+                android:paddingVertical="@dimen/spacing_xs"
+                android:textColor="@color/accent_ink"
+                android:textSize="@dimen/text_sm"
+                android:fontFamily="sans-serif-medium"
+                tools:text="Hoode • Verified Resident" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_edit_profile"
+                style="@style/Widget.Hoode.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/button_height_sm"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:text="@string/profile_edit"
+                android:textSize="@dimen/text_sm" />
+        </LinearLayout>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- CREDIBILITY STATS STRIP                             -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/screen_padding_horizontal"
+            android:layout_marginBottom="@dimen/spacing_lg"
+            app:cardCornerRadius="@dimen/radius_card"
+            app:cardElevation="@dimen/elevation_sm"
+            app:strokeColor="@color/border_primary"
+            app:strokeWidth="@dimen/card_stroke"
+            app:contentPadding="@dimen/spacing_md">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:baselineAligned="false">
+
+                <!-- Stat 1: Posts -->
+                <LinearLayout
+                    android:id="@+id/stat_posts_container"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_stat_posts"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="4"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Listings &amp; Posts"
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="24dp"
+                    android:background="@color/border_soft" />
+
+                <!-- Stat 2: Bookmarks -->
+                <LinearLayout
+                    android:id="@+id/stat_bookmarks_container"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_stat_bookmarks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="5"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Saved Items"
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SECTION 1: COMMUNITY & CONTENT                      -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/screen_padding_horizontal"
+            android:layout_marginBottom="@dimen/spacing_xs"
+            android:text="COMMUNITY &amp; CONTENT"
+            android:textColor="@color/text_muted"
+            android:textSize="11sp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.08" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/screen_padding_horizontal"
+            android:layout_marginBottom="@dimen/spacing_lg"
+            app:cardCornerRadius="@dimen/radius_card"
+            app:cardElevation="@dimen/elevation_sm"
+            app:strokeColor="@color/border_primary"
+            app:strokeWidth="@dimen/card_stroke">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:divider="@drawable/bg_divider"
+                android:showDividers="middle">
+
+                <!-- My Posts & Listings -->
+                <include layout="@layout/item_profile_menu"
+                    android:id="@+id/menu_my_posts" />
+
+                <!-- Bookmarks -->
+                <include layout="@layout/item_profile_menu"
+                    android:id="@+id/menu_bookmarks" />
+
+                <!-- Notifications -->
+                <include layout="@layout/item_profile_menu"
+                    android:id="@+id/menu_notifications" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SECTION 2: RESIDENT SERVICES & HEALTH               -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/screen_padding_horizontal"
+            android:layout_marginBottom="@dimen/spacing_xs"
+            android:text="RESIDENT IDENTITY &amp; HEALTH"
+            android:textColor="@color/text_muted"
+            android:textSize="11sp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.08" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/screen_padding_horizontal"
+            android:layout_marginBottom="@dimen/spacing_lg"
+            app:cardCornerRadius="@dimen/radius_card"
+            app:cardElevation="@dimen/elevation_sm"
+            app:strokeColor="@color/border_primary"
+            app:strokeWidth="@dimen/card_stroke">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:divider="@drawable/bg_divider"
+                android:showDividers="middle">
+
+                <!-- Emergency Medical Profile -->
+                <include layout="@layout/item_profile_menu"
+                    android:id="@+id/menu_medical" />
+
+                <!-- Help & Support -->
+                <include layout="@layout/item_profile_menu"
+                    android:id="@+id/menu_help" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SECTION 3: PREFERENCES & SYSTEM                     -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/screen_padding_horizontal"
+            android:layout_marginBottom="@dimen/spacing_xs"
+            android:text="PREFERENCES &amp; SECURITY"
+            android:textColor="@color/text_muted"
+            android:textSize="11sp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.08" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/screen_padding_horizontal"
+            app:cardCornerRadius="@dimen/radius_card"
+            app:cardElevation="@dimen/elevation_sm"
+            app:strokeColor="@color/border_primary"
+            app:strokeWidth="@dimen/card_stroke">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:divider="@drawable/bg_divider"
+                android:showDividers="middle">
+
+                <!-- Language -->
+                <include layout="@layout/item_profile_menu"
+                    android:id="@+id/menu_language" />
+
+                <!-- Privacy & RLS Policy -->
+                <include layout="@layout/item_profile_menu"
+                    android:id="@+id/menu_privacy" />
+
+                <!-- Sync & Settings -->
+                <include layout="@layout/item_profile_menu"
+                    android:id="@+id/menu_settings" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- ADMIN CONSOLE (ROLE-GATED)                          -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/admin_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/screen_padding_horizontal"
+            android:layout_marginTop="@dimen/spacing_lg"
+            app:cardCornerRadius="@dimen/radius_card"
+            app:cardElevation="@dimen/elevation_sm"
+            app:strokeColor="@color/accent"
+            app:strokeWidth="@dimen/card_stroke"
+            app:contentPadding="@dimen/spacing_lg">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="@dimen/touch_target_preferred"
+                    android:layout_height="@dimen/touch_target_preferred"
+                    android:background="@drawable/bg_quick_action">
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_md"
+                        android:layout_height="@dimen/icon_md"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_admin" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_md"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/profile_admin"
+                            android:textColor="@color/accent_ink"
+                            android:textSize="@dimen/text_body"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_sm"
+                            android:background="@drawable/bg_pill_accent"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:text="Admin"
+                            android:textColor="@color/accent_ink"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Manage ads, timings, huffaz and news verification"
+                        android:textColor="@color/text_muted"
+                        android:textSize="@dimen/text_xs" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="@dimen/icon_sm"
+                    android:layout_height="@dimen/icon_sm"
+                    android:src="@drawable/ic_chevron_right"
+                    android:alpha="0.4"
+                    android:importantForAccessibility="no" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SIGN OUT BUTTON                                     -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_sign_out"
+            style="@style/Widget.Hoode.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/spacing_xxl"
+            android:text="@string/auth_sign_out"
+            android:textColor="@color/danger" />
+
+        <!-- App Metadata -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:text="Hoode Connect v1.0.0 • Built for Hoode, Bengre &amp; Kodi"
+            android:textColor="@color/text_muted"
+            android:textSize="@dimen/text_xs" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical">
+
+    <!-- Interactive Search Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/input_height"
+        android:layout_marginHorizontal="@dimen/screen_padding_horizontal"
+        android:layout_marginTop="@dimen/spacing_lg"
+        android:background="@drawable/bg_search_bar"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/spacing_lg"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/icon_sm"
+            android:layout_height="@dimen/icon_sm"
+            android:src="@drawable/ic_search"
+            android:alpha="0.6" />
+
+        <EditText
+            android:id="@+id/et_explore_search"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:background="@null"
+            android:hint="Search 20 modules, mosques, services..."
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_muted"
+            android:textSize="@dimen/text_body"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1" />
+
+        <ImageView
+            android:id="@+id/btn_clear_search"
+            android:layout_width="@dimen/icon_sm"
+            android:layout_height="@dimen/icon_sm"
+            android:src="@drawable/ic_close"
+            android:visibility="gone"
+            android:alpha="0.5" />
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_explore"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/spacing_md">
+
+        <LinearLayout
+            android:id="@+id/ll_explore_categories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/spacing_massive">
+
+            <!-- Category: Faith & Time -->
+            <TextView
+                android:id="@+id/header_faith"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Hoode.SectionHeader"
+                android:text="@string/explore_faith_time" />
+
+            <LinearLayout
+                android:id="@+id/row_faith"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal">
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_prayer"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_sm" />
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_ramadan"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_sm" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/row_faith_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal">
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_calendar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_sm" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_sm" />
+            </LinearLayout>
+
+            <!-- Category: Help & Emergency -->
+            <TextView
+                android:id="@+id/header_help"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Hoode.SectionHeader"
+                android:text="@string/explore_help_services" />
+
+            <LinearLayout
+                android:id="@+id/row_help"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal">
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_emergency"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_sm" />
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_blood"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_sm" />
+            </LinearLayout>
+
+            <!-- Category: Community Gatherings & Sports -->
+            <TextView
+                android:id="@+id/header_community"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Hoode.SectionHeader"
+                android:text="@string/explore_community" />
+
+            <LinearLayout
+                android:id="@+id/row_community_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal">
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_events"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_sm" />
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_activities"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_sm" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/row_community_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal">
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_tournaments"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_sm" />
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_lost_found"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_sm" />
+            </LinearLayout>
+
+            <!-- Category: Heritage & People -->
+            <TextView
+                android:id="@+id/header_learning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Hoode.SectionHeader"
+                android:text="@string/explore_learning_people" />
+
+            <LinearLayout
+                android:id="@+id/row_learning_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal">
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_education"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_sm" />
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_huffaz"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_sm" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/row_learning_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal">
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_personality"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_sm" />
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_gallery"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_sm" />
+            </LinearLayout>
+
+            <!-- Category: Opportunities & Commerce -->
+            <TextView
+                android:id="@+id/header_opportunities"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Hoode.SectionHeader"
+                android:text="@string/explore_opportunities" />
+
+            <LinearLayout
+                android:id="@+id/row_opportunities_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal">
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_jobs"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_sm" />
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_marketplace"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_sm" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/row_opportunities_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal">
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_providers"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_sm" />
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_news"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_sm" />
+            </LinearLayout>
+
+            <!-- Category: Civic Voice & Rewards -->
+            <TextView
+                android:id="@+id/header_civic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Hoode.SectionHeader"
+                android:text="Civic Voice &amp; Rewards" />
+
+            <LinearLayout
+                android:id="@+id/row_civic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/screen_padding_horizontal">
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_polls"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_sm" />
+
+                <include layout="@layout/item_explore_feature"
+                    android:id="@+id/feature_badges"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_sm" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>
