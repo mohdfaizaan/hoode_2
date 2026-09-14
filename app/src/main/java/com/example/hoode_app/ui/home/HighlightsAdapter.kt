@@ -3,8 +3,10 @@ package com.example.hoode_app.ui.home
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.example.hoode_app.R
 
 class HighlightsAdapter(
@@ -13,6 +15,7 @@ class HighlightsAdapter(
 ) : RecyclerView.Adapter<HighlightsAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val ivImage: ImageView = itemView.findViewById(R.id.iv_highlight_image)
         val tvTitle: TextView = itemView.findViewById(R.id.tv_highlight_title)
         val tvSubtitle: TextView = itemView.findViewById(R.id.tv_highlight_subtitle)
         val tvCategory: TextView = itemView.findViewById(R.id.tv_category)
@@ -29,6 +32,15 @@ class HighlightsAdapter(
         holder.tvTitle.text = item.title
         holder.tvSubtitle.text = item.subtitle
         holder.tvCategory.text = item.category
+
+        if (!item.imageUrl.isNullOrBlank()) {
+            holder.ivImage.load(item.imageUrl) {
+                crossfade(true)
+                placeholder(R.drawable.bg_gallery_luxury_gradient)
+                error(R.drawable.bg_gallery_luxury_gradient)
+            }
+        }
+
         holder.itemView.setOnClickListener {
             onItemClick?.invoke(item)
         }

@@ -292,7 +292,8 @@ data class PersonalityProfile(
     val intro: String,
     val fullBiography: String,
     val contributions: List<String>,
-    val quote: String
+    val quote: String,
+    val imageUrl: String = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80"
 )
 
 // ── F17: Hoode Photo Gallery ─────────────────────────────────
@@ -303,7 +304,8 @@ data class GalleryItem(
     val caption: String,
     val photographer: String,
     val sortOrder: Int,
-    val colorHex: String = "#62E8CF"
+    val colorHex: String = "#62E8CF",
+    val imageUrl: String = ""
 )
 
 // ── F18: Activities ──────────────────────────────────────────
@@ -342,7 +344,8 @@ data class HuffazProfile(
     val completionYear: String,
     val institution: String,
     val teacher: String,
-    val biography: String
+    val biography: String,
+    val imageUrl: String = "https://images.unsplash.com/photo-1544717305-2782549b5136?w=300&auto=format&fit=crop&q=80"
 )
 
 // ── Carousel Slide (F00) ─────────────────────────────────────
@@ -354,7 +357,8 @@ data class AdCarouselSlide(
     val advertiser: String,
     val ctaLabel: String? = "Learn More",
     val ctaUrl: String? = null,
-    var isEnabled: Boolean = true
+    var isEnabled: Boolean = true,
+    val imageUrl: String? = null
 )
 
 // ── Calendar (Explore) ───────────────────────────────────

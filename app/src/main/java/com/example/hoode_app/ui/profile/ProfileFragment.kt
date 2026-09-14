@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 import androidx.activity.result.contract.ActivityResultContracts
+import coil.load
 
 class ProfileFragment : Fragment() {
 
@@ -76,15 +77,17 @@ class ProfileFragment : Fragment() {
                     binding.tvDisplayName.text = user.displayName
                     val isAdmin = user.roles.contains("community_admin")
                     val roleLabel = if (isAdmin) "Community Admin" else "Resident"
-                    binding.tvCommunityBadge.text = "Hoode & Bengre • $roleLabel"
+                    binding.tvCommunityBadge.text = "Hoode • $roleLabel"
                     binding.adminCard.visibility = if (isAdmin) View.VISIBLE else View.GONE
                     
                     if (user.profilePicUri != null) {
                         try {
                             binding.ivAvatar.setImageURI(Uri.parse(user.profilePicUri))
                         } catch (e: Exception) {
-                            e.printStackTrace()
+                            binding.ivAvatar.load("https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop&q=80") { crossfade(true) }
                         }
+                    } else {
+                        binding.ivAvatar.load("https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop&q=80") { crossfade(true) }
                     }
                 } else {
                     binding.tvDisplayName.text = "Guest"

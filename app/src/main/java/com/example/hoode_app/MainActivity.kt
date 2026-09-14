@@ -44,8 +44,10 @@ class MainActivity : AppCompatActivity() {
                 R.id.profileFragment -> true
                 else -> false
             }
-            binding.bottomNavigation.visibility = if (showNav) android.view.View.VISIBLE else android.view.View.GONE
-            binding.bottomNavDivider.visibility = if (showNav) android.view.View.VISIBLE else android.view.View.GONE
+            val vis = if (showNav) android.view.View.VISIBLE else android.view.View.GONE
+            binding.cardBottomNav.visibility = vis
+            binding.bottomNavigation.visibility = vis
+            binding.bottomNavDivider.visibility = android.view.View.GONE
         }
     }
 }

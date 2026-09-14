@@ -18,38 +18,51 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="88dp">
+            android:paddingBottom="76dp">
 
             <!-- ═══════════════════════════════════════════════════ -->
-            <!-- TOP BAR (CANVA PASTEL GRADIENT HEADER)              -->
-            <!-- (Search bar removed per user instructions)          -->
+            <!-- AIRTEL-STYLE TOP ACTION BAR                         -->
             <!-- ═══════════════════════════════════════════════════ -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_header_gradient"
-                android:paddingBottom="@dimen/spacing_lg">
+                android:background="@color/surface"
+                android:paddingTop="@dimen/spacing_md"
+                android:paddingBottom="@dimen/spacing_xs">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:id="@+id/top_bar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingStart="@dimen/screen_padding_horizontal"
-                    android:paddingEnd="@dimen/screen_padding_horizontal"
-                    android:paddingTop="@dimen/spacing_md"
-                    android:paddingBottom="@dimen/spacing_xs">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="@dimen/screen_padding_horizontal">
 
-                    <!-- Left Column: Community Selector & Date -->
+                    <!-- Hamburger Menu Button (Airtel style) -->
+                    <FrameLayout
+                        android:id="@+id/btn_menu_drawer"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Menu">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center_vertical|start"
+                            android:src="@drawable/ic_menu_hamburger"
+                            app:tint="@color/text_primary" />
+                    </FrameLayout>
+
+                    <!-- Community Selector & Date (Center/Left) -->
                     <LinearLayout
                         android:id="@+id/community_container"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginEnd="@dimen/spacing_sm"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/btn_notification">
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        android:orientation="vertical">
 
                         <!-- Community selector pill -->
                         <LinearLayout
@@ -59,69 +72,66 @@
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
                             android:background="@drawable/bg_search_bar"
-                            android:paddingHorizontal="@dimen/spacing_md"
-                            android:paddingVertical="@dimen/spacing_xs">
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp">
 
                             <TextView
                                 android:id="@+id/tv_community_name"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/home_community_label"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="@dimen/text_sm"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
                                 android:fontFamily="sans-serif-medium" />
 
                             <ImageView
-                                android:layout_width="@dimen/icon_xs"
-                                android:layout_height="@dimen/icon_xs"
-                                android:layout_marginStart="@dimen/spacing_xs"
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_marginStart="4dp"
                                 android:src="@drawable/ic_chevron_down"
                                 android:contentDescription="@string/cd_community_selector"
-                                android:importantForAccessibility="no" />
+                                app:tint="@color/text_secondary" />
                         </LinearLayout>
 
-                        <!-- Greeting & Date -->
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:layout_marginTop="@dimen/spacing_xs">
+                            android:layout_marginTop="2dp">
 
                             <TextView
                                 android:id="@+id/tv_greeting"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-medium"
-                                android:textColor="@color/text_primary"
-                                android:textSize="@dimen/text_sm"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="11sp"
                                 tools:text="Assalamu Alaikum" />
 
                             <TextView
                                 android:id="@+id/tv_date"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="@dimen/spacing_sm"
+                                android:layout_marginStart="4dp"
                                 android:textColor="@color/text_muted"
-                                android:textSize="@dimen/text_xs"
-                                tools:text="• 10 Sep 2026" />
+                                android:textSize="10sp"
+                                tools:text="• 13 Sep 2026" />
                         </LinearLayout>
                     </LinearLayout>
 
-                    <!-- Notification bell -->
+                    <!-- Notification Bell -->
                     <FrameLayout
                         android:id="@+id/btn_notification"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:layout_marginStart="4dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/cd_notification_bell"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent">
+                        android:contentDescription="@string/cd_notification_bell">
 
                         <ImageView
-                            android:layout_width="@dimen/icon_md"
-                            android:layout_height="@dimen/icon_md"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_notification_bell" />
 
@@ -143,53 +153,29 @@
                             tools:text="3" />
                     </FrameLayout>
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                </LinearLayout>
 
             </LinearLayout>
 
             <!-- ═══════════════════════════════════════════════════ -->
-            <!-- 1. SPONSORED SECTION (IN THE BEGINNING)             -->
+            <!-- 1. SPONSORED PARTNER SHOWCASE (5-SLIDE CAROUSEL)    -->
             <!-- ═══════════════════════════════════════════════════ -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="@dimen/screen_padding_horizontal"
-                android:paddingTop="@dimen/spacing_md">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Sponsored"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/text_title"
-                    android:fontFamily="sans-serif-medium" />
-
-                <TextView
-                    android:id="@+id/btn_carousel_see_all"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="See all"
-                    android:textColor="@color/accent"
-                    android:textSize="@dimen/text_sm"
-                    android:fontFamily="sans-serif-medium" />
-            </LinearLayout>
-
-            <!-- 5-Slide Advertisement Carousel -->
             <FrameLayout
                 android:id="@+id/carousel_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_sm"
+                android:layout_marginTop="12dp"
                 android:paddingHorizontal="@dimen/screen_padding_horizontal">
 
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_carousel"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/carousel_height"
+                    android:clipToOutline="true"
+                    android:clipChildren="true"
                     app:cardCornerRadius="20dp"
                     app:cardElevation="2dp"
+                    app:cardPreventCornerOverlap="true"
                     app:cardBackgroundColor="@color/surface"
                     app:strokeColor="@color/border_green"
                     app:strokeWidth="1.5dp">
@@ -197,7 +183,9 @@
                     <androidx.viewpager2.widget.ViewPager2
                         android:id="@+id/carousel_pager"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                        android:layout_height="match_parent"
+                        android:clipToOutline="true"
+                        android:clipChildren="true" />
 
                     <!-- Sponsored badge -->
                     <TextView
@@ -212,7 +200,7 @@
                         android:textSize="@dimen/text_xs"
                         android:fontFamily="sans-serif-medium" />
 
-                    <!-- Canva 3-dot overflow menu -->
+                    <!-- 3-dot menu -->
                     <FrameLayout
                         android:id="@+id/btn_carousel_menu"
                         android:layout_width="28dp"
@@ -228,30 +216,45 @@
                             android:src="@drawable/ic_more_horiz" />
                     </FrameLayout>
 
+                    <!-- Bottom row: Indicators -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|start"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="@dimen/spacing_md"
+                        android:paddingBottom="@dimen/spacing_sm">
+
+                        <LinearLayout
+                            android:id="@+id/carousel_indicators"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+
+                        <TextView
+                            android:id="@+id/btn_carousel_see_all"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
                 </com.google.android.material.card.MaterialCardView>
             </FrameLayout>
 
-            <!-- Page indicator dots -->
-            <LinearLayout
-                android:id="@+id/carousel_indicators"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="@dimen/spacing_md"
-                android:gravity="center"
-                android:orientation="horizontal" />
-
             <!-- ═══════════════════════════════════════════════════ -->
-            <!-- 2. NEXT PRAYER SECTION                              -->
+            <!-- 2. PRAYER TIMINGS (HERO SERVICE CARD)               -->
             <!-- ═══════════════════════════════════════════════════ -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_xl"
+                android:layout_marginTop="@dimen/spacing_lg"
                 android:paddingHorizontal="@dimen/screen_padding_horizontal"
-                android:text="Next Prayer"
-                android:textColor="@color/text_primary"
-                android:textSize="@dimen/text_title"
+                android:text="PRAYER TIMINGS"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:letterSpacing="0.08"
+                android:textStyle="bold"
                 android:fontFamily="sans-serif-medium" />
 
             <com.google.android.material.card.MaterialCardView
@@ -259,122 +262,157 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/screen_padding_horizontal"
-                android:layout_marginTop="@dimen/spacing_sm"
+                android:layout_marginTop="8dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="2dp"
                 app:cardBackgroundColor="@color/surface"
                 app:strokeColor="@color/border_green"
-                app:strokeWidth="1.5dp"
-                app:contentPadding="@dimen/spacing_lg">
+                app:strokeWidth="1.5dp">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp">
 
-                    <!-- Prayer label -->
-                    <TextView
-                        android:id="@+id/tv_prayer_label"
-                        android:layout_width="wrap_content"
+                    <!-- Left: Squircle Icon Box -->
+                    <FrameLayout
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_airtel_tab_squircle">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_mosque_prayer"
+                            app:tint="@color/accent" />
+                    </FrameLayout>
+
+                    <!-- Center: Service info -->
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/prayer_next"
-                        android:textColor="@color/accent"
-                        android:textSize="@dimen/text_xs"
-                        android:fontFamily="sans-serif-medium"
-                        android:textAllCaps="true"
-                        android:letterSpacing="0.08"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:layout_marginStart="14dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                    <!-- Prayer name -->
-                    <TextView
-                        android:id="@+id/tv_prayer_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_xs"
-                        android:textColor="@color/text_primary"
-                        android:textSize="@dimen/text_headline"
-                        android:fontFamily="sans-serif-medium"
-                        tools:text="Maghrib"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tv_prayer_label" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
 
-                    <!-- Prayer time -->
-                    <TextView
-                        android:id="@+id/tv_prayer_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_xs"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="@dimen/text_body"
-                        tools:text="6:15 PM • Iqamah 6:25 PM"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tv_prayer_name" />
+                            <TextView
+                                android:id="@+id/tv_prayer_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Next Prayer: Asr"
+                                android:textColor="@color/text_primary"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:fontFamily="sans-serif-medium" />
 
-                    <!-- Mosque name -->
-                    <TextView
-                        android:id="@+id/tv_mosque_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_xs"
-                        android:textColor="@color/accent"
-                        android:textSize="@dimen/text_sm"
-                        android:fontFamily="sans-serif-medium"
-                        android:drawablePadding="@dimen/spacing_xs"
-                        tools:text="Hoode Juma Masjid"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tv_prayer_time" />
+                            <TextView
+                                android:id="@+id/tv_prayer_time"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:text="• 4:35 PM"
+                                android:textColor="@color/accent"
+                                android:textSize="14sp"
+                                android:fontFamily="sans-serif-medium" />
+                        </LinearLayout>
 
-                    <!-- Manage reminders button -->
-                    <com.google.android.material.button.MaterialButton
+                        <TextView
+                            android:id="@+id/tv_prayer_sub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Iqamah 4:50 PM"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tv_mosque_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Jamia Masjid Hoode"
+                            android:textColor="@color/text_muted"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <!-- Right: Circular Countdown Progress Bar (Interactive) -->
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_gravity="center_vertical">
+
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/prayer_countdown_ring"
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:layout_gravity="center"
+                            android:progress="65"
+                            android:max="100"
+                            app:indicatorColor="@color/accent"
+                            app:indicatorSize="56dp"
+                            app:trackColor="@color/prayer_ring_track"
+                            app:trackCornerRadius="4dp"
+                            app:trackThickness="4dp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_countdown"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/accent_ink"
+                                android:textSize="11sp"
+                                android:textStyle="bold"
+                                android:fontFamily="sans-serif-medium"
+                                tools:text="15m" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="LEFT"
+                                android:textColor="@color/text_muted"
+                                android:textSize="7sp"
+                                android:letterSpacing="0.05"
+                                android:fontFamily="sans-serif-medium" />
+                        </LinearLayout>
+                    </FrameLayout>
+
+                    <!-- Hidden bindings to preserve compatibility -->
+                    <View
                         android:id="@+id/btn_manage_reminders"
-                        style="@style/Widget.Hoode.Button.Text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/prayer_manage_reminders"
-                        android:textSize="@dimen/text_sm"
-                        android:textColor="@color/accent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tv_mosque_name"
-                        app:icon="@drawable/ic_chevron_right"
-                        app:iconTint="@color/accent"
-                        app:iconGravity="end"
-                        app:iconSize="@dimen/icon_xs" />
-
-                    <!-- Countdown ring -->
-                    <com.google.android.material.progressindicator.CircularProgressIndicator
-                        android:id="@+id/prayer_countdown_ring"
-                        android:layout_width="@dimen/prayer_ring_size"
-                        android:layout_height="@dimen/prayer_ring_size"
-                        android:contentDescription="@string/cd_prayer_countdown"
-                        app:indicatorColor="@color/accent"
-                        app:trackColor="@color/prayer_ring_track"
-                        app:trackThickness="@dimen/prayer_ring_stroke"
-                        app:indicatorSize="@dimen/prayer_ring_size"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        tools:progress="65" />
-
-                    <!-- Countdown text inside ring -->
-                    <TextView
-                        android:id="@+id/tv_countdown"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
-                        android:gravity="center"
-                        android:textColor="@color/accent"
-                        android:textSize="@dimen/text_lg"
-                        android:fontFamily="sans-serif-medium"
-                        tools:text="1h 23m"
-                        app:layout_constraintStart_toStartOf="@id/prayer_countdown_ring"
-                        app:layout_constraintEnd_toEndOf="@id/prayer_countdown_ring"
-                        app:layout_constraintTop_toTopOf="@id/prayer_countdown_ring"
-                        app:layout_constraintBottom_toBottomOf="@id/prayer_countdown_ring" />
+                        android:visibility="gone" />
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                    <!-- Right: Chevron Right -->
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginStart="6dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/text_muted" />
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- ═══════════════════════════════════════════════════ -->
-            <!-- 3. ACTIVITIES SECTION (6 BOXES)                     -->
+            <!-- AIRTEL-STYLE 'BUY PRODUCTS' -> COMMUNITY ACTIVITIES -->
+            <!-- (3x3 Grid of 9 Cards)                              -->
             <!-- ═══════════════════════════════════════════════════ -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -382,36 +420,39 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:paddingHorizontal="@dimen/screen_padding_horizontal"
-                android:paddingTop="@dimen/spacing_xxl">
+                android:paddingTop="@dimen/spacing_xl">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Activities"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/text_title"
+                    android:text="COMMUNITY ACTIVITIES"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:letterSpacing="0.08"
+                    android:textStyle="bold"
                     android:fontFamily="sans-serif-medium" />
 
                 <TextView
                     android:id="@+id/btn_activities_see_all"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="See all"
+                    android:text="View All"
                     android:textColor="@color/accent"
-                    android:textSize="@dimen/text_sm"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
                     android:fontFamily="sans-serif-medium" />
             </LinearLayout>
 
-            <!-- 6 Boxes Grid (2 Columns x 3 Rows) -->
+            <!-- 3x3 Grid of 9 Cards -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingHorizontal="@dimen/screen_padding_horizontal"
-                android:paddingTop="@dimen/spacing_sm">
+                android:paddingTop="10dp">
 
-                <!-- Row 1: 1. Religious & 2. Community -->
+                <!-- Row 1: Religious, Community, Social -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -421,10 +462,10 @@
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/box_act_religious"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="124dp"
                         android:layout_weight="1"
-                        android:layout_marginEnd="@dimen/spacing_sm"
-                        app:cardCornerRadius="18dp"
+                        android:layout_marginEnd="6dp"
+                        app:cardCornerRadius="16dp"
                         app:cardElevation="2dp"
                         app:cardBackgroundColor="@color/surface"
                         app:strokeColor="@color/border_green"
@@ -432,110 +473,108 @@
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="@dimen/spacing_md">
+                            android:padding="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Religious"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
 
                             <FrameLayout
-                                android:layout_width="38dp"
-                                android:layout_height="38dp"
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:layout_marginTop="10dp"
                                 android:background="@drawable/bg_ring_circle_green">
+
                                 <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_category_prayer"
                                     app:tint="@color/accent" />
                             </FrameLayout>
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_sm"
-                                android:text="1. Religious"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
-                                android:fontFamily="sans-serif-medium" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Halaqa &amp; Classes"
-                                android:textColor="@color/text_muted"
-                                android:textSize="11sp"
-                                android:maxLines="1" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- 2. Community -->
+                    <!-- 2. Community (with LIVE badge) -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/box_act_community"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="124dp"
                         android:layout_weight="1"
-                        android:layout_marginStart="@dimen/spacing_sm"
-                        app:cardCornerRadius="18dp"
+                        android:layout_marginHorizontal="3dp"
+                        app:cardCornerRadius="16dp"
                         app:cardElevation="2dp"
                         app:cardBackgroundColor="@color/surface"
                         app:strokeColor="@color/border_green"
                         app:strokeWidth="1.5dp">
 
-                        <LinearLayout
+                        <FrameLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="@dimen/spacing_md">
+                            android:layout_height="match_parent">
 
-                            <FrameLayout
-                                android:layout_width="38dp"
-                                android:layout_height="38dp"
-                                android:background="@drawable/bg_ring_circle_teal">
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_category_community"
-                                    app:tint="@color/accent" />
-                            </FrameLayout>
-
+                            <!-- Top Edge Badge (Airtel style) -->
                             <TextView
-                                android:layout_width="match_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_sm"
-                                android:text="2. Community"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
+                                android:layout_gravity="top|center_horizontal"
+                                android:background="@drawable/bg_airtel_badge_dark"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="2dp"
+                                android:text="LIVE"
+                                android:textColor="@color/white"
+                                android:textSize="8sp"
                                 android:fontFamily="sans-serif-medium" />
 
-                            <TextView
+                            <LinearLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Welfare &amp; Drives"
-                                android:textColor="@color/text_muted"
-                                android:textSize="11sp"
-                                android:maxLines="1" />
-                        </LinearLayout>
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="8dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="6dp"
+                                    android:text="Community"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="12sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold" />
+
+                                <FrameLayout
+                                    android:layout_width="44dp"
+                                    android:layout_height="44dp"
+                                    android:layout_marginTop="8dp"
+                                    android:background="@drawable/bg_ring_circle_teal">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/ic_category_community"
+                                        app:tint="@color/accent" />
+                                </FrameLayout>
+                            </LinearLayout>
+                        </FrameLayout>
                     </com.google.android.material.card.MaterialCardView>
-
-                </LinearLayout>
-
-                <!-- Row 2: 3. Social & 4. Sports -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="@dimen/spacing_md">
 
                     <!-- 3. Social -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/box_act_social"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="124dp"
                         android:layout_weight="1"
-                        android:layout_marginEnd="@dimen/spacing_sm"
-                        app:cardCornerRadius="18dp"
+                        android:layout_marginStart="6dp"
+                        app:cardCornerRadius="16dp"
                         app:cardElevation="2dp"
                         app:cardBackgroundColor="@color/surface"
                         app:strokeColor="@color/border_green"
@@ -543,50 +582,52 @@
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="@dimen/spacing_md">
+                            android:padding="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Social"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
 
                             <FrameLayout
-                                android:layout_width="38dp"
-                                android:layout_height="38dp"
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:layout_marginTop="10dp"
                                 android:background="@drawable/bg_ring_circle_emerald">
+
                                 <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_category_social"
                                     app:tint="@color/accent" />
                             </FrameLayout>
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_sm"
-                                android:text="3. Social"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
-                                android:fontFamily="sans-serif-medium" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Youth &amp; Meets"
-                                android:textColor="@color/text_muted"
-                                android:textSize="11sp"
-                                android:maxLines="1" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- Row 2: Sports, Condolences, Dua Request -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
 
                     <!-- 4. Sports -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/box_act_sports"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="124dp"
                         android:layout_weight="1"
-                        android:layout_marginStart="@dimen/spacing_sm"
-                        app:cardCornerRadius="18dp"
+                        android:layout_marginEnd="6dp"
+                        app:cardCornerRadius="16dp"
                         app:cardElevation="2dp"
                         app:cardBackgroundColor="@color/surface"
                         app:strokeColor="@color/border_green"
@@ -594,110 +635,107 @@
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="@dimen/spacing_md">
+                            android:padding="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Sports"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
 
                             <FrameLayout
-                                android:layout_width="38dp"
-                                android:layout_height="38dp"
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:layout_marginTop="10dp"
                                 android:background="@drawable/bg_ring_circle_cyan">
+
                                 <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_category_tournament"
                                     app:tint="@color/accent" />
                             </FrameLayout>
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_sm"
-                                android:text="4. Sports"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
-                                android:fontFamily="sans-serif-medium" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="HPL &amp; Coaching"
-                                android:textColor="@color/text_muted"
-                                android:textSize="11sp"
-                                android:maxLines="1" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                </LinearLayout>
-
-                <!-- Row 3: 5. Condolences & 6. Dua Request -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="@dimen/spacing_md">
-
-                    <!-- 5. Condolences -->
+                    <!-- 5. Condolences (with NOTICE badge) -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/box_act_condolences"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="124dp"
                         android:layout_weight="1"
-                        android:layout_marginEnd="@dimen/spacing_sm"
-                        app:cardCornerRadius="18dp"
+                        android:layout_marginHorizontal="3dp"
+                        app:cardCornerRadius="16dp"
                         app:cardElevation="2dp"
                         app:cardBackgroundColor="@color/surface"
                         app:strokeColor="@color/border_green"
                         app:strokeWidth="1.5dp">
 
-                        <LinearLayout
+                        <FrameLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="@dimen/spacing_md">
-
-                            <FrameLayout
-                                android:layout_width="38dp"
-                                android:layout_height="38dp"
-                                android:background="@drawable/bg_ring_circle_teal">
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_category_condolences"
-                                    app:tint="@color/accent" />
-                            </FrameLayout>
+                            android:layout_height="match_parent">
 
                             <TextView
-                                android:layout_width="match_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_sm"
-                                android:text="5. Condolences"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
+                                android:layout_gravity="top|center_horizontal"
+                                android:background="@drawable/bg_airtel_badge_dark"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="2dp"
+                                android:text="NOTICE"
+                                android:textColor="@color/white"
+                                android:textSize="8sp"
                                 android:fontFamily="sans-serif-medium" />
 
-                            <TextView
+                            <LinearLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Janazah &amp; Notices"
-                                android:textColor="@color/text_muted"
-                                android:textSize="11sp"
-                                android:maxLines="1" />
-                        </LinearLayout>
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="8dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="6dp"
+                                    android:text="Condolences"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="12sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold" />
+
+                                <FrameLayout
+                                    android:layout_width="44dp"
+                                    android:layout_height="44dp"
+                                    android:layout_marginTop="8dp"
+                                    android:background="@drawable/bg_ring_circle_gold">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/ic_category_condolences"
+                                        app:tint="@color/accent" />
+                                </FrameLayout>
+                            </LinearLayout>
+                        </FrameLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <!-- 6. Dua Request -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/box_act_dua"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="124dp"
                         android:layout_weight="1"
-                        android:layout_marginStart="@dimen/spacing_sm"
-                        app:cardCornerRadius="18dp"
+                        android:layout_marginStart="6dp"
+                        app:cardCornerRadius="16dp"
                         app:cardElevation="2dp"
                         app:cardBackgroundColor="@color/surface"
                         app:strokeColor="@color/border_green"
@@ -705,45 +743,202 @@
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="@dimen/spacing_md">
+                            android:padding="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Dua Request"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
 
                             <FrameLayout
-                                android:layout_width="38dp"
-                                android:layout_height="38dp"
-                                android:background="@drawable/bg_ring_circle_gold">
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:layout_marginTop="10dp"
+                                android:background="@drawable/bg_ring_circle_green">
+
                                 <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_category_dua"
                                     app:tint="@color/accent" />
                             </FrameLayout>
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- Row 3: Blood Network, Mosques, Emergency -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <!-- 7. Blood Network (with URGENT badge) -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/box_act_blood"
+                        android:layout_width="0dp"
+                        android:layout_height="124dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/surface"
+                        app:strokeColor="@color/border_green"
+                        app:strokeWidth="1.5dp">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
 
                             <TextView
-                                android:layout_width="match_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_sm"
-                                android:text="6. Dua Request"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
+                                android:layout_gravity="top|center_horizontal"
+                                android:background="@drawable/bg_airtel_badge_dark"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="2dp"
+                                android:text="URGENT"
+                                android:textColor="@color/white"
+                                android:textSize="8sp"
                                 android:fontFamily="sans-serif-medium" />
 
-                            <TextView
+                            <LinearLayout
                                 android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="8dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="6dp"
+                                    android:text="Blood Network"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="12sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold" />
+
+                                <FrameLayout
+                                    android:layout_width="44dp"
+                                    android:layout_height="44dp"
+                                    android:layout_marginTop="8dp"
+                                    android:background="@drawable/bg_ring_circle_coral">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/ic_category_blood"
+                                        app:tint="@color/danger" />
+                                </FrameLayout>
+                            </LinearLayout>
+                        </FrameLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- 8. Mosques & Iqamah -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/box_act_mosques"
+                        android:layout_width="0dp"
+                        android:layout_height="124dp"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="3dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/surface"
+                        app:strokeColor="@color/border_green"
+                        app:strokeWidth="1.5dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Healing &amp; Prayers"
-                                android:textColor="@color/text_muted"
-                                android:textSize="11sp"
-                                android:maxLines="1" />
+                                android:text="Mosques"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+
+                            <FrameLayout
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:layout_marginTop="10dp"
+                                android:background="@drawable/bg_ring_circle_teal">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_prayer"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
+                    <!-- 9. Emergency Help -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/box_act_emergency"
+                        android:layout_width="0dp"
+                        android:layout_height="124dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/surface"
+                        app:strokeColor="@color/border_green"
+                        app:strokeWidth="1.5dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Emergency"
+                                android:textColor="@color/text_primary"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+
+                            <FrameLayout
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:layout_marginTop="10dp"
+                                android:background="@drawable/bg_ring_circle_coral">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_emergency"
+                                    app:tint="@color/danger" />
+                            </FrameLayout>
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
 
             </LinearLayout>
+
+            <!-- ═══════════════════════════════════════════════════ -->
+
 
             <!-- ═══════════════════════════════════════════════════ -->
             <!-- 4. DAILY PERSONALITY                                -->
@@ -1336,37 +1531,17 @@
                 android:id="@+id/rv_gallery_preview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_md"
+                android:layout_marginTop="@dimen/spacing_sm"
                 android:clipToPadding="false"
                 android:paddingStart="@dimen/screen_padding_horizontal"
                 android:paddingEnd="@dimen/screen_padding_horizontal"
                 android:orientation="horizontal"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_gallery_thumbnail" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- ═══════════════════════════════════════════════════ -->
-    <!-- CANVA PURPLE FLOATING ACTION BUTTON (Camera/Create) -->
-    <!-- ═══════════════════════════════════════════════════ -->
-    <FrameLayout
-        android:id="@+id/fab_quick_action"
-        android:layout_width="58dp"
-        android:layout_height="58dp"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="@dimen/screen_padding_horizontal"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/bg_fab_purple"
-        android:elevation="6dp"
-        android:clickable="true"
-        android:focusable="true">
 
-        <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_camera_fab"
-            android:contentDescription="Quick Action" />
-    </FrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

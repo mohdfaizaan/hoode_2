@@ -47,24 +47,55 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_huffaz_name"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_sm"
-            android:text="Hafiz Mohammed Zaid"
-            android:textColor="@color/text_primary"
-            android:textSize="17sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tv_huffaz_institution_teacher"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="Jamia Islamia Bhatkal • Ustad: Maulana Hafiz Abdul Bari"
-            android:textColor="@color/accent_ink"
-            android:textSize="13sp" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                app:cardCornerRadius="26dp"
+                app:cardElevation="1dp">
+
+                <ImageView
+                    android:id="@+id/iv_hafiz_avatar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/bg_circle_lavender"
+                    android:src="@drawable/ic_nav_profile"
+                    android:contentDescription="Hafiz Photo" />
+            </androidx.cardview.widget.CardView>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_md"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_huffaz_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Hafiz Mohammed Zaid"
+                    android:textColor="@color/text_primary"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_huffaz_institution_teacher"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Jamia Islamia Bhatkal • Ustad: Maulana Hafiz Abdul Bari"
+                    android:textColor="@color/accent_ink"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tv_huffaz_bio"

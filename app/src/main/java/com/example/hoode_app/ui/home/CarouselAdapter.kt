@@ -3,8 +3,10 @@ package com.example.hoode_app.ui.home
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.example.hoode_app.R
 
 class CarouselAdapter(
@@ -13,6 +15,8 @@ class CarouselAdapter(
 ) : RecyclerView.Adapter<CarouselAdapter.SlideViewHolder>() {
 
     inner class SlideViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val flSlideBg: View = itemView.findViewById(R.id.fl_slide_bg)
+        val ivCarouselBg: ImageView = itemView.findViewById(R.id.iv_carousel_bg)
         val tvHeadline: TextView = itemView.findViewById(R.id.tv_headline)
         val tvSubheadline: TextView = itemView.findViewById(R.id.tv_subheadline)
         val tvAdvertiser: TextView = itemView.findViewById(R.id.tv_advertiser)
@@ -31,6 +35,15 @@ class CarouselAdapter(
         holder.tvSubheadline.text = slide.subheadline
         holder.tvAdvertiser.text = slide.advertiser
 
+        if (!slide.imageUrl.isNullOrBlank()) {
+            holder.ivCarouselBg.visibility = View.VISIBLE
+            holder.ivCarouselBg.load(slide.imageUrl) {
+                crossfade(true)
+            }
+        } else {
+            holder.ivCarouselBg.visibility = View.GONE
+        }
+
         if (slide.ctaLabel != null) {
             holder.btnCta.visibility = View.VISIBLE
             (holder.btnCta as? TextView)?.text = slide.ctaLabel
@@ -47,7 +60,9 @@ class CarouselAdapter(
             R.drawable.bg_carousel_slide_5
         )
         val gradientRes = gradients.getOrElse(position) { R.drawable.bg_carousel_gradient }
-        holder.itemView.setBackgroundResource(gradientRes)
+        // Apply background to inner container, NOT to itemView (which is MaterialCardView)
+        holder.flSlideBg.setBackgroundResource(gradientRes)
+        holder.itemView.clipToOutline = true
 
         // Slide click listener
         holder.itemView.setOnClickListener {

@@ -59,7 +59,7 @@
                 android:paddingHorizontal="14dp"
                 android:paddingVertical="7dp"
                 android:text="All"
-                android:textColor="@color/accent"
+                android:textColor="@color/accent_ink"
                 android:textSize="13sp"
                 android:fontFamily="sans-serif-medium" />
 

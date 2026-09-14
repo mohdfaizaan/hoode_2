@@ -64,15 +64,19 @@ class ActivitiesFragment : Fragment() {
             HoodeRepository.initialActivityCategory = "All" // reset
         }
 
+        val padH = (16 * resources.displayMetrics.density).toInt()
+        val padV = (8 * resources.displayMetrics.density).toInt()
+
         fun updateUI() {
             for ((v, c) in filters) {
                 if (c.equals(selectedCategory, ignoreCase = true)) {
                     v.setBackgroundResource(R.drawable.bg_chip_selected)
-                    v.setTextColor(ContextCompat.getColor(requireContext(), R.color.accent))
+                    v.setTextColor(ContextCompat.getColor(requireContext(), R.color.accent_ink))
                 } else {
                     v.setBackgroundResource(R.drawable.bg_chip_unselected)
                     v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
                 }
+                v.setPadding(padH, padV, padH, padV)
             }
         }
 

@@ -91,7 +91,7 @@ object HoodeRepository {
                 name = cleanEmail.substringBefore("@").replaceFirstChar { it.uppercase() },
                 email = cleanEmail,
                 password = passwordInput,
-                ward = "Hoode & Bengre"
+                ward = "Hoode"
             ).getOrNull()
             return if (autoUser != null) {
                 AuthResult.Success(autoUser)
@@ -122,7 +122,7 @@ object HoodeRepository {
         email: String,
         password: String,
         phone: String = "",
-        ward: String = "Hoode & Bengre"
+        ward: String = "Hoode"
     ): Result<User> {
         val cleanEmail = email.trim().lowercase()
         if (_registeredAccounts.any { it.email.lowercase() == cleanEmail }) {
@@ -253,11 +253,11 @@ object HoodeRepository {
     // ── F00: 5-Slide Carousel ────────────────────────────────
     private val _adSlides = MutableStateFlow(
         listOf(
-            AdCarouselSlide(1, "Welcome to Hoode Connect", "Hyperlocal community services and live updates", "Hoode Community Initiative"),
-            AdCarouselSlide(2, "Friday Sermon Schedule", "Weekly prayer and community announcements", "Hoode Juma Masjid"),
-            AdCarouselSlide(3, "Annual Hoode Premier League", "Cricket tournament registrations now open", "Hoode Sports Club"),
-            AdCarouselSlide(4, "Urgent Blood Donation Camp", "This Saturday at Hoode Community Hall", "Hoode Health Cell"),
-            AdCarouselSlide(5, "Local Apprenticeship Drive", "Vocational electrical & plumbing training", "Hoode Skill Center")
+            AdCarouselSlide(1, "Welcome to Hoode Connect", "Hyperlocal community services and live updates", "Hoode Community Initiative", imageUrl = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80"),
+            AdCarouselSlide(2, "Friday Sermon Schedule", "Weekly prayer and community announcements", "Hoode Juma Masjid", imageUrl = "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=800&auto=format&fit=crop&q=80"),
+            AdCarouselSlide(3, "Annual Hoode Premier League", "Cricket tournament registrations now open", "Hoode Sports Club", imageUrl = "https://images.unsplash.com/photo-1531415074868-036b1c57e329?w=800&auto=format&fit=crop&q=80"),
+            AdCarouselSlide(4, "Urgent Blood Donation Camp", "This Saturday at Hoode Community Hall", "Hoode Health Cell", imageUrl = "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&auto=format&fit=crop&q=80"),
+            AdCarouselSlide(5, "Local Apprenticeship Drive", "Vocational electrical & plumbing training", "Hoode Skill Center", imageUrl = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80")
         )
     )
     val adSlides: StateFlow<List<AdCarouselSlide>> = _adSlides.asStateFlow()
@@ -940,7 +940,23 @@ object HoodeRepository {
                     6 -> "Morning Fisherman Cast Net"
                     7 -> "Kemmannu River Promenade"
                     8 -> "Hoode Lighthouse View"
-                    else -> "Scenic Hoode View #$index"
+                    9 -> "Coastal Highway at Dawn"
+                    10 -> "Delta Point Confluence"
+                    11 -> "Seagulls over Arabian Sea"
+                    12 -> "Traditional Wooden Dhow"
+                    13 -> "Palm Silhouette Sunset"
+                    14 -> "Golden Hour Coastal Waves"
+                    15 -> "Backwaters Mangrove Trail"
+                    16 -> "Village Fishermen at Shore"
+                    17 -> "Serene Beach Morning"
+                    18 -> "Coastal Flora & Greenery"
+                    19 -> "Suvarna River Reflection"
+                    20 -> "Harbor at Twilight"
+                    21 -> "Coastal Community Gathering"
+                    22 -> "Monsoon Greenery in Hoode"
+                    23 -> "Old Jetty Rocks"
+                    24 -> "Fishermen Trawler Fleet"
+                    else -> "Starry Night Over Sea"
                 },
                 caption = "Capturing the serene coastal life and community architecture of Hoode.",
                 photographer = if (index % 2 == 0) "Rashid Hoode" else "Ziyad Photography",
@@ -951,6 +967,33 @@ object HoodeRepository {
                     2 -> "#258A5B"
                     3 -> "#D68B16"
                     else -> "#4F545D"
+                },
+                imageUrl = when (index) {
+                    1 -> "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80"
+                    2 -> "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=600&auto=format&fit=crop&q=80"
+                    3 -> "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&auto=format&fit=crop&q=80"
+                    4 -> "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=600&auto=format&fit=crop&q=80"
+                    5 -> "https://images.unsplash.com/photo-1509233725247-49e657c54213?w=600&auto=format&fit=crop&q=80"
+                    6 -> "https://images.unsplash.com/photo-1516738901171-8eb4fc13bd20?w=600&auto=format&fit=crop&q=80"
+                    7 -> "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80"
+                    8 -> "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=600&auto=format&fit=crop&q=80"
+                    9 -> "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&auto=format&fit=crop&q=80"
+                    10 -> "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=600&auto=format&fit=crop&q=80"
+                    11 -> "https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&auto=format&fit=crop&q=80"
+                    12 -> "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&auto=format&fit=crop&q=80"
+                    13 -> "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=600&auto=format&fit=crop&q=80"
+                    14 -> "https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=600&auto=format&fit=crop&q=80"
+                    15 -> "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&auto=format&fit=crop&q=80"
+                    16 -> "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600&auto=format&fit=crop&q=80"
+                    17 -> "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=600&auto=format&fit=crop&q=80"
+                    18 -> "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&auto=format&fit=crop&q=80"
+                    19 -> "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=600&auto=format&fit=crop&q=80"
+                    20 -> "https://images.unsplash.com/photo-1498084393753-b411b2d26b34?w=600&auto=format&fit=crop&q=80"
+                    21 -> "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&auto=format&fit=crop&q=80"
+                    22 -> "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600&auto=format&fit=crop&q=80"
+                    23 -> "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80"
+                    24 -> "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&auto=format&fit=crop&q=80"
+                    else -> "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&auto=format&fit=crop&q=80"
                 }
             )
         }

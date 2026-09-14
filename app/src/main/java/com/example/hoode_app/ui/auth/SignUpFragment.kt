@@ -21,7 +21,7 @@ class SignUpFragment : Fragment() {
 
     private var isPasswordVisible = false
     private var isConfirmPasswordVisible = false
-    private var selectedWard = "Hoode & Bengre"
+    private var selectedWard = "Hoode"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,13 +47,13 @@ class SignUpFragment : Fragment() {
         // Ward Selection
         binding.btnSelectWard.setOnClickListener {
             val wards = arrayOf(
-                "🌊 Hoode & Bengre Community"
+                "🌊 Hoode Community"
             )
             AlertDialog.Builder(requireContext())
                 .setTitle("Select Your Community")
                 .setItems(wards) { _, _ ->
-                    binding.tvSelectedWard.text = "🌊 Hoode & Bengre Community"
-                    selectedWard = "Hoode & Bengre"
+                    binding.tvSelectedWard.text = "🌊 Hoode Community"
+                    selectedWard = "Hoode"
                 }
                 .show()
         }

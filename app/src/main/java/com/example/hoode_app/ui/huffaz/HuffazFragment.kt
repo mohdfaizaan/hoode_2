@@ -10,6 +10,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.hoode_app.data.repository.HoodeRepository
 import com.example.hoode_app.databinding.FragmentHuffazBinding
 import com.example.hoode_app.databinding.ItemHuffazCardBinding
+import coil.load
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -43,6 +44,13 @@ class HuffazFragment : Fragment() {
                     cardBinding.tvHuffazYear.text = "Completed ${huffaz.completionYear}"
                     cardBinding.tvHuffazInstitutionTeacher.text = "${huffaz.institution} • Ustad: ${huffaz.teacher}"
                     cardBinding.tvHuffazBio.text = huffaz.biography
+                    if (huffaz.imageUrl.isNotBlank()) {
+                        cardBinding.ivHafizAvatar.load(huffaz.imageUrl) {
+                            crossfade(true)
+                            placeholder(com.example.hoode_app.R.drawable.bg_circle_lavender)
+                            error(com.example.hoode_app.R.drawable.bg_circle_lavender)
+                        }
+                    }
                     binding.llHuffazContainer.addView(cardBinding.root)
                 }
             }

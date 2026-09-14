@@ -1,0 +1,26 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Top-Left Corner -->
+    <path
+        android:fillColor="@color/text_primary"
+        android:pathData="M3,4c0,-0.55 0.45,-1 1,-1h4v2H5v3H3V4z"/>
+    <!-- Top-Right Corner -->
+    <path
+        android:fillColor="@color/text_primary"
+        android:pathData="M16,3h4c0.55,0 1,0.45 1,1v4h-2V5h-3V3z"/>
+    <!-- Bottom-Left Corner -->
+    <path
+        android:fillColor="@color/text_primary"
+        android:pathData="M3,20c0,0.55 0.45,1 1,1h4v-2H5v-3H3V20z"/>
+    <!-- Bottom-Right Corner -->
+    <path
+        android:fillColor="@color/text_primary"
+        android:pathData="M16,21h4c0.55,0 1,-0.45 1,-1v-4h-2v3h-3V21z"/>
+    <!-- Center QR points -->
+    <path
+        android:fillColor="@color/text_primary"
+        android:pathData="M7,7h3v3H7V7z M14,7h3v3h-3V7z M7,14h3v3H7V14z M14,14h3v3h-3V14z"/>
+</vector>

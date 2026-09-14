@@ -7,5 +7,5 @@
         android:centerColor="#1A5C4F"
         android:endColor="#258A5B"
         android:type="linear" />
-    <corners android:radius="@dimen/radius_card_lg" />
+    <corners android:radius="20dp" />
 </shape>

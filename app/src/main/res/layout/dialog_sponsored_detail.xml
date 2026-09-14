@@ -9,6 +9,7 @@
     app:cardCornerRadius="20dp"
     app:cardElevation="8dp"
     app:cardBackgroundColor="@color/surface"
+    app:cardPreventCornerOverlap="true"
     app:strokeColor="@color/border_green"
     app:strokeWidth="1.5dp">
 
@@ -23,6 +24,19 @@
             android:layout_width="match_parent"
             android:layout_height="160dp"
             android:background="@drawable/bg_carousel_gradient">
+
+            <ImageView
+                android:id="@+id/iv_modal_banner"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="Sponsor Visual" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_carousel_gradient"
+                android:alpha="0.80" />
 
             <!-- Close icon button top right -->
             <ImageView

@@ -1,26 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="140dp"
-    android:layout_margin="4dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
+    android:layout_width="160dp"
+    android:layout_height="148dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginVertical="4dp"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="3dp"
+    app:strokeColor="@color/border_green"
+    app:strokeWidth="1.5dp"
     app:cardBackgroundColor="@color/surface">
 
     <FrameLayout
         android:id="@+id/fl_gallery_bg"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/bg_carousel_gradient">
+        android:layout_height="match_parent">
 
+        <!-- Real Image Loaded from Internet -->
+        <ImageView
+            android:id="@+id/iv_gallery_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:background="@drawable/bg_gallery_luxury_gradient"
+            android:contentDescription="Gallery Photo" />
+
+        <!-- Full Dark Scrim Overlay for Readability -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#4D000000" />
+
+        <!-- Decorative Watermark Icon -->
+        <ImageView
+            android:id="@+id/iv_gallery_watermark"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="12dp"
+            android:src="@drawable/ic_gallery"
+            android:alpha="0.12"
+            app:tint="@color/white" />
+
+        <!-- Top Bar: Badge & Order Pill -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_gallery_pill"
+                android:paddingHorizontal="7dp"
+                android:paddingVertical="3dp"
+                android:text="🌊 Coastal"
+                android:textColor="#A7F3D0"
+                android:textSize="9sp"
+                android:fontFamily="sans-serif-medium" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tv_gallery_item_order"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_gallery_pill"
+                android:paddingHorizontal="7dp"
+                android:paddingVertical="3dp"
+                android:text="1 of 25"
+                android:textColor="#FFFFFF"
+                android:textSize="9sp"
+                android:fontFamily="sans-serif-medium" />
+        </LinearLayout>
+
+        <!-- Bottom Scrim & Info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
             android:layout_gravity="bottom"
-            android:background="#99000000"
-            android:padding="8dp"
+            android:background="@drawable/bg_gallery_scrim"
+            android:gravity="bottom"
+            android:padding="10dp"
             android:orientation="vertical">
 
             <TextView
@@ -32,16 +100,19 @@
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:maxLines="1"
-                android:ellipsize="end" />
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium" />
 
             <TextView
-                android:id="@+id/tv_gallery_item_order"
+                android:id="@+id/tv_gallery_item_photographer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1 of 25"
-                android:textColor="#CCFFFFFF"
-                android:textSize="10sp" />
+                android:layout_marginTop="2dp"
+                android:text="📸 by Rashid Hoode"
+                android:textColor="#6EE7B7"
+                android:textSize="10sp"
+                android:fontFamily="sans-serif-medium" />
         </LinearLayout>
 
     </FrameLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

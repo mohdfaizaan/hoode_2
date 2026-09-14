@@ -15,6 +15,7 @@ import com.example.hoode_app.data.model.GalleryItem
 import com.example.hoode_app.data.repository.HoodeRepository
 import com.example.hoode_app.databinding.FragmentGalleryBinding
 import com.example.hoode_app.databinding.ItemGalleryThumbnailBinding
+import coil.load
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -80,6 +81,16 @@ class GalleryFragment : Fragment() {
             val item = items[position]
             holder.binding.tvGalleryItemTitle.text = item.title
             holder.binding.tvGalleryItemOrder.text = "${position + 1} of ${items.size}"
+            holder.binding.tvGalleryItemPhotographer.text = "📸 ${item.photographer}"
+
+            if (item.imageUrl.isNotBlank()) {
+                holder.binding.ivGalleryImage.load(item.imageUrl) {
+                    crossfade(true)
+                    placeholder(com.example.hoode_app.R.drawable.bg_gallery_luxury_gradient)
+                    error(com.example.hoode_app.R.drawable.bg_gallery_luxury_gradient)
+                }
+            }
+
             holder.binding.root.setOnClickListener {
                 onClick(item, position, items.size)
             }

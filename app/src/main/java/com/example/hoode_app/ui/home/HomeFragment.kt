@@ -21,6 +21,7 @@ import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.Window
+import coil.load
 import com.example.hoode_app.data.repository.HoodeRepository
 import com.example.hoode_app.databinding.DialogSponsoredDetailBinding
 import com.example.hoode_app.databinding.FragmentHomeBinding
@@ -35,6 +36,7 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+    private var currentSlides: List<CarouselSlide> = emptyList()
 
     // Carousel auto-advance
     private val autoAdvanceHandler = Handler(Looper.getMainLooper())
@@ -66,6 +68,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupGreeting()
         setupDate()
+        setupAirtelNavigation()
         setupActivitiesBoxes()
         setupCarousel()
         setupPrayerHero()
@@ -87,19 +90,15 @@ class HomeFragment : Fragment() {
             Toast.makeText(requireContext(), "Featured community announcements & sponsorships", Toast.LENGTH_SHORT).show()
         }
 
-        binding.fabQuickAction.setOnClickListener {
-            findNavController().navigate(R.id.createFragment)
-        }
-
         binding.communitySelector.setOnClickListener {
             val communities = arrayOf(
-                "🌊 Hoode & Bengre Community (Coastal & Beach Ward • 6 Masjids • 4,200 Residents)"
+                "🌊 Hoode Community (Coastal & Beach Ward • 6 Masjids • 4,200 Residents)"
             )
             AlertDialog.Builder(requireContext())
                 .setTitle("Active Community")
                 .setItems(communities) { _, _ ->
-                    binding.tvCommunityName.text = "Hoode & Bengre"
-                    Toast.makeText(requireContext(), "Community: Hoode & Bengre active", Toast.LENGTH_SHORT).show()
+                    binding.tvCommunityName.text = "Hoode"
+                    Toast.makeText(requireContext(), "Community: Hoode active", Toast.LENGTH_SHORT).show()
                 }
                 .setPositiveButton("OK", null)
                 .show()
@@ -151,15 +150,26 @@ class HomeFragment : Fragment() {
                         headline = it.headline,
                         subheadline = it.subheadline,
                         advertiser = it.advertiser,
-                        ctaLabel = it.ctaLabel
+                        ctaLabel = "Know More",
+                        imageUrl = it.imageUrl
                     )
                 }
 
+                currentSlides = carouselSlides
                 val adapter = CarouselAdapter(carouselSlides) { slide ->
                     showSponsoredDetailDialog(slide)
                 }
                 binding.carouselPager.adapter = adapter
                 binding.carouselPager.offscreenPageLimit = 1
+                binding.cardCarousel.outlineProvider = android.view.ViewOutlineProvider.BACKGROUND
+                binding.cardCarousel.clipToOutline = true
+                binding.carouselPager.outlineProvider = android.view.ViewOutlineProvider.BACKGROUND
+                binding.carouselPager.clipToOutline = true
+                binding.carouselPager.clipChildren = true
+                (binding.carouselPager.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView)?.apply {
+                    clipToPadding = false
+                    clipChildren = true
+                }
 
                 setupCarouselIndicators(carouselSlides.size)
                 updateCarouselIndicators(0)
@@ -235,6 +245,11 @@ class HomeFragment : Fragment() {
         dialogBinding.tvModalHeadline.text = slide.headline
         dialogBinding.tvModalSubheadline.text = slide.subheadline
         dialogBinding.tvModalAdvertiser.text = slide.advertiser
+        if (!slide.imageUrl.isNullOrBlank()) {
+            dialogBinding.ivModalBanner.load(slide.imageUrl) {
+                crossfade(true)
+            }
+        }
         if (!slide.ctaLabel.isNullOrBlank()) {
             dialogBinding.btnModalLearnMore.text = slide.ctaLabel
         }
@@ -262,6 +277,42 @@ class HomeFragment : Fragment() {
         dialog.show()
     }
 
+    // ── Airtel-Style Navigation & Actions ─────────────────────
+
+    private fun setupAirtelNavigation() {
+        // Drawer Menu Button (Top Bar)
+        binding.btnMenuDrawer.setOnClickListener {
+            showSideDrawerDialog()
+        }
+    }
+
+    private fun showSideDrawerDialog() {
+        val user = HoodeRepository.currentUser.value
+        val name = user?.displayName ?: "Resident"
+        val items = arrayOf(
+            "👤 Profile & Account ($name)",
+            "🕌 Mosque Timings & Iqamah",
+            "🩸 Blood Donor Network",
+            "🚨 24/7 Emergency Helplines",
+            "🌊 Active Ward: Hoode",
+            "📢 Community Notices & News"
+        )
+        AlertDialog.Builder(requireContext())
+            .setTitle("Community Menu")
+            .setItems(items) { _, which ->
+                when (which) {
+                    0 -> findNavController().navigate(R.id.profileFragment)
+                    1 -> findNavController().navigate(R.id.prayerDetailFragment)
+                    2 -> findNavController().navigate(R.id.bloodNetworkFragment)
+                    3 -> findNavController().navigate(R.id.emergencyFragment)
+                    4 -> Toast.makeText(requireContext(), "Ward: Hoode active", Toast.LENGTH_SHORT).show()
+                    5 -> findNavController().navigate(R.id.newsFragment)
+                }
+            }
+            .setPositiveButton("Close", null)
+            .show()
+    }
+
     // ── Prayer Hero ───────────────────────────────────────────
 
     private fun setupPrayerHero() {
@@ -277,9 +328,33 @@ class HomeFragment : Fragment() {
             HoodeRepository.prayerTimings.collectLatest { timings ->
                 val next = timings.find { it.isNext } ?: timings.firstOrNull()
                 if (next != null) {
-                    binding.tvPrayerName.text = next.name
-                    binding.tvPrayerTime.text = "${next.adhanTime} • Iqamah ${next.iqamahTime}"
-                    binding.tvCountdown.text = if (next.timeRemaining.isNotBlank()) next.timeRemaining else "Upcoming"
+                    binding.tvPrayerName.text = "Next: ${next.name}"
+                    binding.tvPrayerTime.text = "• ${next.adhanTime}"
+                    binding.tvPrayerSub.text = "Iqamah ${next.iqamahTime}"
+
+                    if (next.timeRemaining.isNotBlank()) {
+                        val parts = next.timeRemaining.split(":")
+                        if (parts.size == 3) {
+                            val h = parts[0].toIntOrNull() ?: 0
+                            val m = parts[1].toIntOrNull() ?: 0
+                            val s = parts[2].toIntOrNull() ?: 0
+                            val totalSecs = h * 3600 + m * 60 + s
+
+                            binding.tvCountdown.text = when {
+                                h > 0 -> "${h}h ${m}m"
+                                m > 0 -> "${m}m"
+                                else -> "${s}s"
+                            }
+
+                            // Calculate countdown circle progress (e.g. 2.5 hour window)
+                            val progressPct = ((totalSecs.coerceIn(0, 9000) / 9000f) * 100).toInt()
+                            binding.prayerCountdownRing.setProgressCompat(progressPct.coerceIn(5, 100), true)
+                        } else {
+                            binding.tvCountdown.text = next.timeRemaining
+                        }
+                    } else {
+                        binding.tvCountdown.text = "—"
+                    }
                 }
             }
         }
@@ -291,7 +366,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // ── Activities (6 Boxes in Beginning) ────────────────────
+    // ── Activities (3x3 Grid of 9 Cards) ─────────────────────
 
     private fun setupActivitiesBoxes() {
         binding.boxActReligious.setOnClickListener {
@@ -317,6 +392,15 @@ class HomeFragment : Fragment() {
         binding.boxActDua.setOnClickListener {
             HoodeRepository.initialActivityCategory = "Dua Request"
             findNavController().navigate(R.id.activitiesFragment)
+        }
+        binding.boxActBlood.setOnClickListener {
+            findNavController().navigate(R.id.bloodNetworkFragment)
+        }
+        binding.boxActMosques.setOnClickListener {
+            findNavController().navigate(R.id.prayerDetailFragment)
+        }
+        binding.boxActEmergency.setOnClickListener {
+            findNavController().navigate(R.id.emergencyFragment)
         }
         binding.btnActivitiesSeeAll.setOnClickListener {
             HoodeRepository.initialActivityCategory = "All"
@@ -363,10 +447,30 @@ class HomeFragment : Fragment() {
 
     private fun setupTodayHighlights() {
         val highlights = listOf(
-            HighlightItem("Community Iftar & Dua", "Today, 6:15 PM", "Religious"),
-            HighlightItem("HPL Cricket Tournament", "18–21 Sep 2026", "Sports"),
-            HighlightItem("Qur'an Study Circle", "Friday post-Maghrib", "Religious"),
-            HighlightItem("Free Health Checkup Camp", "Sunday, 9:00 AM", "Community")
+            HighlightItem(
+                "Community Iftar & Dua",
+                "Today, 6:15 PM",
+                "Religious",
+                "https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&auto=format&fit=crop&q=80"
+            ),
+            HighlightItem(
+                "HPL Cricket Tournament",
+                "18–21 Sep 2026",
+                "Sports",
+                "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=500&auto=format&fit=crop&q=80"
+            ),
+            HighlightItem(
+                "Qur'an Study Circle",
+                "Friday post-Maghrib",
+                "Religious",
+                "https://images.unsplash.com/photo-1609599006353-e629aaabfeae?w=500&auto=format&fit=crop&q=80"
+            ),
+            HighlightItem(
+                "Free Health Checkup Camp",
+                "Sunday, 9:00 AM",
+                "Community",
+                "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500&auto=format&fit=crop&q=80"
+            )
         )
 
         binding.rvTodayHighlights.layoutManager =
@@ -391,6 +495,13 @@ class HomeFragment : Fragment() {
             HoodeRepository.dailyPersonality.collectLatest { profile ->
                 binding.tvPersonalityName.text = profile.name
                 binding.tvPersonalityIntro.text = profile.intro
+                if (profile.imageUrl.isNotBlank()) {
+                    binding.ivPersonalityPhoto.load(profile.imageUrl) {
+                        crossfade(true)
+                        placeholder(R.drawable.bg_circle_lavender)
+                        error(R.drawable.bg_circle_lavender)
+                    }
+                }
             }
         }
     }
@@ -482,11 +593,13 @@ data class CarouselSlide(
     val subheadline: String,
     val advertiser: String,
     val ctaLabel: String? = null,
-    val ctaUrl: String? = null
+    val ctaUrl: String? = null,
+    val imageUrl: String? = null
 )
 
 data class HighlightItem(
     val title: String,
     val subtitle: String,
-    val category: String
+    val category: String,
+    val imageUrl: String? = null
 )

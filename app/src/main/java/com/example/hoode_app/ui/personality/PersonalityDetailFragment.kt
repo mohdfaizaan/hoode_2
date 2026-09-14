@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import coil.load
 import com.example.hoode_app.R
 import com.example.hoode_app.data.repository.HoodeRepository
 import com.example.hoode_app.databinding.FragmentPersonalityDetailBinding
@@ -43,6 +44,14 @@ class PersonalityDetailFragment : Fragment() {
                 binding.tvPersonRole.text = p.role
                 binding.tvPersonQuote.text = p.quote
                 binding.tvPersonBiography.text = p.fullBiography
+
+                if (p.imageUrl.isNotBlank()) {
+                    binding.ivPersonAvatar.load(p.imageUrl) {
+                        crossfade(true)
+                        placeholder(R.drawable.bg_circle_lavender)
+                        error(R.drawable.bg_circle_lavender)
+                    }
+                }
 
                 binding.llContributionsList.removeAllViews()
                 for (item in p.contributions) {

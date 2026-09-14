@@ -122,24 +122,28 @@
 
     <!-- ─── Bottom Navigation ─────────────────────────────── -->
     <style name="Widget.Hoode.BottomNav" parent="Widget.Material3.BottomNavigationView">
-        <item name="backgroundTint">@color/surface</item>
+        <item name="backgroundTint">@android:color/transparent</item>
         <item name="itemIconTint">@color/nav_selector</item>
         <item name="itemTextColor">@color/nav_selector</item>
         <item name="itemActiveIndicatorStyle">@style/Widget.Hoode.BottomNav.Indicator</item>
-        <item name="elevation">@dimen/elevation_lg</item>
-        <item name="labelVisibilityMode">labeled</item>
-        <item name="itemTextAppearanceActive">@style/TextAppearance.Hoode.NavLabel.Active</item>
-        <item name="itemTextAppearanceInactive">@style/TextAppearance.Hoode.NavLabel</item>
+        <item name="elevation">0dp</item>
+        <item name="android:minHeight">42dp</item>
+        <item name="itemIconSize">20dp</item>
+        <item name="itemPaddingTop">0dp</item>
+        <item name="itemPaddingBottom">0dp</item>
+        <item name="labelVisibilityMode">unlabeled</item>
     </style>
 
     <style name="Widget.Hoode.BottomNav.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:color">@color/nav_indicator</item>
+        <item name="android:width">38dp</item>
+        <item name="android:height">24dp</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Hoode.Indicator</item>
     </style>
 
     <style name="ShapeAppearance.Hoode.Indicator" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">@dimen/radius_chip</item>
+        <item name="cornerSize">12dp</item>
     </style>
 
     <!-- ─── Text Appearances ──────────────────────────────── -->
@@ -180,13 +184,16 @@
     </style>
 
     <style name="TextAppearance.Hoode.NavLabel" parent="TextAppearance.Material3.LabelSmall">
-        <item name="android:textSize">11sp</item>
+        <item name="android:textSize">10sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="TextAppearance.Hoode.NavLabel.Active" parent="TextAppearance.Hoode.NavLabel">
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/nav_active</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <!-- ─── Section Header ────────────────────────────────── -->
