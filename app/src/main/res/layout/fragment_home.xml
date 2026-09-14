@@ -81,7 +81,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/home_community_label"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium" />
 
                             <ImageView
@@ -106,7 +106,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-medium"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="11sp"
+                                android:textSize="14sp"
                                 tools:text="Assalamu Alaikum" />
 
                             <TextView
@@ -115,7 +115,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="4dp"
                                 android:textColor="@color/text_muted"
-                                android:textSize="10sp"
+                                android:textSize="12sp"
                                 tools:text="• 13 Sep 2026" />
                         </LinearLayout>
                     </LinearLayout>
@@ -146,7 +146,7 @@
                             android:background="@drawable/bg_circle_coral"
                             android:gravity="center"
                             android:textColor="@color/white"
-                            android:textSize="9sp"
+                            android:textSize="12sp"
                             android:fontFamily="sans-serif-medium"
                             android:visibility="gone"
                             tools:visibility="visible"
@@ -252,7 +252,7 @@
                 android:paddingHorizontal="@dimen/screen_padding_horizontal"
                 android:text="PRAYER TIMINGS"
                 android:textColor="@color/text_secondary"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 android:letterSpacing="0.08"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-medium" />
@@ -334,7 +334,7 @@
                             android:layout_marginTop="2dp"
                             android:text="Iqamah 4:50 PM"
                             android:textColor="@color/text_secondary"
-                            android:textSize="12sp" />
+                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/tv_mosque_name"
@@ -343,7 +343,7 @@
                             android:layout_marginTop="2dp"
                             android:text="Jamia Masjid Hoode"
                             android:textColor="@color/text_muted"
-                            android:textSize="11sp" />
+                            android:textSize="14sp" />
                     </LinearLayout>
 
                     <!-- Right: Circular Countdown Progress Bar (Interactive) -->
@@ -377,7 +377,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/accent_ink"
-                                android:textSize="11sp"
+                                android:textSize="14sp"
                                 android:textStyle="bold"
                                 android:fontFamily="sans-serif-medium"
                                 tools:text="15m" />
@@ -387,7 +387,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="LEFT"
                                 android:textColor="@color/text_muted"
-                                android:textSize="7sp"
+                                android:textSize="12sp"
                                 android:letterSpacing="0.05"
                                 android:fontFamily="sans-serif-medium" />
                         </LinearLayout>
@@ -426,9 +426,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="COMMUNITY ACTIVITIES"
+                    android:text="ACTIVITIES"
                     android:textColor="@color/text_secondary"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:letterSpacing="0.08"
                     android:textStyle="bold"
                     android:fontFamily="sans-serif-medium" />
@@ -439,7 +439,7 @@
                     android:layout_height="wrap_content"
                     android:text="View All"
                     android:textColor="@color/accent"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:fontFamily="sans-serif-medium" />
             </LinearLayout>
@@ -483,7 +483,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Religious"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:textStyle="bold" />
 
@@ -516,55 +516,36 @@
                         app:strokeColor="@color/border_green"
                         app:strokeWidth="1.5dp">
 
-                        <FrameLayout
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent">
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="8dp">
 
-                            <!-- Top Edge Badge (Airtel style) -->
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="top|center_horizontal"
-                                android:background="@drawable/bg_airtel_badge_dark"
-                                android:paddingHorizontal="8dp"
-                                android:paddingVertical="2dp"
-                                android:text="LIVE"
-                                android:textColor="@color/white"
-                                android:textSize="8sp"
-                                android:fontFamily="sans-serif-medium" />
+                                android:text="Community"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:padding="8dp">
+                            <FrameLayout
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:layout_marginTop="10dp"
+                                android:background="@drawable/bg_ring_circle_teal">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="6dp"
-                                    android:text="Community"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="12sp"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:textStyle="bold" />
-
-                                <FrameLayout
-                                    android:layout_width="44dp"
-                                    android:layout_height="44dp"
-                                    android:layout_marginTop="8dp"
-                                    android:background="@drawable/bg_ring_circle_teal">
-
-                                    <ImageView
-                                        android:layout_width="24dp"
-                                        android:layout_height="24dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_category_community"
-                                        app:tint="@color/accent" />
-                                </FrameLayout>
-                            </LinearLayout>
-                        </FrameLayout>
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_community"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+                        </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <!-- 3. Social -->
@@ -592,7 +573,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Social"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:textStyle="bold" />
 
@@ -645,7 +626,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Sports"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:textStyle="bold" />
 
@@ -678,54 +659,36 @@
                         app:strokeColor="@color/border_green"
                         app:strokeWidth="1.5dp">
 
-                        <FrameLayout
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent">
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="8dp">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="top|center_horizontal"
-                                android:background="@drawable/bg_airtel_badge_dark"
-                                android:paddingHorizontal="8dp"
-                                android:paddingVertical="2dp"
-                                android:text="NOTICE"
-                                android:textColor="@color/white"
-                                android:textSize="8sp"
-                                android:fontFamily="sans-serif-medium" />
+                                android:text="Condolences"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:padding="8dp">
+                            <FrameLayout
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:layout_marginTop="10dp"
+                                android:background="@drawable/bg_ring_circle_gold">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="6dp"
-                                    android:text="Condolences"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="12sp"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:textStyle="bold" />
-
-                                <FrameLayout
-                                    android:layout_width="44dp"
-                                    android:layout_height="44dp"
-                                    android:layout_marginTop="8dp"
-                                    android:background="@drawable/bg_ring_circle_gold">
-
-                                    <ImageView
-                                        android:layout_width="24dp"
-                                        android:layout_height="24dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_category_condolences"
-                                        app:tint="@color/accent" />
-                                </FrameLayout>
-                            </LinearLayout>
-                        </FrameLayout>
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_condolences"
+                                    app:tint="@color/accent" />
+                            </FrameLayout>
+                        </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <!-- 6. Dua Request -->
@@ -753,7 +716,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Dua Request"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:textStyle="bold" />
 
@@ -794,54 +757,36 @@
                         app:strokeColor="@color/border_green"
                         app:strokeWidth="1.5dp">
 
-                        <FrameLayout
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent">
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="8dp">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="top|center_horizontal"
-                                android:background="@drawable/bg_airtel_badge_dark"
-                                android:paddingHorizontal="8dp"
-                                android:paddingVertical="2dp"
-                                android:text="URGENT"
-                                android:textColor="@color/white"
-                                android:textSize="8sp"
-                                android:fontFamily="sans-serif-medium" />
+                                android:text="Blood"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:padding="8dp">
+                            <FrameLayout
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:layout_marginTop="10dp"
+                                android:background="@drawable/bg_ring_circle_coral">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="6dp"
-                                    android:text="Blood Network"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="12sp"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:textStyle="bold" />
-
-                                <FrameLayout
-                                    android:layout_width="44dp"
-                                    android:layout_height="44dp"
-                                    android:layout_marginTop="8dp"
-                                    android:background="@drawable/bg_ring_circle_coral">
-
-                                    <ImageView
-                                        android:layout_width="24dp"
-                                        android:layout_height="24dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_category_blood"
-                                        app:tint="@color/danger" />
-                                </FrameLayout>
-                            </LinearLayout>
-                        </FrameLayout>
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_category_blood"
+                                    app:tint="@color/danger" />
+                            </FrameLayout>
+                        </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <!-- 8. Mosques & Iqamah -->
@@ -867,9 +812,9 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Mosques"
+                                android:text="News"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:textStyle="bold" />
 
@@ -883,7 +828,7 @@
                                     android:layout_width="24dp"
                                     android:layout_height="24dp"
                                     android:layout_gravity="center"
-                                    android:src="@drawable/ic_category_prayer"
+                                    android:src="@drawable/ic_category_news"
                                     app:tint="@color/accent" />
                             </FrameLayout>
                         </LinearLayout>
@@ -914,7 +859,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Emergency"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:textStyle="bold" />
 
@@ -1125,7 +1070,7 @@
                                 android:layout_marginTop="6dp"
                                 android:text="Emergency"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:maxLines="1" />
                         </LinearLayout>
@@ -1156,7 +1101,7 @@
                                 android:layout_marginTop="6dp"
                                 android:text="Blood Help"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:maxLines="1" />
                         </LinearLayout>
@@ -1187,7 +1132,7 @@
                                 android:layout_marginTop="6dp"
                                 android:text="Prayers"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:maxLines="1" />
                         </LinearLayout>
@@ -1218,7 +1163,7 @@
                                 android:layout_marginTop="6dp"
                                 android:text="Jobs"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:maxLines="1" />
                         </LinearLayout>
@@ -1248,7 +1193,7 @@
                                 android:layout_marginTop="6dp"
                                 android:text="Tournaments"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:maxLines="1" />
                         </LinearLayout>
@@ -1289,7 +1234,7 @@
                                 android:layout_marginTop="6dp"
                                 android:text="Events"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:maxLines="1" />
                         </LinearLayout>
@@ -1320,7 +1265,7 @@
                                 android:layout_marginTop="6dp"
                                 android:text="Services"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:maxLines="1" />
                         </LinearLayout>
@@ -1351,7 +1296,7 @@
                                 android:layout_marginTop="6dp"
                                 android:text="News"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:maxLines="1" />
                         </LinearLayout>
@@ -1382,7 +1327,7 @@
                                 android:layout_marginTop="6dp"
                                 android:text="Polls"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:maxLines="1" />
                         </LinearLayout>
@@ -1412,7 +1357,7 @@
                                 android:layout_marginTop="6dp"
                                 android:text="Huffaz"
                                 android:textColor="@color/text_primary"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:maxLines="1" />
                         </LinearLayout>
