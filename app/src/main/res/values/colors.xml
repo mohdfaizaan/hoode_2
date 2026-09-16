@@ -23,11 +23,13 @@
     <color name="border_primary">#10B981</color>
     <color name="border_soft">#10B981</color>
     <color name="border_faint">#D1FAE5</color>
+    <color name="border_subtle">#E2E8F0</color>
 
     <!-- Text (Deep Navy/Charcoal from Neo-Bank Reference) -->
     <color name="text_primary">#0A192F</color>
     <color name="text_secondary">#475569</color>
     <color name="text_muted">#94A3B8</color>
+    <color name="text_tertiary">#94A3B8</color>
     <color name="text_on_accent">#FFFFFF</color>
     <color name="text_on_dark">#FFFFFF</color>
     <color name="text_link">#059669</color>
@@ -72,10 +74,17 @@
     <color name="emergency">#EF4444</color>
     <color name="emergency_soft">#FEE2E2</color>
 
-    <!-- Bottom Navigation (Dark Green active effect, Light Green indicator) -->
+    <!-- Legacy/Tab Colors -->
     <color name="nav_active">#064E3B</color>
     <color name="nav_inactive">#64748B</color>
     <color name="nav_indicator">#D1FAE5</color>
+
+    <!-- Bottom Navigation (Airtel-Style) -->
+    <color name="nav_selected_red">#F12832</color>
+    <color name="nav_unselected">#242424</color>
+    <color name="nav_outer_stroke">#E4ECF7</color>
+    <color name="nav_selected_background">#FCFCFD</color>
+    <color name="nav_selected_stroke">#E4EBF5</color>
 
     <!-- Shimmer/Skeleton -->
     <color name="shimmer_base">#F8FAFC</color>

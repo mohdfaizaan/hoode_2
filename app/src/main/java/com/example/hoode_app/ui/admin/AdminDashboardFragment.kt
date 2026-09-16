@@ -60,18 +60,10 @@ class AdminDashboardFragment : Fragment() {
 
     private fun showAddGalleryDialog() {
         val currentCount = HoodeRepository.galleryItems.value.size
-        if (currentCount >= 25) {
-            AlertDialog.Builder(requireContext())
-                .setTitle("Gallery Cap Reached (25/25)")
-                .setMessage("Per specification F17, the gallery has an enforced maximum cap of 25 active images. To add a new image, please replace or archive an existing photo.")
-                .setPositiveButton("OK", null)
-                .show()
-            return
-        }
 
         val input = EditText(requireContext()).apply { hint = "Photo Title (e.g. Bengre Sunrise)" }
         AlertDialog.Builder(requireContext())
-            .setTitle("Add Photo to Hoode Gallery ($currentCount/25)")
+            .setTitle("Add Photo to Hoode Gallery ($currentCount)")
             .setView(input)
             .setPositiveButton("Add Photo") { _, _ ->
                 val title = input.text.toString().trim()
@@ -83,7 +75,7 @@ class AdminDashboardFragment : Fragment() {
                         sortOrder = currentCount + 1
                     )
                     HoodeRepository.addGalleryItem(newItem)
-                    Toast.makeText(requireContext(), "Photo added to gallery ($currentCount+1/25)!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Photo added to gallery!", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Cancel", null)

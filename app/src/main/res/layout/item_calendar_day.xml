@@ -2,13 +2,14 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="48dp"
+    android:layout_height="44dp"
     android:padding="2dp">
 
     <FrameLayout
         android:id="@+id/fl_day_background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:layout_gravity="center"
         android:background="@android:color/transparent">
 
         <TextView
@@ -18,8 +19,17 @@
             android:layout_gravity="center"
             android:text="12"
             android:textColor="@color/text_primary"
-            android:textSize="16sp"
-            android:fontFamily="sans-serif" />
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium" />
+
+        <View
+            android:id="@+id/view_event_dot"
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/bg_bottom_nav_item_selected"
+            android:visibility="gone" />
 
     </FrameLayout>
 </FrameLayout>

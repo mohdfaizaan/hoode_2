@@ -238,42 +238,6 @@
                     android:textSize="15sp" />
             </LinearLayout>
 
-            <!-- Community Ward Selector -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_md"
-                android:text="Community Ward / Locality"
-                android:textColor="@color/text_primary"
-                android:fontFamily="sans-serif-medium"
-                android:textSize="14sp" />
-
-            <LinearLayout
-                android:id="@+id/btn_select_ward"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/input_height"
-                android:layout_marginTop="@dimen/spacing_xs"
-                android:background="@drawable/bg_search_bar"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="@dimen/spacing_md">
-
-                <TextView
-                    android:id="@+id/tv_selected_ward"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="🌊 Hoode &amp; Bengre Community"
-                    android:textColor="@color/text_primary"
-                    android:fontFamily="sans-serif-medium"
-                    android:textSize="15sp" />
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_chevron_down"
-                    app:tint="@color/text_muted" />
-            </LinearLayout>
 
             <!-- Password Field -->
             <TextView

@@ -82,30 +82,74 @@ class EventsFragment : Fragment() {
     }
 
     private fun showCreateEventDialog() {
-        val layout = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(48, 24, 48, 24)
-        }
-        val etTitle = EditText(requireContext()).apply { hint = "Event Title" }
-        val etDate = EditText(requireContext()).apply { hint = "Date & Time (e.g. Sunday 5:00 PM)" }
-        val etVenue = EditText(requireContext()).apply { hint = "Venue (e.g. Community Hall)" }
-        val etCategory = EditText(requireContext()).apply { hint = "Category (Majlis, Wedding, Meeting)" }
-        layout.addView(etTitle)
-        layout.addView(etDate)
-        layout.addView(etVenue)
-        layout.addView(etCategory)
+        val dialog = android.app.Dialog(requireContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar)
+        val formBinding = com.example.hoode_app.databinding.DialogFormPostEventBinding.inflate(layoutInflater)
+        dialog.setContentView(formBinding.root)
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("Post Community Event")
-            .setView(layout)
-            .setPositiveButton("Submit for Approval") { _, _ ->
-                val title = etTitle.text.toString().trim()
-                if (title.isNotBlank()) {
-                    Toast.makeText(requireContext(), "Event '$title' submitted for moderator review.", Toast.LENGTH_LONG).show()
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.94).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        var selectedCategory = "Community"
+        val categoryChips = listOf(
+            formBinding.chipEvCommunity to "Community",
+            formBinding.chipEvMajlis to "Majlis / Dars",
+            formBinding.chipEvSports to "Sports Meet",
+            formBinding.chipEvWedding to "Wedding / Nikah",
+            formBinding.chipEvCivic to "Civic Drive"
+        )
+
+        for ((chipView, categoryName) in categoryChips) {
+            chipView.setOnClickListener {
+                selectedCategory = categoryName
+                for ((v, name) in categoryChips) {
+                    if (name == selectedCategory) {
+                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                    } else {
+                        v.setBackgroundResource(R.drawable.bg_chip_unselected)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+                    }
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }
+
+        formBinding.btnClosePostEvent.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        formBinding.btnSubmitEvent.setOnClickListener {
+            val title = formBinding.etEventTitle.text.toString().trim()
+            val date = formBinding.etEventDate.text.toString().trim()
+            val venue = formBinding.etEventVenue.text.toString().trim()
+            val desc = formBinding.etEventDescription.text.toString().trim()
+            val organizer = formBinding.etEventOrganizer.text.toString().trim()
+
+            if (title.isBlank()) {
+                formBinding.tilEventTitle.error = "Please enter event title"
+                return@setOnClickListener
+            }
+            formBinding.tilEventTitle.error = null
+
+            if (date.isBlank()) {
+                formBinding.tilEventDate.error = "Please enter date and time"
+                return@setOnClickListener
+            }
+            formBinding.tilEventDate.error = null
+
+            if (venue.isBlank()) {
+                formBinding.tilEventVenue.error = "Please enter venue"
+                return@setOnClickListener
+            }
+            formBinding.tilEventVenue.error = null
+
+            Toast.makeText(requireContext(), "Event '$title' ($selectedCategory) submitted for community review!", Toast.LENGTH_LONG).show()
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     override fun onDestroyView() {

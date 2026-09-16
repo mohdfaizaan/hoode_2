@@ -74,7 +74,7 @@ class InboxFragment : Fragment() {
         ),
         CommunityChat(
             id = "chat_04",
-            senderName = "HPL Tournament Desk",
+            senderName = "Tournament Desk",
             itemTitle = "Bengre Strikers Roster",
             lastMessage = "Team registration accepted for Group B fixtures.",
             timestamp = "Sep 07",
@@ -82,7 +82,7 @@ class InboxFragment : Fragment() {
             isUnread = false,
             messages = mutableListOf(
                 "You" to "Submitted team roster for 11 players + 3 reserves.",
-                "HPL Tournament Desk" to "Team registration accepted for Group B fixtures."
+                "Tournament Desk" to "Team registration accepted for Group B fixtures."
             )
         ),
         CommunityChat(

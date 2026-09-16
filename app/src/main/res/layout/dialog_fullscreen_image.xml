@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FF000000"> <!-- Solid black for fullscreen gallery -->
+
+    <!-- The actual image -->
+    <ImageView
+        android:id="@+id/ivFullscreenImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter" />
+
+    <!-- Overlay container for text at the bottom -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#80000000"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/tvFullscreenTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:text="Image Title" />
+
+        <TextView
+            android:id="@+id/tvFullscreenCaption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#DDDDDD"
+            android:layout_marginTop="4dp"
+            android:textSize="14sp"
+            android:text="Caption goes here" />
+
+        <TextView
+            android:id="@+id/tvFullscreenUploader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="#62E8CF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:text="Uploaded by: Person" />
+
+    </LinearLayout>
+
+    <!-- Close button top right -->
+    <ImageButton
+        android:id="@+id/btnCloseFullscreen"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:tint="#FFFFFF"
+        android:contentDescription="Close" />
+
+</RelativeLayout>

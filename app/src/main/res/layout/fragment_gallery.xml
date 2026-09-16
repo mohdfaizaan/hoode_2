@@ -37,12 +37,27 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tv_gallery_count"
+            android:id="@+id/btn_add_photo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_pill_accent"
-            android:text="25 Photos"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
+            android:text="+ Add Photo"
             android:textColor="@color/accent_ink"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_gallery_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_pill_neutral"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp"
+            android:text="Photos"
+            android:textColor="@color/text_secondary"
             android:textSize="12sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -62,6 +77,6 @@
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/spacing_md"
         android:clipToPadding="false"
-        android:paddingBottom="@dimen/spacing_xxxl" />
+        android:paddingBottom="@dimen/bottom_nav_content_padding" />
 
 </LinearLayout>

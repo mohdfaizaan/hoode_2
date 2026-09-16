@@ -104,7 +104,7 @@ class ProfileFragment : Fragment() {
             showAvatarSelectionDialog()
         }
         binding.btnEditProfile.setOnClickListener {
-            showEditProfileDialog()
+            findNavController().navigate(R.id.editProfileFragment)
         }
     }
 
@@ -191,7 +191,12 @@ class ProfileFragment : Fragment() {
             tvMenuLabel.text = getString(R.string.profile_language)
             tvMenuSubtitle.text = "English, ಕನ್ನಡ (Kannada), اردو (Urdu)"
             tvMenuSubtitle.visibility = View.VISIBLE
-            tvMenuBadge.text = "English"
+            val currentLocaleTag = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales().toLanguageTags()
+            tvMenuBadge.text = when {
+                currentLocaleTag.startsWith("kn") -> "ಕನ್ನಡ"
+                currentLocaleTag.startsWith("ur") -> "اردو"
+                else -> "English"
+            }
             tvMenuBadge.visibility = View.VISIBLE
             root.setOnClickListener {
                 showLanguageDialog()
@@ -246,7 +251,7 @@ class ProfileFragment : Fragment() {
             "📦 Classified: Teakwood Study Table (₹3,200) — Active",
             "📢 Civic Report: Bengre Beach Streetlight Outage — In Progress",
             "🩸 Blood Registry: O+ Emergency Donor — Available",
-            "🏏 HPL 2026: Team Hoode Coastal Strikers — Registered"
+            "🏏 Tournament 2026: Team Hoode Coastal Strikers — Registered"
         )
 
         AlertDialog.Builder(requireContext())
@@ -289,65 +294,40 @@ class ProfileFragment : Fragment() {
     }
 
     private fun showMedicalProfileDialog() {
-        val layout = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(48, 36, 48, 24)
+        val dialog = android.app.Dialog(requireContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar)
+        val formBinding = com.example.hoode_app.databinding.DialogFormMedicalProfileBinding.inflate(layoutInflater)
+        dialog.setContentView(formBinding.root)
+
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.94).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val currentUser = HoodeRepository.currentUser.value
+        val bloodGroup = currentUser?.bloodGroup ?: "O+"
+        formBinding.tvMedicalBloodGroup.text = "Registered Blood Group: $bloodGroup (Universal Red Cell Donor)"
+
+        formBinding.etMedicalIce.setText("Arshad (Brother) — +91 98450 67890")
+        formBinding.etMedicalAllergies.setText("Penicillin allergy • Nil chronic ailments")
+
+        formBinding.btnCloseMedical.setOnClickListener {
+            dialog.dismiss()
         }
 
-        val tvBloodGroup = TextView(requireContext()).apply {
-            text = "Blood Group: O Positive (Universal Red Cell Donor)"
-            textSize = 14f
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-        }
-
-        val etIce = EditText(requireContext()).apply {
-            hint = "Emergency Contact (ICE Name & Phone)"
-            setText("Arshad (Brother) — +91 98450 67890")
-            setBackgroundResource(R.drawable.bg_search_bar)
-            setPadding(36, 24, 36, 24)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = 20 }
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-        }
-
-        val etAllergies = EditText(requireContext()).apply {
-            hint = "Known Medical Conditions / Allergies"
-            setText("Penicillin allergy • Nil chronic ailments")
-            setBackgroundResource(R.drawable.bg_search_bar)
-            setPadding(36, 24, 36, 24)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = 20 }
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-        }
-
-        val swDonorPledge = SwitchCompat(requireContext()).apply {
-            text = "Active in Hoode Emergency Blood Network"
-            isChecked = true
-            textSize = 13f
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = 24 }
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-        }
-
-        layout.addView(tvBloodGroup)
-        layout.addView(etIce)
-        layout.addView(etAllergies)
-        layout.addView(swDonorPledge)
-
-        AlertDialog.Builder(requireContext())
-            .setTitle("Emergency Medical Profile")
-            .setView(layout)
-            .setPositiveButton("Save Profile") { _, _ ->
-                Toast.makeText(requireContext(), "Emergency medical profile saved securely.", Toast.LENGTH_SHORT).show()
+        formBinding.btnSaveMedical.setOnClickListener {
+            val ice = formBinding.etMedicalIce.text.toString().trim()
+            if (ice.isBlank()) {
+                formBinding.tilMedicalIce.error = "Please enter an emergency contact"
+                return@setOnClickListener
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+            formBinding.tilMedicalIce.error = null
+
+            Toast.makeText(requireContext(), "Emergency medical profile saved securely.", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun showPrivacyDialog() {
@@ -426,7 +406,7 @@ class ProfileFragment : Fragment() {
         val bookmarks = arrayOf(
             "🕌 Hoode Juma Masjid — Today's Prayer Timetable",
             "🚑 Hoode Emergency Ambulance (+91 820 252 0108)",
-            "🏏 HPL 2026 — Tournament Schedule & Standings",
+            "🏏 Tournament 2026 — Schedule & Standings",
             "🐟 Fresh Catch of the Day — Coastal Fisheries",
             "📢 Coastal Seawall Project Approval — Verified News"
         )
@@ -540,17 +520,20 @@ class ProfileFragment : Fragment() {
     }
 
     private fun showLanguageDialog() {
-        val languages = arrayOf("English (Selected)", "ಕನ್ನಡ (Kannada)", "اردو (Urdu)")
+        val languages = arrayOf("English", "ಕನ್ನಡ (Kannada)", "اردو (Urdu)")
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.profile_language)
             .setItems(languages) { _, which ->
-                val selected = when (which) {
-                    0 -> "English"
-                    1 -> "ಕನ್ನಡ"
-                    else -> "اردو"
+                val (localeTag, displayName) = when (which) {
+                    1 -> "kn" to "ಕನ್ನಡ"
+                    2 -> "ur" to "اردو"
+                    else -> "en" to "English"
                 }
-                binding.menuLanguage.tvMenuBadge.text = selected
-                Toast.makeText(requireContext(), "Interface language set to: $selected", Toast.LENGTH_SHORT).show()
+                androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(
+                    androidx.core.os.LocaleListCompat.forLanguageTags(localeTag)
+                )
+                binding.menuLanguage.tvMenuBadge.text = displayName
+                Toast.makeText(requireContext(), "Interface language set to: $displayName", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Dismiss", null)
             .show()

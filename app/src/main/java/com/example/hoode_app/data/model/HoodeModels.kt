@@ -103,7 +103,9 @@ data class LostFoundItem(
     val area: String,
     val date: String,
     val description: String,
-    val status: String = "open" // open, claim_pending, resolved
+    val status: String = "open", // open, claim_pending, resolved
+    val images: List<String> = emptyList(),
+    val contactPhone: String = "+91 820 252 0100"
 )
 
 // ── F05: Tournaments & Matches ───────────────────────────────
@@ -240,7 +242,9 @@ data class ClassifiedItem(
     val description: String,
     val sellerName: String,
     val date: String,
-    val isSold: Boolean = false
+    val isSold: Boolean = false,
+    val images: List<String> = emptyList(),
+    val phone: String = "9876543210"
 )
 
 // ── F13: Notifications ───────────────────────────────────────
@@ -265,7 +269,8 @@ data class NewsArticle(
     val verifiedDate: String,
     val sources: List<String>,
     val isRumorClarification: Boolean = false,
-    val status: String = "verified" // verified, rumor_clarified, under_review
+    val status: String = "verified", // verified, rumor_clarified, under_review
+    val imageUrl: String = "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800"
 )
 
 // ── F15: Handyman & Service Providers ────────────────────────
@@ -303,7 +308,7 @@ data class GalleryItem(
     val title: String,
     val caption: String,
     val photographer: String,
-    val sortOrder: Int,
+    val sortOrder: Int = 0,
     val colorHex: String = "#62E8CF",
     val imageUrl: String = ""
 )

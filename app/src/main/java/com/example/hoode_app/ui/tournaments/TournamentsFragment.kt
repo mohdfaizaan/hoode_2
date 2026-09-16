@@ -1,20 +1,26 @@
 package com.example.hoode_app.ui.tournaments
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.hoode_app.R
 import com.example.hoode_app.data.repository.HoodeRepository
+import com.example.hoode_app.databinding.DialogFormRegisterTeamBinding
 import com.example.hoode_app.databinding.FragmentTournamentsBinding
 import com.example.hoode_app.databinding.ItemFixtureCardBinding
 import com.example.hoode_app.databinding.ItemStandingRowBinding
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -22,6 +28,7 @@ class TournamentsFragment : Fragment() {
 
     private var _binding: FragmentTournamentsBinding? = null
     private val binding get() = _binding!!
+    private var selectedSport = "All"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,29 +47,27 @@ class TournamentsFragment : Fragment() {
         }
 
         binding.btnRegisterTeam.setOnClickListener {
-            val input = EditText(requireContext()).apply { hint = "Team Name (e.g. Hoode Lions)" }
-            AlertDialog.Builder(requireContext())
-                .setTitle("Register Tournament Team")
-                .setMessage("Enter your team name and captain details. Minimum 11 squad members.")
-                .setView(input)
-                .setPositiveButton("Register") { _, _ ->
-                    val team = input.text.toString().trim()
-                    if (team.isNotBlank()) {
-                        HoodeRepository.registerTournamentTeam(team)
-                        Toast.makeText(requireContext(), "Team '$team' registered for HPL Season 7!", Toast.LENGTH_LONG).show()
-                    }
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
+            showRegisterTeamDialog()
         }
+
+        binding.btnHeroRegister?.setOnClickListener {
+            showRegisterTeamDialog()
+        }
+
+        setupSportFilterChips()
 
         viewLifecycleOwner.lifecycleScope.launch {
             HoodeRepository.standings.collectLatest { standingsList ->
                 binding.llStandingsContainer.removeAllViews()
-                for (standing in standingsList) {
+                standingsList.forEachIndexed { index, standing ->
                     val rowBinding = ItemStandingRowBinding.inflate(layoutInflater, binding.llStandingsContainer, false)
+                    rowBinding.tvStandingRank.text = (index + 1).toString()
                     rowBinding.tvStandingTeam.text = standing.teamName
-                    rowBinding.tvStandingStats.text = "P:${standing.played}  W:${standing.won}  Pts:${standing.points} (${standing.netRunRate})"
+                    rowBinding.tvStandingPlayed.text = standing.played.toString()
+                    rowBinding.tvStandingWon.text = standing.won.toString()
+                    rowBinding.tvStandingLost.text = standing.lost.toString()
+                    rowBinding.tvStandingStats.text = "${standing.points} pts"
+                    rowBinding.tvStandingNrr.text = standing.netRunRate
                     binding.llStandingsContainer.addView(rowBinding.root)
                 }
             }
@@ -74,8 +79,10 @@ class TournamentsFragment : Fragment() {
                 for (fixture in fixturesList) {
                     val cardBinding = ItemFixtureCardBinding.inflate(layoutInflater, binding.llFixturesContainer, false)
                     cardBinding.tvFixtureRound.text = fixture.round
-                    cardBinding.tvFixtureTime.text = "${fixture.time} • ${fixture.venue}"
-                    cardBinding.tvFixtureMatch.text = "${fixture.teamA} vs ${fixture.teamB}"
+                    cardBinding.tvFixtureTime.text = fixture.time
+                    cardBinding.tvFixtureTeamA.text = fixture.teamA
+                    cardBinding.tvFixtureTeamB.text = fixture.teamB
+                    cardBinding.tvFixtureVenue.text = fixture.venue
                     if (fixture.scoreA != null) {
                         cardBinding.tvFixtureScore.visibility = View.VISIBLE
                         cardBinding.tvFixtureScore.text = "${fixture.teamA}: ${fixture.scoreA} • ${fixture.teamB}: ${fixture.scoreB}"
@@ -86,6 +93,88 @@ class TournamentsFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun setupSportFilterChips() {
+        val chips = listOf(
+            binding.chipSportAll to "All",
+            binding.chipSportCricket to "Cricket",
+            binding.chipSportFootball to "Football",
+            binding.chipSportBadminton to "Badminton"
+        )
+
+        for ((view, sport) in chips) {
+            view.setOnClickListener {
+                selectedSport = sport
+                for ((v, s) in chips) {
+                    if (s == selectedSport) {
+                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                    } else {
+                        v.setBackgroundResource(R.drawable.bg_chip_unselected)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+                    }
+                }
+                if (sport != "Cricket" && sport != "All") {
+                    Toast.makeText(requireContext(), "$sport tournaments scheduled for next quarter!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun showRegisterTeamDialog() {
+        val dialog = Dialog(requireContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar)
+        val dialogBinding = DialogFormRegisterTeamBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
+
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.94).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val currentUser = HoodeRepository.currentUser.value
+        currentUser?.let {
+            dialogBinding.etCaptainName.setText(it.displayName)
+            dialogBinding.etCaptainPhone.setText(it.phone ?: "")
+            if (!it.locality.isNullOrBlank()) {
+                dialogBinding.etTeamLocality.setText(it.locality)
+            }
+        }
+
+        dialogBinding.btnCloseRegister.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogBinding.btnSubmitTeam.setOnClickListener {
+            val teamName = dialogBinding.etTeamName.text.toString().trim()
+            val captainName = dialogBinding.etCaptainName.text.toString().trim()
+            val phone = dialogBinding.etCaptainPhone.text.toString().trim()
+
+            if (teamName.isBlank()) {
+                dialogBinding.tilTeamName.error = "Please enter your team name"
+                return@setOnClickListener
+            }
+            dialogBinding.tilTeamName.error = null
+
+            if (captainName.isBlank()) {
+                dialogBinding.tilCaptainName.error = "Please enter captain name"
+                return@setOnClickListener
+            }
+            dialogBinding.tilCaptainName.error = null
+
+            if (phone.isBlank()) {
+                dialogBinding.tilCaptainPhone.error = "Please enter contact phone"
+                return@setOnClickListener
+            }
+            dialogBinding.tilCaptainPhone.error = null
+
+            HoodeRepository.registerTournamentTeam(teamName)
+            Toast.makeText(requireContext(), "Team '$teamName' registered for the Tournament!", Toast.LENGTH_LONG).show()
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     override fun onDestroyView() {

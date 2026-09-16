@@ -38,7 +38,7 @@ class GalleryPreviewAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         holder.tvTitle.text = item.title
-        holder.tvOrder.text = "${position + 1} of ${items.size}"
+        holder.tvOrder.visibility = View.GONE
         holder.tvPhotographer?.text = "📸 ${item.photographer}"
 
         if (item.imageUrl.isNotBlank()) {

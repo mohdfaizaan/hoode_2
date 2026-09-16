@@ -1,103 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_classified_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/spacing_md"
-    app:cardCornerRadius="@dimen/radius_card"
+    android:layout_marginBottom="12dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardCornerRadius="16dp"
     app:cardElevation="2dp"
-    app:cardBackgroundColor="@color/surface">
+    app:cardBackgroundColor="@color/surface"
+    app:strokeColor="@color/border_green_soft"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_card_bordered"
-        android:padding="@dimen/spacing_lg"
-        android:orientation="vertical">
+        android:background="?attr/selectableItemBackground"
+        android:orientation="horizontal"
+        android:padding="12dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+        <!-- Product Image Container -->
+        <FrameLayout
+            android:layout_width="110dp"
+            android:layout_height="110dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_classified_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:background="@drawable/bg_gallery_luxury_gradient"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent" />
 
             <TextView
                 android:id="@+id/tv_classified_type"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="top|start"
+                android:layout_margin="6dp"
                 android:background="@drawable/bg_pill_accent"
-                android:text="FOR SALE"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
                 android:textColor="@color/accent_ink"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+                android:textSize="9sp"
+                android:textStyle="bold"
+                tools:text="FOR SALE" />
 
+            <!-- Multiple images indicator badge -->
             <TextView
-                android:id="@+id/tv_classified_category"
+                android:id="@+id/tv_image_count_badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_sm"
-                android:background="@drawable/bg_pill_neutral"
-                android:text="Vehicles"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
+                android:layout_gravity="bottom|end"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_gallery_pill"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:textColor="@color/white"
+                android:textSize="9sp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                tools:text="📷 3" />
+        </FrameLayout>
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
+        <!-- Product Details -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tv_classified_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="₹3,800"
+                android:fontFamily="sans-serif-black"
                 android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="18sp"
+                tools:text="₹3,800" />
+
+            <TextView
+                android:id="@+id/tv_classified_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="2"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                tools:text="Hercules 26T Mountain Bicycle with Disc Brakes" />
+
+            <TextView
+                android:id="@+id/tv_classified_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_pill_neutral"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                tools:text="Vehicles" />
+
+            <TextView
+                android:id="@+id/tv_classified_area_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/text_muted"
+                android:textSize="11sp"
+                tools:text="Kemmannu Road • 2 days ago" />
+
+            <!-- Hidden views to preserve compatibility with existing bindings -->
+            <TextView
+                android:id="@+id/tv_classified_description"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+
+            <View
+                android:id="@+id/btn_send_inquiry"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_classified_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:text="Hercules 26T Mountain Bicycle"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tv_classified_area_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="Kemmannu Road • Seller: Arshad • 08 Sep"
-            android:textColor="@color/text_muted"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/tv_classified_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:text="Excellent condition with front suspension and dual disc brakes."
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_send_inquiry"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginTop="@dimen/spacing_md"
-            android:text="Send Private Inquiry"
-            android:textColor="@color/border_primary"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            app:cornerRadius="@dimen/radius_control"
-            app:backgroundTint="@color/surface"
-            app:strokeColor="@color/border_primary"
-            app:strokeWidth="1dp" />
-
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

@@ -68,6 +68,7 @@
 
     <!-- Component Sizes -->
     <dimen name="bottom_nav_height">68dp</dimen>
+    <dimen name="bottom_nav_content_padding">110dp</dimen>
     <dimen name="carousel_height">200dp</dimen>
     <dimen name="prayer_hero_height">160dp</dimen>
     <dimen name="prayer_ring_size">88dp</dimen>

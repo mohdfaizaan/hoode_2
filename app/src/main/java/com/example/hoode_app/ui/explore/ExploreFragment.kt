@@ -105,10 +105,10 @@ class ExploreFragment : Fragment() {
         configureCard(
             binding.featureTournaments,
             R.drawable.ic_tournament,
-            "HPL Tournaments",
+            "Tournaments",
             "Fixtures, points & tables",
             R.id.tournamentsFragment,
-            "tournament hpl cricket match fixtures score table standings"
+            "tournament sports cricket match fixtures score table standings"
         )
 
         configureCard(

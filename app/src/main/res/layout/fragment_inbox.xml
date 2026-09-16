@@ -105,6 +105,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:clipToPadding="false"
         android:layout_marginTop="@dimen/spacing_sm">
 
         <LinearLayout
@@ -112,7 +113,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="@dimen/screen_padding_horizontal"
-            android:paddingBottom="@dimen/spacing_xxxl">
+            android:paddingBottom="@dimen/bottom_nav_content_padding">
 
             <!-- Dynamic Conversation Cards Container -->
             <LinearLayout

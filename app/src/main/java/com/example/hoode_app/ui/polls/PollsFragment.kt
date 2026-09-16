@@ -120,36 +120,71 @@ class PollsFragment : Fragment() {
     }
 
     private fun showReportIssueDialog() {
-        val layout = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(48, 24, 48, 24)
-        }
-        val etTitle = EditText(requireContext()).apply { hint = "Issue Summary (e.g. Streetlight out, Road pothole)" }
-        val etCat = EditText(requireContext()).apply { hint = "Category (Streetlights, Roads, Waste, Drainage)" }
-        val etLoc = EditText(requireContext()).apply { hint = "Exact Location / Landmark" }
-        layout.addView(etTitle)
-        layout.addView(etCat)
-        layout.addView(etLoc)
+        val dialog = android.app.Dialog(requireContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar)
+        val formBinding = com.example.hoode_app.databinding.DialogFormReportCivicBinding.inflate(layoutInflater)
+        dialog.setContentView(formBinding.root)
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("Report Civic Issue")
-            .setView(layout)
-            .setPositiveButton("Submit Issue") { _, _ ->
-                val title = etTitle.text.toString().trim()
-                val cat = etCat.text.toString().trim()
-                val loc = etLoc.text.toString().trim()
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.94).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-                if (title.isNotBlank() && loc.isNotBlank()) {
-                    HoodeRepository.submitCivicIssue(
-                        title = title,
-                        category = if (cat.isNotBlank()) cat else "General",
-                        location = loc
-                    )
-                    Toast.makeText(requireContext(), "Issue reported to community civic board!", Toast.LENGTH_SHORT).show()
+        var selectedCategory = "Streetlights"
+        val categoryChips = listOf(
+            formBinding.chipCivicLights to "Streetlights",
+            formBinding.chipCivicRoads to "Roads & Potholes",
+            formBinding.chipCivicWaste to "Waste / Trash",
+            formBinding.chipCivicDrainage to "Drainage & Water",
+            formBinding.chipCivicBeach to "Beach Cleanliness"
+        )
+
+        for ((chipView, catName) in categoryChips) {
+            chipView.setOnClickListener {
+                selectedCategory = catName
+                for ((v, name) in categoryChips) {
+                    if (name == selectedCategory) {
+                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                    } else {
+                        v.setBackgroundResource(R.drawable.bg_chip_unselected)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+                    }
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }
+
+        formBinding.btnCloseReportCivic.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        formBinding.btnSubmitCivic.setOnClickListener {
+            val title = formBinding.etCivicTitle.text.toString().trim()
+            val loc = formBinding.etCivicLocation.text.toString().trim()
+            val details = formBinding.etCivicDetails.text.toString().trim()
+
+            if (title.isBlank()) {
+                formBinding.tilCivicTitle.error = "Please enter issue summary"
+                return@setOnClickListener
+            }
+            formBinding.tilCivicTitle.error = null
+
+            if (loc.isBlank()) {
+                formBinding.tilCivicLocation.error = "Please enter location"
+                return@setOnClickListener
+            }
+            formBinding.tilCivicLocation.error = null
+
+            HoodeRepository.submitCivicIssue(
+                title = title,
+                category = selectedCategory,
+                location = loc
+            )
+            Toast.makeText(requireContext(), "Civic issue reported to Hoode board!", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     override fun onDestroyView() {

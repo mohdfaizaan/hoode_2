@@ -73,7 +73,7 @@ class NotificationCenterFragment : Fragment() {
             cat.contains("blood") || title.contains("blood") || title.contains("donor") -> {
                 findNavController().navigate(R.id.bloodNetworkFragment)
             }
-            cat.contains("sports") || cat.contains("tournament") || title.contains("hpl") || title.contains("cricket") -> {
+            cat.contains("sports") || cat.contains("tournament") || title.contains("cricket") -> {
                 findNavController().navigate(R.id.tournamentsFragment)
             }
             cat.contains("news") || title.contains("update") || title.contains("official") -> {

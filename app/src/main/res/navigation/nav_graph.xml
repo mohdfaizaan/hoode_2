@@ -253,4 +253,10 @@
         android:label="Community Calendar"
         tools:layout="@layout/fragment_calendar" />
 
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.hoode_app.ui.profile.EditProfileFragment"
+        android:label="Edit Profile"
+        tools:layout="@layout/fragment_edit_profile" />
+
 </navigation>

@@ -43,19 +43,42 @@ class EmergencyFragment : Fragment() {
         }
 
         binding.btnSuggestCorrection.setOnClickListener {
-            val input = EditText(requireContext())
-            input.hint = "Detail new number or department correction"
-            AlertDialog.Builder(requireContext())
-                .setTitle("Suggest Directory Correction")
-                .setView(input)
-                .setPositiveButton("Submit") { _, _ ->
-                    val text = input.text.toString().trim()
-                    if (text.isNotBlank()) {
-                        Toast.makeText(requireContext(), "Thank you. Your correction was submitted for review.", Toast.LENGTH_LONG).show()
-                    }
+            val dialog = android.app.Dialog(requireContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar)
+            val formBinding = com.example.hoode_app.databinding.DialogFormSuggestCorrectionBinding.inflate(layoutInflater)
+            dialog.setContentView(formBinding.root)
+
+            dialog.window?.setLayout(
+                (resources.displayMetrics.widthPixels * 0.94).toInt(),
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+            formBinding.btnCloseSuggestCorrection.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            formBinding.btnSubmitCorrection.setOnClickListener {
+                val service = formBinding.etCorrectionService.text.toString().trim()
+                val phone = formBinding.etCorrectionPhone.text.toString().trim()
+                val details = formBinding.etCorrectionDetails.text.toString().trim()
+
+                if (service.isBlank()) {
+                    formBinding.tilCorrectionService.error = "Please enter service name"
+                    return@setOnClickListener
                 }
-                .setNegativeButton("Cancel", null)
-                .show()
+                formBinding.tilCorrectionService.error = null
+
+                if (phone.isBlank()) {
+                    formBinding.tilCorrectionPhone.error = "Please enter contact number"
+                    return@setOnClickListener
+                }
+                formBinding.tilCorrectionPhone.error = null
+
+                Toast.makeText(requireContext(), "Thank you! Correction for '$service' submitted for verification.", Toast.LENGTH_LONG).show()
+                dialog.dismiss()
+            }
+
+            dialog.show()
         }
 
         viewLifecycleOwner.lifecycleScope.launch {

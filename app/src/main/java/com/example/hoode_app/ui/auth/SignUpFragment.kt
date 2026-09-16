@@ -39,24 +39,9 @@ class SignUpFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        // Google Sign-Up shortcut
-        binding.btnGoogleSignUp.setOnClickListener {
-            findNavController().navigate(R.id.action_signUp_to_googleSignIn)
-        }
-
-        // Ward Selection
-        binding.btnSelectWard.setOnClickListener {
-            val wards = arrayOf(
-                "🌊 Hoode Community"
-            )
-            AlertDialog.Builder(requireContext())
-                .setTitle("Select Your Community")
-                .setItems(wards) { _, _ ->
-                    binding.tvSelectedWard.text = "🌊 Hoode Community"
-                    selectedWard = "Hoode"
-                }
-                .show()
-        }
+        // Google Sign-Up shortcut (displayed but not clickable)
+        binding.btnGoogleSignUp.setOnClickListener(null)
+        binding.btnGoogleSignUp.isClickable = false
 
         // Toggle Password Visibility
         binding.btnTogglePassword.setOnClickListener {

@@ -102,10 +102,9 @@ class SignInFragment : Fragment() {
             }
         }
 
-        // Google Sign-In
-        binding.btnGoogleSignIn.setOnClickListener {
-            findNavController().navigate(R.id.action_signIn_to_googleSignIn)
-        }
+        // Google Sign-In (displayed but not clickable)
+        binding.btnGoogleSignIn.setOnClickListener(null)
+        binding.btnGoogleSignIn.isClickable = false
 
         // Navigate to Register
         binding.btnGoToSignup.setOnClickListener {

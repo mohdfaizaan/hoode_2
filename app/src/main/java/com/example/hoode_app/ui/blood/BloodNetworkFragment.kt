@@ -133,79 +133,154 @@ class BloodNetworkFragment : Fragment() {
     }
 
     private fun showCreateBloodRequestDialog() {
-        val layout = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(48, 24, 48, 24)
-        }
-        val etPatient = EditText(requireContext()).apply { hint = "Patient / Attender Name" }
-        val etGroup = EditText(requireContext()).apply { hint = "Blood Group (e.g. O+, B-, AB+)" }
-        val etHospital = EditText(requireContext()).apply { hint = "Hospital (e.g. Adarsh Hospital, Manipal)" }
-        val etUnits = EditText(requireContext()).apply { hint = "Units Required (e.g. 2)" }
-        val etPhone = EditText(requireContext()).apply { hint = "Emergency Contact Phone" }
+        val dialog = android.app.Dialog(requireContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar)
+        val formBinding = com.example.hoode_app.databinding.DialogFormBloodRequestBinding.inflate(layoutInflater)
+        dialog.setContentView(formBinding.root)
 
-        layout.addView(etPatient)
-        layout.addView(etGroup)
-        layout.addView(etHospital)
-        layout.addView(etUnits)
-        layout.addView(etPhone)
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.94).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("Post Emergency Blood Request")
-            .setMessage("Coordinator verification is enforced to prevent spam and duplicate calls.")
-            .setView(layout)
-            .setPositiveButton("Broadcast Alert") { _, _ ->
-                val group = etGroup.text.toString().trim().uppercase()
-                val hospital = etHospital.text.toString().trim()
-                val units = etUnits.text.toString().trim().toIntOrNull() ?: 1
-                val phone = etPhone.text.toString().trim()
+        var selectedBlood = "O+"
+        val groupChips = listOf(
+            formBinding.chipBgOpos to "O+",
+            formBinding.chipBgApos to "A+",
+            formBinding.chipBgBpos to "B+",
+            formBinding.chipBgAbpos to "AB+",
+            formBinding.chipBgOneg to "O-",
+            formBinding.chipBgAneg to "A-",
+            formBinding.chipBgBneg to "B-",
+            formBinding.chipBgAbneg to "AB-"
+        )
 
-                if (group.isNotBlank() && hospital.isNotBlank()) {
-                    val newReq = BloodRequest(
-                        bloodGroup = group,
-                        hospital = hospital,
-                        unitsNeeded = units,
-                        neededBy = "Immediate Emergency",
-                        coordinatorPhone = if (phone.isNotBlank()) phone else "+91 98450 99887"
-                    )
-                    HoodeRepository.postBloodRequest(newReq)
-                    Toast.makeText(requireContext(), "Emergency blood call broadcasted to verified donors!", Toast.LENGTH_LONG).show()
+        for ((chipView, groupName) in groupChips) {
+            chipView.setOnClickListener {
+                selectedBlood = groupName
+                for ((v, name) in groupChips) {
+                    if (name == selectedBlood) {
+                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                    } else {
+                        v.setBackgroundResource(R.drawable.bg_chip_unselected)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+                    }
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }
+
+        formBinding.btnCloseBloodReq.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        formBinding.btnSubmitBloodReq.setOnClickListener {
+            val patient = formBinding.etBloodPatient.text.toString().trim()
+            val hospital = formBinding.etBloodHospital.text.toString().trim()
+            val units = formBinding.etBloodUnits.text.toString().trim().toIntOrNull() ?: 1
+            val phone = formBinding.etBloodPhone.text.toString().trim()
+
+            if (hospital.isBlank()) {
+                formBinding.tilBloodHospital.error = "Please enter hospital name"
+                return@setOnClickListener
+            }
+            formBinding.tilBloodHospital.error = null
+
+            if (phone.isBlank()) {
+                formBinding.tilBloodPhone.error = "Please enter coordinator/emergency phone"
+                return@setOnClickListener
+            }
+            formBinding.tilBloodPhone.error = null
+
+            val newReq = BloodRequest(
+                bloodGroup = selectedBlood,
+                hospital = hospital,
+                unitsNeeded = units,
+                neededBy = "Immediate Emergency",
+                coordinatorPhone = phone
+            )
+            HoodeRepository.postBloodRequest(newReq)
+            Toast.makeText(requireContext(), "Emergency blood call ($selectedBlood) broadcasted to verified donors!", Toast.LENGTH_LONG).show()
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun showDonorRegistrationDialog() {
-        val layout = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(48, 24, 48, 24)
+        val dialog = android.app.Dialog(requireContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar)
+        val formBinding = com.example.hoode_app.databinding.DialogFormRegisterDonorBinding.inflate(layoutInflater)
+        dialog.setContentView(formBinding.root)
+
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.94).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val currentUser = HoodeRepository.currentUser.value
+        currentUser?.let {
+            formBinding.etDonorName.setText(it.displayName)
+            formBinding.etDonorPhone.setText(it.phone ?: "")
+            if (!it.locality.isNullOrBlank()) {
+                formBinding.etDonorArea.setText(it.locality)
+            }
         }
-        val etName = EditText(requireContext()).apply { hint = "Full Name" }
-        val etGroup = EditText(requireContext()).apply { hint = "Blood Group (e.g. O+, A+, B-, etc.)" }
-        val etArea = EditText(requireContext()).apply { hint = "Area in Hoode (e.g. Beach Road, Bengre)" }
-        val etPhone = EditText(requireContext()).apply { hint = "Contact Phone / WhatsApp" }
-        layout.addView(etName)
-        layout.addView(etGroup)
-        layout.addView(etArea)
-        layout.addView(etPhone)
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("Volunteer as Blood Donor")
-            .setMessage("Your contact information will remain private and will be used only by coordinators during urgent emergencies matching your blood group.")
-            .setView(layout)
-            .setPositiveButton("Confirm Opt-In") { _, _ ->
-                val name = etName.text.toString().trim()
-                val group = etGroup.text.toString().trim().uppercase()
-                val area = etArea.text.toString().trim()
-                val phone = etPhone.text.toString().trim()
+        var selectedBlood = "O+"
+        val groupChips = listOf(
+            formBinding.chipDonorOpos to "O+",
+            formBinding.chipDonorApos to "A+",
+            formBinding.chipDonorBpos to "B+",
+            formBinding.chipDonorAbpos to "AB+",
+            formBinding.chipDonorOneg to "O-",
+            formBinding.chipDonorAneg to "A-",
+            formBinding.chipDonorBneg to "B-",
+            formBinding.chipDonorAbneg to "AB-"
+        )
 
-                if (name.isNotBlank() && group.isNotBlank() && phone.isNotBlank()) {
-                    HoodeRepository.registerDonor(DonorRegistration(name = name, bloodGroup = group, area = area, phone = phone))
-                    Toast.makeText(requireContext(), "Thank you! You are now registered as a life-saving donor.", Toast.LENGTH_LONG).show()
+        for ((chipView, groupName) in groupChips) {
+            chipView.setOnClickListener {
+                selectedBlood = groupName
+                for ((v, name) in groupChips) {
+                    if (name == selectedBlood) {
+                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                    } else {
+                        v.setBackgroundResource(R.drawable.bg_chip_unselected)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+                    }
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }
+
+        formBinding.btnCloseRegisterDonor.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        formBinding.btnSubmitDonor.setOnClickListener {
+            val name = formBinding.etDonorName.text.toString().trim()
+            val area = formBinding.etDonorArea.text.toString().trim()
+            val phone = formBinding.etDonorPhone.text.toString().trim()
+
+            if (name.isBlank()) {
+                formBinding.tilDonorName.error = "Please enter your name"
+                return@setOnClickListener
+            }
+            formBinding.tilDonorName.error = null
+
+            if (phone.isBlank()) {
+                formBinding.tilDonorPhone.error = "Please enter your phone"
+                return@setOnClickListener
+            }
+            formBinding.tilDonorPhone.error = null
+
+            HoodeRepository.registerDonor(DonorRegistration(name = name, bloodGroup = selectedBlood, area = if (area.isNotBlank()) area else "Hoode", phone = phone))
+            Toast.makeText(requireContext(), "Thank you! Registered as a life-saving donor ($selectedBlood).", Toast.LENGTH_LONG).show()
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     override fun onDestroyView() {

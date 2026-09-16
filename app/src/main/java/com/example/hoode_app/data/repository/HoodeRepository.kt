@@ -468,7 +468,11 @@ object HoodeRepository {
                 area = "Hoode Beach Walkway",
                 date = "09 Sep 2026",
                 description = "Contains engineering textbooks and blue water bottle. Left near seating bench around 5:30 PM.",
-                status = "open"
+                status = "open",
+                images = listOf(
+                    "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&auto=format&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1546938576-6e6a64f317cc?w=600&auto=format&fit=crop&q=80"
+                )
             ),
             LostFoundItem(
                 title = "Hero Splendor Bike Key with Metal Ring",
@@ -477,7 +481,10 @@ object HoodeRepository {
                 area = "Outside Hoode Juma Masjid",
                 date = "08 Sep 2026",
                 description = "Found after Asr prayer. Safely kept with mosque security office.",
-                status = "open"
+                status = "open",
+                images = listOf(
+                    "https://images.unsplash.com/photo-1582139329536-e7284fece509?w=600&auto=format&fit=crop&q=80"
+                )
             ),
             LostFoundItem(
                 title = "Redmi Note 12 (Sky Blue Case)",
@@ -486,7 +493,11 @@ object HoodeRepository {
                 area = "Auto Stand near Bengre Cross",
                 date = "06 Sep 2026",
                 description = "Phone is locked with pin. Lock screen wallpaper is a family picture.",
-                status = "resolved"
+                status = "resolved",
+                images = listOf(
+                    "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1580910051074-3eb694886505?w=600&auto=format&fit=crop&q=80"
+                )
             )
         )
     )
@@ -509,7 +520,7 @@ object HoodeRepository {
         listOf(
             Tournament(
                 id = "tourn_01",
-                title = "Hoode Premier League 2026 (HPL Season 7)",
+                title = "Hoode Premier Cricket Tournament 2026",
                 sport = "Cricket",
                 venue = "Kemmannu Higher Primary Ground",
                 dates = "18 Sep – 21 Sep 2026",
@@ -797,7 +808,12 @@ object HoodeRepository {
                 area = "Kemmannu Road",
                 description = "Excellent condition with front suspension and dual disc brakes. Selling due to relocation.",
                 sellerName = "Arshad",
-                date = "08 Sep 2026"
+                date = "08 Sep 2026",
+                images = listOf(
+                    "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=800",
+                    "https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=800",
+                    "https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?w=800"
+                )
             ),
             ClassifiedItem(
                 title = "Teakwood Study Table with Bookshelf",
@@ -807,7 +823,11 @@ object HoodeRepository {
                 area = "Bengre Cross",
                 description = "Solid wood table, 4ft x 2.5ft with 2 drawers. Minor scratches, otherwise sturdy.",
                 sellerName = "Siddiq M.",
-                date = "06 Sep 2026"
+                date = "06 Sep 2026",
+                images = listOf(
+                    "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=800",
+                    "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?w=800"
+                )
             ),
             ClassifiedItem(
                 title = "Complete Set of NCERT 10th Standard Books",
@@ -817,7 +837,10 @@ object HoodeRepository {
                 area = "Hoode Beach",
                 description = "All core subjects, neat condition. Free for any student in need.",
                 sellerName = "Sister Fatima",
-                date = "05 Sep 2026"
+                date = "05 Sep 2026",
+                images = listOf(
+                    "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800"
+                )
             ),
             ClassifiedItem(
                 title = "Wanted: Used Refrigerator (190L - 240L)",
@@ -827,7 +850,10 @@ object HoodeRepository {
                 area = "Any area in Hoode",
                 description = "Single or double door in working condition required for small family rental house.",
                 sellerName = "Nawaz",
-                date = "04 Sep 2026"
+                date = "04 Sep 2026",
+                images = listOf(
+                    "https://images.unsplash.com/photo-1584992236310-6edddc08acff?w=800"
+                )
             )
         )
     )
@@ -856,7 +882,7 @@ object HoodeRepository {
         listOf(
             NotificationItem(title = "Maghrib Iqamah in 15 minutes", body = "Maghrib iqamah will commence at 6:42 PM at Hoode Juma Masjid.", timestamp = "10 min ago", category = "Prayer"),
             NotificationItem(title = "New Blood Request: O+", body = "Urgent request for 2 units of O+ blood at Adarsh Hospital Udupi.", timestamp = "1 hour ago", category = "Emergency"),
-            NotificationItem(title = "HPL Season 7 Matches Announced", body = "Check out the tournament fixtures starting 18 September.", timestamp = "Yesterday", category = "Announcement", isRead = true),
+            NotificationItem(title = "Cricket Tournament Matches Announced", body = "Check out the tournament fixtures starting 18 September.", timestamp = "Yesterday", category = "Announcement", isRead = true),
             NotificationItem(title = "Civic Issue Acknowledged", body = "Pothole repair on Kemmannu main road scheduled for inspection.", timestamp = "2 days ago", category = "Civic", isRead = true)
         )
     )
@@ -1001,10 +1027,6 @@ object HoodeRepository {
     val galleryItems: StateFlow<List<GalleryItem>> = _galleryItems.asStateFlow()
 
     fun addGalleryItem(item: GalleryItem): Boolean {
-        if (_galleryItems.value.size >= 25) {
-            // Strictly cap at 25 items per spec F17
-            return false
-        }
         _galleryItems.value = _galleryItems.value + item
         return true
     }
@@ -1075,12 +1097,12 @@ object HoodeRepository {
                 description = "Professional coaching for boys and girls aged 10–16 years with certified NIS trainer."
             ),
             CommunityActivity(
-                title = "HPL Open Cricket Selection Trials",
+                title = "Open Cricket Selection Trials",
                 category = "Sports",
-                organizer = "Hoode Premier League Governing Council",
+                organizer = "Hoode Tournament Governing Council",
                 schedule = "Sunday morning, 6:00 AM",
                 venue = "Town Ground, Kemmannu",
-                description = "Open net trials for local youngsters to register for the upcoming season of HPL tournament."
+                description = "Open net trials for local youngsters to register for the upcoming tournament season."
             ),
             CommunityActivity(
                 title = "Janazah Announcement & Condolence: Marhooma Aisha Bi",
@@ -1207,7 +1229,7 @@ object HoodeRepository {
             CalendarEvent(dateStr = "2026-03-20", title = "Eid-ul-Fitr", type = "holiday"),
             CalendarEvent(dateStr = "2026-05-27", title = "Eid-ul-Adha", type = "holiday"),
             CalendarEvent(dateStr = "2026-09-15", title = "Hoode Beach Clean-up", type = "event"),
-            CalendarEvent(dateStr = "2026-09-22", title = "Annual HPL Cricket Tournament", type = "event"),
+            CalendarEvent(dateStr = "2026-09-22", title = "Annual Cricket Tournament", type = "event"),
             CalendarEvent(dateStr = "2026-10-10", title = "Free Medical Camp", type = "event"),
             CalendarEvent(dateStr = "2026-11-01", title = "Karnataka Rajyotsava", type = "holiday")
         )

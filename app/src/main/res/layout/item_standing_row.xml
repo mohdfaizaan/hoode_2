@@ -1,32 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="4dp"
+    android:layout_marginBottom="6dp"
     android:background="@drawable/bg_card_bordered"
     android:gravity="center_vertical"
-    android:paddingVertical="@dimen/spacing_sm"
-    android:paddingHorizontal="@dimen/spacing_md"
+    android:paddingVertical="10dp"
+    android:paddingHorizontal="12dp"
     android:orientation="horizontal">
 
+    <!-- Rank -->
+    <TextView
+        android:id="@+id/tv_standing_rank"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:background="@drawable/bg_bottom_nav_item_selected"
+        android:gravity="center"
+        android:textColor="@color/accent_ink"
+        android:textSize="11sp"
+        android:fontFamily="sans-serif-bold"
+        tools:text="1" />
+
+    <!-- Team Name -->
     <TextView
         android:id="@+id/tv_standing_team"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Kemmannu Kings"
+        android:layout_marginStart="10dp"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:textColor="@color/text_primary"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        android:textSize="13sp"
+        android:fontFamily="sans-serif-medium"
+        tools:text="Kemmannu Kings" />
 
+    <!-- Played -->
+    <TextView
+        android:id="@+id/tv_standing_played"
+        android:layout_width="26dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp"
+        tools:text="3" />
+
+    <!-- Won -->
+    <TextView
+        android:id="@+id/tv_standing_won"
+        android:layout_width="26dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/accent_ink"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        tools:text="3" />
+
+    <!-- Lost -->
+    <TextView
+        android:id="@+id/tv_standing_lost"
+        android:layout_width="26dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/text_muted"
+        android:textSize="12sp"
+        tools:text="0" />
+
+    <!-- Points Badge -->
     <TextView
         android:id="@+id/tv_standing_stats"
-        android:layout_width="wrap_content"
+        android:layout_width="44dp"
         android:layout_height="wrap_content"
-        android:text="P:3  W:3  Pts:6"
+        android:layout_marginStart="4dp"
+        android:background="@drawable/bg_pill_accent"
+        android:gravity="center"
+        android:paddingVertical="2dp"
         android:textColor="@color/accent_ink"
-        android:textSize="13sp"
-        android:textStyle="bold" />
+        android:textSize="11sp"
+        android:fontFamily="sans-serif-bold"
+        tools:text="6 pts" />
+
+    <!-- NRR -->
+    <TextView
+        android:id="@+id/tv_standing_nrr"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp"
+        tools:text="+1.42" />
 
 </LinearLayout>

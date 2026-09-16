@@ -1,18 +1,30 @@
 package com.example.hoode_app.ui.activities
 
+import android.app.Dialog
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.hoode_app.R
 import com.example.hoode_app.data.model.CommunityActivity
+import com.example.hoode_app.data.model.DuaItem
+import com.example.hoode_app.data.model.EssentialDuas
 import com.example.hoode_app.data.repository.HoodeRepository
+import com.example.hoode_app.databinding.DialogDuaDetailBinding
 import com.example.hoode_app.databinding.FragmentActivitiesBinding
 import com.example.hoode_app.databinding.ItemActivityCardBinding
+import com.example.hoode_app.databinding.ItemDuaCardBinding
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -92,19 +104,71 @@ class ActivitiesFragment : Fragment() {
     }
 
     private fun filterAndDisplay(all: List<CommunityActivity>) {
-        val filtered = if (selectedCategory == "All") all else all.filter { it.category.equals(selectedCategory, ignoreCase = true) }
         binding.llActivitiesContainer.removeAllViews()
 
-        for (act in filtered) {
-            val itemBinding = ItemActivityCardBinding.inflate(layoutInflater, binding.llActivitiesContainer, false)
-            itemBinding.tvActCategory.text = act.category
-            itemBinding.tvActStatus.text = act.status.replaceFirstChar { it.uppercase() }
-            itemBinding.tvActTitle.text = act.title
-            itemBinding.tvActSchedule.text = "${act.schedule} • ${act.venue}"
-            itemBinding.tvActOrganizer.text = "Organizer: ${act.organizer}"
-            itemBinding.tvActDescription.text = act.description
-            binding.llActivitiesContainer.addView(itemBinding.root)
+        if (selectedCategory.equals("Dua Request", ignoreCase = true)) {
+            // Render Essential Memorizable Duas List
+            for (dua in EssentialDuas.list) {
+                val itemBinding = ItemDuaCardBinding.inflate(layoutInflater, binding.llActivitiesContainer, false)
+                itemBinding.tvDuaItemTitle.text = dua.title
+                itemBinding.tvDuaItemCategory.text = dua.category
+                itemBinding.root.setOnClickListener {
+                    showDuaDetailDialog(dua)
+                }
+                binding.llActivitiesContainer.addView(itemBinding.root)
+            }
+        } else {
+            val filtered = if (selectedCategory == "All") all else all.filter { it.category.equals(selectedCategory, ignoreCase = true) }
+            for (act in filtered) {
+                val itemBinding = ItemActivityCardBinding.inflate(layoutInflater, binding.llActivitiesContainer, false)
+                itemBinding.tvActCategory.text = act.category
+                itemBinding.tvActStatus.text = act.status.replaceFirstChar { it.uppercase() }
+                itemBinding.tvActTitle.text = act.title
+                itemBinding.tvActSchedule.text = "${act.schedule} • ${act.venue}"
+                itemBinding.tvActOrganizer.text = "Organizer: ${act.organizer}"
+                itemBinding.tvActDescription.text = act.description
+                binding.llActivitiesContainer.addView(itemBinding.root)
+            }
         }
+    }
+
+    private fun showDuaDetailDialog(dua: DuaItem) {
+        val dialog = Dialog(requireContext())
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val dialogBinding = DialogDuaDetailBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.92).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        dialogBinding.tvDuaTitle.text = dua.title
+        dialogBinding.tvDuaCategory.text = dua.category
+        dialogBinding.tvDuaArabic.text = dua.arabic
+        dialogBinding.tvDuaTransliteration.text = dua.transliteration
+        dialogBinding.tvDuaTranslation.text = dua.translation
+        dialogBinding.tvDuaReference.text = "Reference: ${dua.reference}"
+
+        dialogBinding.btnCloseDua.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialogBinding.btnDoneDua.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogBinding.btnCopyDua.setOnClickListener {
+            val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText(
+                dua.title,
+                "${dua.title}\n\n${dua.arabic}\n\n${dua.transliteration}\n\n${dua.translation}\n(${dua.reference})"
+            )
+            clipboard.setPrimaryClip(clip)
+            Toast.makeText(requireContext(), "Dua copied to clipboard", Toast.LENGTH_SHORT).show()
+        }
+
+        dialog.show()
     }
 
     override fun onDestroyView() {

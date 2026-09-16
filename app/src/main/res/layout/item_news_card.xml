@@ -1,107 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/spacing_md"
-    app:cardCornerRadius="@dimen/radius_card"
+    android:layout_marginBottom="14dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardCornerRadius="16dp"
     app:cardElevation="2dp"
-    app:cardBackgroundColor="@color/surface">
+    app:cardBackgroundColor="@color/surface"
+    app:strokeColor="@color/border_green_soft"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_card_bordered"
-        android:padding="@dimen/spacing_lg"
+        android:background="?attr/selectableItemBackground"
         android:orientation="vertical">
 
-        <LinearLayout
+        <!-- News Image Header -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_height="140dp">
 
+            <ImageView
+                android:id="@+id/iv_news_thumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:background="@drawable/bg_gallery_luxury_gradient"
+                android:contentDescription="News Image" />
+
+            <!-- Pill on top of image -->
             <TextView
                 android:id="@+id/tv_news_type"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="top|start"
+                android:layout_margin="10dp"
                 android:background="@drawable/bg_pill_accent"
-                android:text="OFFICIAL UPDATE"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
                 android:textColor="@color/accent_ink"
                 android:textSize="10sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
+                android:textStyle="bold"
+                tools:text="OFFICIAL UPDATE" />
 
             <TextView
                 android:id="@+id/tv_news_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="09 Sep 2026"
-                android:textColor="@color/text_muted"
-                android:textSize="12sp" />
-        </LinearLayout>
+                android:layout_gravity="bottom|end"
+                android:layout_margin="10dp"
+                android:background="@drawable/bg_gallery_pill"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                tools:text="09 Sep 2026" />
+        </FrameLayout>
 
-        <TextView
-            android:id="@+id/tv_news_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:text="New Bengre–Hoode Coastal Seawall Project Approved"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tv_news_summary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="State fisheries and ports department sanctions ₹4.2 crore for sea erosion prevention works."
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp"
-            android:lineSpacingExtra="2sp" />
-
-        <TextView
-            android:id="@+id/tv_news_body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:text="Works slated to commence post-monsoon in October 2026."
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp"
-            android:visibility="gone" />
-
+        <!-- Content Snippet -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_md"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:padding="14dp"
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tv_news_verifier"
-                android:layout_width="0dp"
+                android:id="@+id/tv_news_title"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Verified by: District Info Center"
-                android:textColor="@color/success"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:fontFamily="sans-serif-bold"
+                android:lineSpacingExtra="2dp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                tools:text="New Bengre–Hoode Coastal Seawall Project Approved" />
 
             <TextView
-                android:id="@+id/btn_expand_news"
-                android:layout_width="wrap_content"
+                android:id="@+id/tv_news_summary"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Read Story →"
-                android:textColor="@color/accent_ink"
+                android:layout_marginTop="4dp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:lineSpacingExtra="2dp"
+                android:textColor="@color/text_secondary"
                 android:textSize="13sp"
-                android:textStyle="bold" />
+                tools:text="State fisheries and ports department sanctions ₹4.2 crore for sea erosion prevention works." />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_news_verifier"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Verified by: District Info Center"
+                    android:textColor="@color/success"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/btn_expand_news"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Read Story →"
+                    android:textColor="@color/accent_ink"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Hidden body view to preserve binding compatibility -->
+            <TextView
+                android:id="@+id/tv_news_body"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+
         </LinearLayout>
 
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

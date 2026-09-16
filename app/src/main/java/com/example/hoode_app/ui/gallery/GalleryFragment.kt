@@ -1,21 +1,29 @@
 package com.example.hoode_app.ui.gallery
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import com.example.hoode_app.R
 import com.example.hoode_app.data.model.GalleryItem
 import com.example.hoode_app.data.repository.HoodeRepository
 import com.example.hoode_app.databinding.FragmentGalleryBinding
 import com.example.hoode_app.databinding.ItemGalleryThumbnailBinding
-import coil.load
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -40,11 +48,15 @@ class GalleryFragment : Fragment() {
             findNavController().navigateUp()
         }
 
+        binding.btnAddPhoto.setOnClickListener {
+            showAddPhotoDialog()
+        }
+
         binding.rvGalleryGrid.layoutManager = GridLayoutManager(requireContext(), 2)
 
         viewLifecycleOwner.lifecycleScope.launch {
             HoodeRepository.galleryItems.collectLatest { items ->
-                binding.tvGalleryCount.text = "${items.size} Photos (Max 25)"
+                binding.tvGalleryCount.text = "${items.size} Photos"
                 binding.rvGalleryGrid.adapter = GalleryAdapter(items) { item, pos, total ->
                     showFullscreenViewer(item, pos + 1, total)
                 }
@@ -52,12 +64,127 @@ class GalleryFragment : Fragment() {
         }
     }
 
+    private fun showAddPhotoDialog() {
+        val user = HoodeRepository.currentUser.value
+        val defaultName = user?.displayName ?: "Verified Resident"
+
+        val dialog = Dialog(requireContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar)
+        val formBinding = com.example.hoode_app.databinding.DialogFormAddPhotoBinding.inflate(layoutInflater)
+        dialog.setContentView(formBinding.root)
+
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.94).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        formBinding.etPhotographer.setText(defaultName)
+
+        var selectedTag = "Beach & Nature"
+        val tagChips = listOf(
+            formBinding.chipGalNature to "Beach & Nature",
+            formBinding.chipGalSports to "Sports",
+            formBinding.chipGalMosques to "Mosques",
+            formBinding.chipGalCommunity to "Community"
+        )
+
+        for ((view, tag) in tagChips) {
+            view.setOnClickListener {
+                selectedTag = tag
+                for ((v, t) in tagChips) {
+                    if (t == selectedTag) {
+                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                    } else {
+                        v.setBackgroundResource(R.drawable.bg_chip_unselected)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+                    }
+                }
+            }
+        }
+
+        fun updatePreview(url: String) {
+            if (url.isNotBlank()) {
+                formBinding.ivPhotoPreview.load(url) {
+                    crossfade(true)
+                    placeholder(R.drawable.bg_gallery_luxury_gradient)
+                    error(R.drawable.bg_gallery_luxury_gradient)
+                }
+            } else {
+                formBinding.ivPhotoPreview.setImageResource(R.drawable.bg_gallery_luxury_gradient)
+            }
+        }
+
+        updatePreview(formBinding.etPhotoUrl.text.toString())
+        formBinding.etPhotoUrl.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                updatePreview(s?.toString()?.trim() ?: "")
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
+        formBinding.btnClosePhoto.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        formBinding.btnSubmitPhoto.setOnClickListener {
+            val url = formBinding.etPhotoUrl.text.toString().trim()
+            val title = formBinding.etPhotoTitle.text.toString().trim()
+            val photoName = formBinding.etPhotographer.text.toString().trim().ifBlank { defaultName }
+            val caption = formBinding.etPhotoCaption.text.toString().trim()
+
+            if (url.isBlank()) {
+                formBinding.tilPhotoUrl.error = "Please enter an image URL"
+                return@setOnClickListener
+            }
+            formBinding.tilPhotoUrl.error = null
+
+            if (title.isBlank()) {
+                formBinding.tilPhotoTitle.error = "Please enter a photo title"
+                return@setOnClickListener
+            }
+            formBinding.tilPhotoTitle.error = null
+
+            val newItem = GalleryItem(
+                id = "gal_${System.currentTimeMillis()}",
+                title = title,
+                imageUrl = url,
+                photographer = photoName,
+                caption = if (caption.isNotBlank()) "$caption • $selectedTag" else selectedTag,
+                sortOrder = 0
+            )
+
+            HoodeRepository.addGalleryItem(newItem)
+            Toast.makeText(requireContext(), "Photo published to Community Gallery!", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
     private fun showFullscreenViewer(item: GalleryItem, currentPos: Int, total: Int) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("${item.title} ($currentPos of $total)")
-            .setMessage("${item.caption}\n\nPhoto Credit: ${item.photographer}\nLocation: Hoode Community Heritage")
-            .setPositiveButton("Close", null)
-            .show()
+        val dialog = Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+        dialog.setContentView(R.layout.dialog_fullscreen_image)
+
+        val ivImage = dialog.findViewById<ImageView>(R.id.ivFullscreenImage)
+        val tvTitle = dialog.findViewById<TextView>(R.id.tvFullscreenTitle)
+        val tvCaption = dialog.findViewById<TextView>(R.id.tvFullscreenCaption)
+        val tvUploader = dialog.findViewById<TextView>(R.id.tvFullscreenUploader)
+        val btnClose = dialog.findViewById<ImageButton>(R.id.btnCloseFullscreen)
+
+        tvTitle.text = item.title
+        tvCaption.text = item.caption
+        tvUploader.text = "Uploaded by: ${item.photographer}"
+
+        if (item.imageUrl.isNotBlank()) {
+            ivImage.load(item.imageUrl) {
+                crossfade(true)
+            }
+        }
+
+        btnClose.setOnClickListener { dialog.dismiss() }
+        dialog.show()
     }
 
     override fun onDestroyView() {
@@ -80,14 +207,13 @@ class GalleryFragment : Fragment() {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = items[position]
             holder.binding.tvGalleryItemTitle.text = item.title
-            holder.binding.tvGalleryItemOrder.text = "${position + 1} of ${items.size}"
             holder.binding.tvGalleryItemPhotographer.text = "📸 ${item.photographer}"
 
             if (item.imageUrl.isNotBlank()) {
                 holder.binding.ivGalleryImage.load(item.imageUrl) {
                     crossfade(true)
-                    placeholder(com.example.hoode_app.R.drawable.bg_gallery_luxury_gradient)
-                    error(com.example.hoode_app.R.drawable.bg_gallery_luxury_gradient)
+                    placeholder(R.drawable.bg_gallery_luxury_gradient)
+                    error(R.drawable.bg_gallery_luxury_gradient)
                 }
             }
 

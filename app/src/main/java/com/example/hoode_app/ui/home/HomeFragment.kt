@@ -17,6 +17,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.example.hoode_app.R
+import com.example.hoode_app.MainActivity
 import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -280,37 +281,14 @@ class HomeFragment : Fragment() {
     // ── Airtel-Style Navigation & Actions ─────────────────────
 
     private fun setupAirtelNavigation() {
-        // Drawer Menu Button (Top Bar)
+        // Drawer Menu Button (Top Bar) -> Opens animated side page from the left
         binding.btnMenuDrawer.setOnClickListener {
-            showSideDrawerDialog()
+            (activity as? MainActivity)?.openDrawer()
         }
     }
 
     private fun showSideDrawerDialog() {
-        val user = HoodeRepository.currentUser.value
-        val name = user?.displayName ?: "Resident"
-        val items = arrayOf(
-            "👤 Profile & Account ($name)",
-            "🕌 Mosque Timings & Iqamah",
-            "🩸 Blood Donor Network",
-            "🚨 24/7 Emergency Helplines",
-            "🌊 Active Ward: Hoode",
-            "📢 Community Notices & News"
-        )
-        AlertDialog.Builder(requireContext())
-            .setTitle("Community Menu")
-            .setItems(items) { _, which ->
-                when (which) {
-                    0 -> findNavController().navigate(R.id.profileFragment)
-                    1 -> findNavController().navigate(R.id.prayerDetailFragment)
-                    2 -> findNavController().navigate(R.id.bloodNetworkFragment)
-                    3 -> findNavController().navigate(R.id.emergencyFragment)
-                    4 -> Toast.makeText(requireContext(), "Ward: Hoode active", Toast.LENGTH_SHORT).show()
-                    5 -> findNavController().navigate(R.id.newsFragment)
-                }
-            }
-            .setPositiveButton("Close", null)
-            .show()
+        (activity as? MainActivity)?.openDrawer()
     }
 
     // ── Prayer Hero ───────────────────────────────────────────
@@ -342,13 +320,15 @@ class HomeFragment : Fragment() {
 
                             binding.tvCountdown.text = when {
                                 h > 0 -> "${h}h ${m}m"
-                                m > 0 -> "${m}m"
-                                else -> "${s}s"
+                                m > 0 -> "${m}m ${s}s"
+                                s > 0 -> "${s}s"
+                                else -> "Now"
                             }
 
-                            // Calculate countdown circle progress (e.g. 2.5 hour window)
-                            val progressPct = ((totalSecs.coerceIn(0, 9000) / 9000f) * 100).toInt()
-                            binding.prayerCountdownRing.setProgressCompat(progressPct.coerceIn(5, 100), true)
+                            // Dynamic prayer countdown ring (progress reflects remaining window)
+                            val windowSecs = 12600f
+                            val progressPct = ((totalSecs.toFloat() / windowSecs).coerceIn(0f, 1f) * 100).toInt().coerceIn(5, 100)
+                            binding.prayerCountdownRing.setProgressCompat(progressPct, true)
                         } else {
                             binding.tvCountdown.text = next.timeRemaining
                         }
@@ -454,7 +434,7 @@ class HomeFragment : Fragment() {
                 "https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&auto=format&fit=crop&q=80"
             ),
             HighlightItem(
-                "HPL Cricket Tournament",
+                "Cricket Tournament",
                 "18–21 Sep 2026",
                 "Sports",
                 "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=500&auto=format&fit=crop&q=80"

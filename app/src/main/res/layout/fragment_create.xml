@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
+    android:clipToPadding="false"
     android:fillViewport="true">
 
     <LinearLayout
@@ -14,7 +15,7 @@
         android:orientation="vertical"
         android:paddingHorizontal="@dimen/screen_padding_horizontal"
         android:paddingTop="@dimen/spacing_lg"
-        android:paddingBottom="@dimen/spacing_massive">
+        android:paddingBottom="@dimen/bottom_nav_content_padding">
 
         <!-- Header -->
         <LinearLayout
