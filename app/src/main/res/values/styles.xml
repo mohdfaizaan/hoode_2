@@ -28,7 +28,7 @@
         <item name="cardCornerRadius">@dimen/radius_card</item>
         <item name="cardElevation">@dimen/elevation_sm</item>
         <item name="cardBackgroundColor">@color/surface</item>
-        <item name="strokeColor">@color/border_green</item>
+        <item name="strokeColor">@color/border_soft</item>
         <item name="strokeWidth">@dimen/card_stroke</item>
         <item name="contentPadding">@dimen/spacing_lg</item>
     </style>
@@ -36,8 +36,8 @@
     <style name="Widget.Hoode.Card.Accent" parent="Widget.Material3.CardView.Filled">
         <item name="cardCornerRadius">@dimen/radius_card</item>
         <item name="cardElevation">@dimen/elevation_xs</item>
-        <item name="cardBackgroundColor">@color/accent_surface</item>
-        <item name="strokeColor">@color/canva_pill_border</item>
+        <item name="cardBackgroundColor">@color/accent_soft</item>
+        <item name="strokeColor">@color/accent</item>
         <item name="strokeWidth">@dimen/card_stroke</item>
         <item name="contentPadding">@dimen/spacing_lg</item>
     </style>
@@ -209,5 +209,11 @@
         <item name="android:gravity">center</item>
         <item name="android:orientation">vertical</item>
         <item name="android:padding">@dimen/spacing_xs</item>
+    </style>
+
+    <!-- ─── Profile Circle Image Style ────────────────────── -->
+    <style name="CircleImageStyle" parent="">
+        <item name="cornerSize">50%</item>
+        <item name="cornerFamily">rounded</item>
     </style>
 </resources>

@@ -35,6 +35,13 @@ class LostFoundFragment : Fragment() {
     private val binding get() = _binding!!
     private var activeFilter = "ALL" // ALL, LOST, FOUND
 
+    private var onImagePicked: ((Uri) -> Unit)? = null
+    private val pickImageLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        uri?.let { onImagePicked?.invoke(it) }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -324,6 +331,26 @@ class LostFoundFragment : Fragment() {
             }
             override fun afterTextChanged(s: android.text.Editable?) {}
         })
+
+        val launchLfPicker = View.OnClickListener {
+            onImagePicked = { uri ->
+                formBinding.etLfImage.setText(uri.toString())
+                formBinding.flLfPreviewContainer.visibility = View.VISIBLE
+                formBinding.ivLfPreview.load(uri) {
+                    crossfade(true)
+                    placeholder(R.drawable.bg_gallery_luxury_gradient)
+                    error(R.drawable.bg_gallery_luxury_gradient)
+                }
+                Toast.makeText(requireContext(), "Image selected from gallery", Toast.LENGTH_SHORT).show()
+            }
+            pickImageLauncher.launch(
+                androidx.activity.result.PickVisualMediaRequest(
+                    androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
+                )
+            )
+        }
+        formBinding.btnLfUploadImage.setOnClickListener(launchLfPicker)
+        formBinding.flLfPreviewContainer.setOnClickListener(launchLfPicker)
 
         val currentUser = HoodeRepository.currentUser.value
         currentUser?.let {

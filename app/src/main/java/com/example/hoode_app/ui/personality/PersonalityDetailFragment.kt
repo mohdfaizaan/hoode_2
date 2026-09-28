@@ -55,13 +55,28 @@ class PersonalityDetailFragment : Fragment() {
 
                 binding.llContributionsList.removeAllViews()
                 for (item in p.contributions) {
-                    val tv = TextView(requireContext()).apply {
-                        text = "• $item"
-                        textSize = 14f
-                        setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
-                        setPadding(0, 8, 0, 8)
+                    val row = android.widget.LinearLayout(requireContext()).apply {
+                        orientation = android.widget.LinearLayout.HORIZONTAL
+                        setPadding(0, 10, 0, 10)
+                        gravity = android.view.Gravity.TOP
                     }
-                    binding.llContributionsList.addView(tv)
+
+                    val bullet = TextView(requireContext()).apply {
+                        text = "✦ "
+                        textSize = 14f
+                        setTextColor(ContextCompat.getColor(context, R.color.icon_green))
+                    }
+
+                    val tv = TextView(requireContext()).apply {
+                        text = item
+                        textSize = 14.5f
+                        setLineSpacing(4f, 1.15f)
+                        setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+                    }
+
+                    row.addView(bullet)
+                    row.addView(tv)
+                    binding.llContributionsList.addView(row)
                 }
             }
         }

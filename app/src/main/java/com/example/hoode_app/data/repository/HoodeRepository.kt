@@ -1,240 +1,242 @@
 package com.example.hoode_app.data.repository
 
+import android.content.Context
+import android.util.Log
 import com.example.hoode_app.data.model.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.example.hoode_app.data.remote.SupabaseClient
+import com.example.hoode_app.data.remote.SupabaseConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
 import java.util.UUID
 
 object HoodeRepository {
 
     // ── Current User / Auth ──────────────────────────────────
-    data class RegisteredAccount(
-        val id: String = UUID.randomUUID().toString(),
-        val name: String,
-        val email: String,
-        var password: String,
-        val phone: String = "",
-        val ward: String = "Hoode",
-        val roles: List<String> = listOf("approved_resident"),
-        val isGoogleAccount: Boolean = false,
-        val profilePicUri: String? = null
-    )
-
     sealed class AuthResult {
         data class Success(val user: User) : AuthResult()
         data class InvalidPassword(val message: String = "Incorrect password. Please try again.") : AuthResult()
         data class UserNotFound(val message: String = "No account found with this email. Would you like to create one?") : AuthResult()
     }
 
-    private val _registeredAccounts = mutableListOf(
-        RegisteredAccount(
-            name = "Faizan Admin",
-            email = "admin@hoode.community",
-            password = "admin123",
-            phone = "9876543210",
-            ward = "Hoode",
-            roles = listOf("approved_resident", "community_admin")
-        ),
-        RegisteredAccount(
-            name = "Faizan Resident",
-            email = "resident@hoode.community",
-            password = "hoode123",
-            phone = "9876543211",
-            ward = "Hoode",
-            roles = listOf("approved_resident")
-        ),
-        RegisteredAccount(
-            name = "Faizan Ahmed",
-            email = "faizan.ahmed@gmail.com",
-            password = "google_auth",
-            phone = "9876543212",
-            ward = "Hoode",
-            roles = listOf("approved_resident"),
-            isGoogleAccount = true
-        ),
-        RegisteredAccount(
-            name = "Hoode Resident",
-            email = "resident.hoode@gmail.com",
-            password = "google_auth",
-            phone = "9876543213",
-            ward = "Bengre",
-            roles = listOf("approved_resident"),
-            isGoogleAccount = true
-        ),
-        RegisteredAccount(
-            name = "Community Admin",
-            email = "admin.hoode@gmail.com",
-            password = "google_auth",
-            phone = "9876543214",
-            ward = "Hoode",
-            roles = listOf("approved_resident", "community_admin"),
-            isGoogleAccount = true
-        )
-    )
-
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
-    fun authenticateUser(emailInput: String, passwordInput: String): AuthResult {
-        val cleanEmail = emailInput.trim().lowercase()
-        val account = _registeredAccounts.find { it.email.lowercase() == cleanEmail }
+    private var appContext: Context? = null
+    private const val PREFS_NAME = "hoode_user_session"
+    private const val KEY_CACHED_USER = "cached_user_json"
 
-        if (account == null) {
-            // Standalone offline auth: Auto-register user directly on login
-            val autoUser = registerUser(
-                name = cleanEmail.substringBefore("@").replaceFirstChar { it.uppercase() },
-                email = cleanEmail,
-                password = passwordInput,
-                ward = "Hoode"
-            ).getOrNull()
-            return if (autoUser != null) {
-                AuthResult.Success(autoUser)
+    fun init(context: Context) {
+        appContext = context.applicationContext
+        loadUserFromCache()
+
+        // Background session restore and profile refresh from Supabase
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                if (com.hoodeconnect.backend.BackendSession.restore()) {
+                    val uid = com.hoodeconnect.backend.BackendSession.userId
+                    if (!uid.isNullOrBlank()) {
+                        val profile = SupabaseClient.fetchProfile(uid)
+                        if (profile != null) {
+                            if (profile.optBoolean("is_banned", false)) {
+                                signOut()
+                                return@launch
+                            }
+                            val current = _currentUser.value
+                            val name = profile.optString("name").takeIf { it.isNotBlank() } ?: current?.displayName ?: "Resident"
+                            val email = profile.optString("email").takeIf { it.isNotBlank() } ?: current?.email ?: ""
+                            val phone = profile.optString("phone").takeIf { it.isNotBlank() } ?: current?.phone
+                            val ward = profile.optString("ward").takeIf { it.isNotBlank() } ?: current?.locality ?: "Hoode"
+                            val role = profile.optString("role").takeIf { it.isNotBlank() } ?: "approved_resident"
+                            val avatar = profile.optString("avatar_url").takeIf { it.isNotBlank() && it != "null" } ?: current?.profilePicUri
+                            val age = profile.optString("age").takeIf { it.isNotBlank() && it != "null" } ?: current?.age
+                            val dob = profile.optString("dob").takeIf { it.isNotBlank() && it != "null" } ?: current?.dob
+                            val fatherName = profile.optString("father_name").takeIf { it.isNotBlank() && it != "null" } ?: current?.fatherName
+                            val bloodGroup = profile.optString("blood_group").takeIf { it.isNotBlank() && it != "null" } ?: current?.bloodGroup
+                            val profession = profile.optString("profession").takeIf { it.isNotBlank() && it != "null" } ?: current?.profession
+
+                            val updated = (current ?: User(id = uid, email = email, displayName = name)).copy(
+                                id = uid,
+                                email = email,
+                                displayName = name,
+                                locality = ward,
+                                phone = phone,
+                                roles = listOf(role),
+                                profilePicUri = avatar,
+                                age = age,
+                                dob = dob,
+                                fatherName = fatherName,
+                                bloodGroup = bloodGroup,
+                                profession = profession
+                            )
+                            _currentUser.value = updated
+                            saveUserToCache(updated)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w("HoodeRepository", "BackendSession background restore failed", e)
+            }
+        }
+    }
+
+    fun isLoggedIn(): Boolean {
+        if (_currentUser.value != null) return true
+        val ctx = appContext ?: return false
+        val prefs = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.contains(KEY_CACHED_USER)
+    }
+
+    private fun saveUserToCache(user: User) {
+        try {
+            val ctx = appContext ?: return
+            val prefs = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            prefs.edit().putString(KEY_CACHED_USER, userToJson(user)).apply()
+        } catch (e: Exception) {
+            Log.e("HoodeRepository", "Error saving user to cache", e)
+        }
+    }
+
+    private fun loadUserFromCache() {
+        try {
+            val ctx = appContext ?: return
+            val prefs = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val jsonStr = prefs.getString(KEY_CACHED_USER, null) ?: return
+            val user = userFromJson(jsonStr)
+            if (user != null) {
+                _currentUser.value = user
+            }
+        } catch (e: Exception) {
+            Log.e("HoodeRepository", "Error loading user from cache", e)
+        }
+    }
+
+    private fun clearUserCache() {
+        try {
+            val ctx = appContext ?: return
+            val prefs = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            prefs.edit().clear().apply()
+        } catch (e: Exception) {
+            Log.e("HoodeRepository", "Error clearing user cache", e)
+        }
+    }
+
+    private fun userToJson(user: User): String {
+        val obj = JSONObject().apply {
+            put("id", user.id)
+            put("email", user.email)
+            put("displayName", user.displayName)
+            put("locale", user.locale)
+            put("communityId", user.communityId)
+            put("roles", JSONArray(user.roles))
+            user.profilePicUri?.let { put("profilePicUri", it) }
+            user.phone?.let { put("phone", it) }
+            user.age?.let { put("age", it) }
+            user.dob?.let { put("dob", it) }
+            user.fatherName?.let { put("fatherName", it) }
+            user.bloodGroup?.let { put("bloodGroup", it) }
+            user.profession?.let { put("profession", it) }
+            user.locality?.let { put("locality", it) }
+            user.username?.let { put("username", it) }
+            user.bio?.let { put("bio", it) }
+            user.coverPicUri?.let { put("coverPicUri", it) }
+        }
+        return obj.toString()
+    }
+
+    private fun userFromJson(jsonStr: String): User? {
+        return try {
+            val obj = JSONObject(jsonStr)
+            val rolesArr = obj.optJSONArray("roles")
+            val rolesList = mutableListOf<String>()
+            if (rolesArr != null) {
+                for (i in 0 until rolesArr.length()) {
+                    rolesList.add(rolesArr.getString(i))
+                }
             } else {
-                AuthResult.UserNotFound()
+                rolesList.add("approved_resident")
+            }
+            User(
+                id = obj.optString("id", UUID.randomUUID().toString()),
+                email = obj.optString("email"),
+                displayName = obj.optString("displayName", "Resident"),
+                locale = obj.optString("locale", "en"),
+                communityId = obj.optString("communityId", "hoode"),
+                roles = if (rolesList.isEmpty()) listOf("approved_resident") else rolesList,
+                profilePicUri = obj.optString("profilePicUri").takeIf { it.isNotBlank() && it != "null" },
+                phone = obj.optString("phone").takeIf { it.isNotBlank() && it != "null" },
+                age = obj.optString("age").takeIf { it.isNotBlank() && it != "null" },
+                dob = obj.optString("dob").takeIf { it.isNotBlank() && it != "null" },
+                fatherName = obj.optString("fatherName").takeIf { it.isNotBlank() && it != "null" },
+                bloodGroup = obj.optString("bloodGroup").takeIf { it.isNotBlank() && it != "null" },
+                profession = obj.optString("profession").takeIf { it.isNotBlank() && it != "null" },
+                locality = obj.optString("locality").takeIf { it.isNotBlank() && it != "null" },
+                username = obj.optString("username").takeIf { it.isNotBlank() && it != "null" },
+                bio = obj.optString("bio").takeIf { it.isNotBlank() && it != "null" },
+                coverPicUri = obj.optString("coverPicUri").takeIf { it.isNotBlank() && it != "null" }
+            )
+        } catch (e: Exception) {
+            Log.e("HoodeRepository", "Error parsing cached user", e)
+            null
+        }
+    }
+
+    suspend fun authenticateUser(emailInput: String, passwordInput: String): AuthResult = withContext(Dispatchers.IO) {
+        val cleanEmail = emailInput.trim().lowercase()
+
+        val result = SupabaseClient.signIn(cleanEmail, passwordInput)
+        result.fold(
+            onSuccess = { user ->
+                _currentUser.value = user
+                saveUserToCache(user)
+                AuthResult.Success(user)
+            },
+            onFailure = { error ->
+                val msg = error.message ?: "Sign in failed. Please retry."
+                if (msg.contains("invalid", ignoreCase = true) || msg.contains("credential", ignoreCase = true)) {
+                    AuthResult.InvalidPassword("Incorrect password or email. Please verify and try again.")
+                } else if (msg.contains("not found", ignoreCase = true)) {
+                    AuthResult.UserNotFound()
+                } else {
+                    AuthResult.InvalidPassword(msg)
+                }
+            }
+        )
+    }
+
+    suspend fun registerUser(name: String, email: String, password: String, phone: String = "", ward: String = "Hoode"): Result<User> =
+        withContext(Dispatchers.IO) {
+            SupabaseClient.signUp(email, password, name, phone, ward).onSuccess { user ->
+                _currentUser.value = user
+                saveUserToCache(user)
             }
         }
 
-        if (account.password != passwordInput.trim() && account.password != "google_auth") {
-            return AuthResult.InvalidPassword()
-        }
-
-        val user = User(
-            id = account.id,
-            email = account.email,
-            displayName = account.name,
-            phone = account.phone,
-            locality = account.ward,
-            roles = account.roles,
-            profilePicUri = account.profilePicUri
-        )
-        _currentUser.value = user
-        return AuthResult.Success(user)
-    }
-
-    fun registerUser(
-        name: String,
-        email: String,
-        password: String,
-        phone: String = "",
-        ward: String = "Hoode"
-    ): Result<User> {
-        val cleanEmail = email.trim().lowercase()
-        if (_registeredAccounts.any { it.email.lowercase() == cleanEmail }) {
-            return Result.failure(Exception("An account with this email already exists. Please sign in instead."))
-        }
-
-        val cleanName = name.trim().ifBlank { "Resident" }
-        val roles = if (cleanEmail.contains("admin")) listOf("approved_resident", "community_admin") else listOf("approved_resident")
-        val newAccount = RegisteredAccount(
-            name = cleanName,
-            email = cleanEmail,
-            password = password.trim(),
-            phone = phone.trim(),
-            ward = ward,
-            roles = roles
-        )
-        _registeredAccounts.add(newAccount)
-
-        val user = User(
-            id = newAccount.id,
-            email = newAccount.email,
-            displayName = newAccount.name,
-            phone = newAccount.phone,
-            locality = newAccount.ward,
-            roles = newAccount.roles
-        )
-        _currentUser.value = user
-        return Result.success(user)
-    }
-
-    fun signInWithGoogleAccount(
-        name: String,
-        email: String,
-        role: String = "approved_resident"
-    ): User {
-        val cleanEmail = email.trim().lowercase()
-        val existing = _registeredAccounts.find { it.email.lowercase() == cleanEmail }
-        val roles = if (role == "community_admin" || cleanEmail.contains("admin")) {
-            listOf("approved_resident", "community_admin")
-        } else {
-            existing?.roles ?: listOf("approved_resident")
-        }
-
-        if (existing == null) {
-            _registeredAccounts.add(
-                RegisteredAccount(
-                    name = name,
-                    email = cleanEmail,
-                    password = "google_auth",
-                    roles = roles,
-                    isGoogleAccount = true
-                )
-            )
-        }
-
-        val user = User(
-            id = existing?.id ?: UUID.randomUUID().toString(),
-            email = cleanEmail,
-            displayName = name,
-            locality = existing?.ward ?: "Hoode",
-            roles = roles
-        )
-        _currentUser.value = user
-        return user
-    }
-
-    fun isEmailRegistered(email: String): Boolean {
-        val clean = email.trim().lowercase()
-        return _registeredAccounts.any { it.email.lowercase() == clean }
-    }
-
-    fun resetPassword(email: String, newPassword: String = "password123"): Boolean {
-        val clean = email.trim().lowercase()
-        val account = _registeredAccounts.find { it.email.lowercase() == clean } ?: return false
-        account.password = newPassword
-        return true
-    }
-
-    fun signIn(email: String, name: String = "Resident") {
-        val cleanEmail = email.trim().lowercase()
-        val existing = _registeredAccounts.find { it.email.lowercase() == cleanEmail }
-        val cleanName = if (name.isNotBlank() && name != "Resident") name else (existing?.name ?: email.substringBefore("@").replaceFirstChar { it.uppercase() })
-        val roles = if (cleanEmail.contains("admin")) listOf("approved_resident", "community_admin") else (existing?.roles ?: listOf("approved_resident"))
-
-        val user = User(
-            id = existing?.id ?: UUID.randomUUID().toString(),
-            email = cleanEmail,
-            displayName = cleanName,
-            locality = existing?.ward ?: "Hoode",
-            roles = roles
-        )
-        _currentUser.value = user
-    }
-
-    fun signInWithGoogle() {
-        signInWithGoogleAccount("Google User", "user@gmail.com")
-    }
-
-    fun updateUserProfile(
+    suspend fun updateUserProfile(
         displayName: String,
-        phone: String,
-        age: String,
-        dob: String,
-        fatherName: String,
-        bloodGroup: String,
-        profession: String,
-        locality: String,
-        profilePicUri: String? = null
-    ) {
-        val current = _currentUser.value ?: return
-        _currentUser.value = current.copy(
-            displayName = displayName,
+        phone: String = "",
+        age: String = "",
+        dob: String = "",
+        fatherName: String = "",
+        bloodGroup: String = "",
+        profession: String = "",
+        locality: String = "",
+        profilePicUri: String? = null,
+        username: String? = null,
+        bio: String? = null,
+        coverPicUri: String? = null
+    ): Result<User> = withContext(Dispatchers.IO) {
+        val current = _currentUser.value ?: return@withContext Result.failure(IllegalStateException("Please sign in first."))
+        val updated = current.copy(
+            displayName = displayName.ifBlank { current.displayName },
             phone = phone.ifBlank { current.phone },
             age = age.ifBlank { current.age },
             dob = dob.ifBlank { current.dob },
@@ -242,24 +244,25 @@ object HoodeRepository {
             bloodGroup = bloodGroup.ifBlank { current.bloodGroup },
             profession = profession.ifBlank { current.profession },
             locality = locality.ifBlank { current.locality },
-            profilePicUri = profilePicUri ?: current.profilePicUri
+            profilePicUri = profilePicUri ?: current.profilePicUri,
+            username = username ?: current.username,
+            bio = bio ?: current.bio,
+            coverPicUri = coverPicUri ?: current.coverPicUri
         )
+        SupabaseClient.updateProfile(updated).onSuccess {
+            _currentUser.value = it
+            saveUserToCache(it)
+        }
     }
 
     fun signOut() {
         _currentUser.value = null
+        clearUserCache()
+        com.hoodeconnect.backend.BackendSession.clear()
     }
 
     // ── F00: 5-Slide Carousel ────────────────────────────────
-    private val _adSlides = MutableStateFlow(
-        listOf(
-            AdCarouselSlide(1, "Welcome to Hoode Connect", "Hyperlocal community services and live updates", "Hoode Community Initiative", imageUrl = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80"),
-            AdCarouselSlide(2, "Friday Sermon Schedule", "Weekly prayer and community announcements", "Hoode Juma Masjid", imageUrl = "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=800&auto=format&fit=crop&q=80"),
-            AdCarouselSlide(3, "Annual Hoode Premier League", "Cricket tournament registrations now open", "Hoode Sports Club", imageUrl = "https://images.unsplash.com/photo-1531415074868-036b1c57e329?w=800&auto=format&fit=crop&q=80"),
-            AdCarouselSlide(4, "Urgent Blood Donation Camp", "This Saturday at Hoode Community Hall", "Hoode Health Cell", imageUrl = "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&auto=format&fit=crop&q=80"),
-            AdCarouselSlide(5, "Local Apprenticeship Drive", "Vocational electrical & plumbing training", "Hoode Skill Center", imageUrl = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80")
-        )
-    )
+    private val _adSlides = MutableStateFlow<List<AdCarouselSlide>>(emptyList())
     val adSlides: StateFlow<List<AdCarouselSlide>> = _adSlides.asStateFlow()
 
     fun updateAdSlide(slotIndex: Int, headline: String, subheadline: String, advertiser: String) {
@@ -296,22 +299,40 @@ object HoodeRepository {
         startPrayerClock()
     }
 
+    @Volatile
+    private var currentPrayerSchedule: List<Triple<String, String, String>> = listOf(
+        Triple("Fajr", "05:15", "05:45"),
+        Triple("Sunrise", "06:14", "—"),
+        Triple("Dhuhr", "12:35", "13:00"),
+        Triple("Asr", "16:15", "16:45"),
+        Triple("Maghrib", "18:42", "18:50"),
+        Triple("Isha", "20:05", "20:30")
+    )
+
+    private fun parseTo24h(timeStr: String): String {
+        if (timeStr == "—" || timeStr.isBlank()) return "—"
+        return try {
+            val trimmed = timeStr.trim()
+            if (trimmed.contains("AM", ignoreCase = true) || trimmed.contains("PM", ignoreCase = true)) {
+                val f12 = java.text.SimpleDateFormat("h:mm a", java.util.Locale.US)
+                val f24 = java.text.SimpleDateFormat("HH:mm", java.util.Locale.US)
+                val d = f12.parse(trimmed)
+                f24.format(d!!)
+            } else {
+                trimmed
+            }
+        } catch (e: Exception) {
+            timeStr
+        }
+    }
+
     private fun startPrayerClock() {
         prayerScope.launch {
-            // Fixed base times for Hoode Juma Masjid (24h format for calculation)
-            val baseSchedule = listOf(
-                Triple("Fajr", "05:12", "05:30"),
-                Triple("Sunrise", "06:14", "—"),
-                Triple("Dhuhr", "12:32", "12:45"),
-                Triple("Asr", "15:56", "16:15"),
-                Triple("Maghrib", "18:38", "18:42"),
-                Triple("Isha", "19:52", "20:15")
-            )
-
             val format12h = java.text.SimpleDateFormat("h:mm a", java.util.Locale.US)
             val format24h = java.text.SimpleDateFormat("HH:mm", java.util.Locale.US)
 
             while (isActive) {
+                val schedule = currentPrayerSchedule
                 val now = java.util.Calendar.getInstance()
                 val currentHour = now.get(java.util.Calendar.HOUR_OF_DAY)
                 val currentMin = now.get(java.util.Calendar.MINUTE)
@@ -322,10 +343,13 @@ object HoodeRepository {
                 var timeRemainingStr = ""
 
                 // Find the next prayer based on Iqamah time (or Adhan if Sunrise)
-                for (i in baseSchedule.indices) {
-                    val targetTimeStr = if (baseSchedule[i].third != "—") baseSchedule[i].third else baseSchedule[i].second
+                for (i in schedule.indices) {
+                    val targetTimeStr = if (schedule[i].third != "—" && schedule[i].third.contains(":")) schedule[i].third else schedule[i].second
+                    if (!targetTimeStr.contains(":")) continue
                     val parts = targetTimeStr.split(":")
-                    val targetSecs = parts[0].toInt() * 3600 + parts[1].toInt() * 60
+                    val targetSecs = parts[0].trim().toIntOrNull()?.let { h ->
+                        parts[1].trim().toIntOrNull()?.let { m -> h * 3600 + m * 60 }
+                    } ?: continue
 
                     if (currentTotalSecs < targetSecs) {
                         nextPrayerIndex = i
@@ -339,10 +363,13 @@ object HoodeRepository {
                 }
 
                 // If no next prayer found today, next is Fajr tomorrow
-                if (nextPrayerIndex == -1) {
+                if (nextPrayerIndex == -1 && schedule.isNotEmpty()) {
                     nextPrayerIndex = 0
-                    val parts = baseSchedule[0].third.split(":")
-                    val targetSecs = parts[0].toInt() * 3600 + parts[1].toInt() * 60
+                    val targetTimeStr = if (schedule[0].third != "—" && schedule[0].third.contains(":")) schedule[0].third else schedule[0].second
+                    val parts = targetTimeStr.split(":")
+                    val targetSecs = parts[0].trim().toIntOrNull()?.let { h ->
+                        parts[1].trim().toIntOrNull()?.let { m -> h * 3600 + m * 60 }
+                    } ?: (5 * 3600 + 45 * 60)
                     val diff = (24 * 3600 - currentTotalSecs) + targetSecs
                     val h = diff / 3600
                     val m = (diff % 3600) / 60
@@ -350,13 +377,21 @@ object HoodeRepository {
                     timeRemainingStr = String.format("%02d:%02d:%02d", h, m, s)
                 }
 
-                val newList = baseSchedule.mapIndexed { index, triple ->
-                    val adhanDate = format24h.parse(triple.second)
-                    val adhan12h = format12h.format(adhanDate!!)
-                    
+                val newList = schedule.mapIndexed { index, triple ->
+                    val adhan12h = try {
+                        val adhanDate = format24h.parse(triple.second)
+                        format12h.format(adhanDate!!)
+                    } catch (e: Exception) {
+                        triple.second
+                    }
+
                     val iqamah12h = if (triple.third != "—") {
-                        val iqamahDate = format24h.parse(triple.third)
-                        format12h.format(iqamahDate!!)
+                        try {
+                            val iqamahDate = format24h.parse(triple.third)
+                            format12h.format(iqamahDate!!)
+                        } catch (e: Exception) {
+                            triple.third
+                        }
                     } else {
                         "—"
                     }
@@ -377,7 +412,34 @@ object HoodeRepository {
     }
 
     fun updatePrayerTimings(updated: List<PrayerTiming>) {
-        // Now overridden by the dynamic clock, keeping signature for compatibility if needed.
+        if (updated.isNotEmpty()) {
+            _prayerTimings.value = updated
+        }
+    }
+
+    fun updatePrayerTimingsFromCloud(livePrayers: List<Pair<String, Pair<String, String>>>) {
+        if (livePrayers.isEmpty()) return
+        val newSchedule = mutableListOf<Triple<String, String, String>>()
+        for ((name, times) in livePrayers) {
+            newSchedule.add(Triple(name, parseTo24h(times.first), parseTo24h(times.second)))
+        }
+        currentPrayerSchedule = newSchedule
+    }
+
+    fun loadPrayerTimetableForMosque(mosqueName: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val mosqueObj = mosques.find { it.name.equals(mosqueName, ignoreCase = true) }
+            if (mosqueObj != null) {
+                _activeMosque.value = mosqueObj
+            }
+            if (SupabaseConfig.isConfigured) {
+                SupabaseClient.fetchPrayerSchedules(mosqueName).getOrNull()?.let { livePrayers ->
+                    if (livePrayers.isNotEmpty()) {
+                        updatePrayerTimingsFromCloud(livePrayers)
+                    }
+                }
+            }
+        }
     }
 
     // ── F02: Emergency Directory ─────────────────────────────
@@ -558,49 +620,7 @@ object HoodeRepository {
     }
 
     // ── F06: Events & Weddings ───────────────────────────────
-    private val _events = MutableStateFlow(
-        listOf(
-            CommunityEvent(
-                id = "evt_01",
-                title = "Community Iftar & Dua Gathering",
-                organizer = "Hoode Youth Federation",
-                category = "Majlis",
-                date = "Today",
-                time = "6:15 PM – 7:30 PM",
-                venue = "Hoode Juma Masjid Courtyard",
-                isPrivate = false,
-                rsvpGoing = 84,
-                rsvpTotalCapacity = 150,
-                userRsvp = true
-            ),
-            CommunityEvent(
-                id = "evt_02",
-                title = "Free General Health & Eye Checkup Camp",
-                organizer = "Rotary Club Kemmannu & KMC Manipal",
-                category = "Community Meeting",
-                date = "Sunday, 14 Sep 2026",
-                time = "9:00 AM – 2:00 PM",
-                venue = "Government Urdu Higher Primary School",
-                isPrivate = false,
-                rsvpGoing = 42,
-                rsvpTotalCapacity = 200,
-                userRsvp = null
-            ),
-            CommunityEvent(
-                id = "evt_03",
-                title = "Walima Reception — Suhail & Ayesha",
-                organizer = "Haji Abdul Rahman Family",
-                category = "Wedding",
-                date = "22 Sep 2026",
-                time = "12:30 PM – 3:30 PM",
-                venue = "Golden Palace Auditorium, Santhekatte",
-                isPrivate = true,
-                rsvpGoing = 160,
-                rsvpTotalCapacity = 300,
-                userRsvp = null
-            )
-        )
-    )
+    private val _events = MutableStateFlow<List<CommunityEvent>>(emptyList())
     val events: StateFlow<List<CommunityEvent>> = _events.asStateFlow()
 
     fun rsvpEvent(eventId: String, going: Boolean) {
@@ -614,38 +634,14 @@ object HoodeRepository {
         addContributionPoints("RSVP to Community Event", 5)
     }
 
+    suspend fun postEvent(item: CommunityEvent): Result<Boolean> =
+        SupabaseClient.submitEvent(item).onSuccess {
+            addContributionPoints("Submitted Community Event", 20)
+            syncWithCloud()
+        }
+
     // ── F07: Blood Donor Network ─────────────────────────────
-    private val _bloodRequests = MutableStateFlow(
-        listOf(
-            BloodRequest(
-                bloodGroup = "O+",
-                hospital = "Adarsh Hospital, Udupi",
-                neededBy = "Today by 8:00 PM",
-                urgency = "urgent",
-                area = "Udupi Town",
-                unitsNeeded = 2,
-                coordinatorPhone = "+91 94812 34567"
-            ),
-            BloodRequest(
-                bloodGroup = "B-",
-                hospital = "KMC Manipal Trauma Ward",
-                neededBy = "Tomorrow 11:00 AM",
-                urgency = "urgent",
-                area = "Manipal",
-                unitsNeeded = 1,
-                coordinatorPhone = "+91 98450 98765"
-            ),
-            BloodRequest(
-                bloodGroup = "A+",
-                hospital = "Hi-Tech Hospital, Ambalpady",
-                neededBy = "13 Sep 2026",
-                urgency = "normal",
-                area = "Ambalpady",
-                unitsNeeded = 1,
-                coordinatorPhone = "+91 82025 21100"
-            )
-        )
-    )
+    private val _bloodRequests = MutableStateFlow<List<BloodRequest>>(emptyList())
     val bloodRequests: StateFlow<List<BloodRequest>> = _bloodRequests.asStateFlow()
 
     private val _registeredDonors = MutableStateFlow(
@@ -662,10 +658,11 @@ object HoodeRepository {
         addContributionPoints("Joined Blood Donor Registry", 50)
     }
 
-    fun postBloodRequest(request: BloodRequest) {
-        _bloodRequests.value = listOf(request) + _bloodRequests.value
-        addContributionPoints("Emergency Blood Request Broadcasted", 15)
-    }
+    suspend fun postBloodRequest(item: BloodRequest): Result<Boolean> =
+        SupabaseClient.submitBloodRequest(item).onSuccess {
+            addContributionPoints("Emergency Blood Request Broadcasted", 15)
+            syncWithCloud()
+        }
 
     // ── F08: Polls & Civic Issues ────────────────────────────
     private val _polls = MutableStateFlow(
@@ -792,76 +789,325 @@ object HoodeRepository {
     )
     val contributions: StateFlow<List<ContributionRecord>> = _contributions.asStateFlow()
 
-    private fun addContributionPoints(action: String, points: Int) {
+    fun addContributionPoints(action: String, points: Int) {
         _totalPoints.value += points
         _contributions.value = listOf(ContributionRecord(action = action, points = points, date = "Just now")) + _contributions.value
     }
 
     // ── F10: Classifieds & Marketplace ───────────────────────
-    private val _classifieds = MutableStateFlow(
-        listOf(
-            ClassifiedItem(
-                title = "Hercules 26T Mountain Bicycle (6 Months Old)",
-                price = "₹3,800",
-                type = "Sell",
-                category = "Vehicles",
-                area = "Kemmannu Road",
-                description = "Excellent condition with front suspension and dual disc brakes. Selling due to relocation.",
-                sellerName = "Arshad",
-                date = "08 Sep 2026",
-                images = listOf(
-                    "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=800",
-                    "https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=800",
-                    "https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?w=800"
-                )
-            ),
-            ClassifiedItem(
-                title = "Teakwood Study Table with Bookshelf",
-                price = "₹2,200",
-                type = "Sell",
-                category = "Furniture",
-                area = "Bengre Cross",
-                description = "Solid wood table, 4ft x 2.5ft with 2 drawers. Minor scratches, otherwise sturdy.",
-                sellerName = "Siddiq M.",
-                date = "06 Sep 2026",
-                images = listOf(
-                    "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=800",
-                    "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?w=800"
-                )
-            ),
-            ClassifiedItem(
-                title = "Complete Set of NCERT 10th Standard Books",
-                price = "Free",
-                type = "Give Away",
-                category = "Books",
-                area = "Hoode Beach",
-                description = "All core subjects, neat condition. Free for any student in need.",
-                sellerName = "Sister Fatima",
-                date = "05 Sep 2026",
-                images = listOf(
-                    "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800"
-                )
-            ),
-            ClassifiedItem(
-                title = "Wanted: Used Refrigerator (190L - 240L)",
-                price = "Under ₹7,000",
-                type = "Wanted",
-                category = "Electronics",
-                area = "Any area in Hoode",
-                description = "Single or double door in working condition required for small family rental house.",
-                sellerName = "Nawaz",
-                date = "04 Sep 2026",
-                images = listOf(
-                    "https://images.unsplash.com/photo-1584992236310-6edddc08acff?w=800"
-                )
+    private val defaultMockClassifieds = listOf(
+        ClassifiedItem(
+            id = "cl_01",
+            title = "Hercules Roadeo 26T 21-Speed Mountain Bicycle",
+            price = "₹4,200",
+            type = "Sell",
+            category = "Vehicles",
+            area = "Kemmannu Road, Hoode",
+            description = "Well-maintained mountain bicycle with front suspension, dual disc brakes, and Shimano 21 gears. Used only for 6 months. Minor cosmetic wear. Free bottle holder and helmet included.",
+            sellerName = "Arshad Hoode",
+            date = "Today",
+            phone = "9845112233",
+            sellerUserId = "seller_arshad",
+            images = listOf(
+                "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=800",
+                "https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=800",
+                "https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?w=800"
+            )
+        ),
+        ClassifiedItem(
+            id = "cl_02",
+            title = "Solid Teak Wood 4-Seater Dining Table with Chairs",
+            price = "₹8,500",
+            type = "Sell",
+            category = "Furniture",
+            area = "Bengre Beach Road",
+            description = "Pure Malaysian teak wood 4-seater dining set with matching cushioned chairs. Heavy, premium polish, highly durable. Relocating to Bangalore hence selling at genuine price.",
+            sellerName = "Farhan Bengre",
+            date = "Yesterday",
+            phone = "9880223344",
+            sellerUserId = "seller_farhan",
+            images = listOf(
+                "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=800",
+                "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800",
+                "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800"
+            )
+        ),
+        ClassifiedItem(
+            id = "cl_03",
+            title = "Sony Bravia 43-inch 4K UHD Smart Google TV",
+            price = "₹19,000",
+            type = "Sell",
+            category = "Electronics",
+            area = "Kodi Lighthouse View",
+            description = "Crystal clear 4K HDR screen with Dolby Audio, built-in Chromecast, and Google TV apps (YouTube, Netflix, Prime). Under warranty for another 5 months with original bill and box.",
+            sellerName = "Zaid Kodi",
+            date = "2 days ago",
+            phone = "9741556677",
+            sellerUserId = "seller_zaid",
+            images = listOf(
+                "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800",
+                "https://images.unsplash.com/photo-1461151304267-38535e780c79?w=800"
+            )
+        ),
+        ClassifiedItem(
+            id = "cl_04",
+            title = "Yamaha FZ-S 150cc BS6 (Single Owner, Pristine)",
+            price = "₹68,000",
+            type = "Sell",
+            category = "Vehicles",
+            area = "Hoode Fisheries Colony",
+            description = "2022 registration, single owner, driven only 14,200 kms. Brand new MRF tyres, timely showroom service records, insurance valid until Dec 2026. Non-accidental, mint condition.",
+            sellerName = "Riyaz Ahmed",
+            date = "3 days ago",
+            phone = "9663778899",
+            sellerUserId = "seller_riyaz",
+            images = listOf(
+                "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800",
+                "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800",
+                "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800"
+            )
+        ),
+        ClassifiedItem(
+            id = "cl_05",
+            title = "Apple iPad Air 5th Gen (64GB, Wi-Fi) + Apple Pencil",
+            price = "₹34,000",
+            type = "Sell",
+            category = "Electronics",
+            area = "Kemmannu Town",
+            description = "M1 chip beast performance with 10.9-inch Liquid Retina display. Includes Apple Pencil 2nd gen and ESR magnetic folio cover. Battery health 96%. Ideal for students & designers.",
+            sellerName = "Sohail K",
+            date = "4 days ago",
+            phone = "9844001122",
+            sellerUserId = "seller_sohail",
+            images = listOf(
+                "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800",
+                "https://images.unsplash.com/photo-1561154464-82e9adf32764?w=800"
             )
         )
     )
+
+    private val _classifieds = MutableStateFlow<List<ClassifiedItem>>(defaultMockClassifieds)
     val classifieds: StateFlow<List<ClassifiedItem>> = _classifieds.asStateFlow()
 
-    fun postClassified(item: ClassifiedItem) {
-        _classifieds.value = listOf(item) + _classifieds.value
-        addContributionPoints("Posted Marketplace Item", 15)
+    fun checkAndExpireBookings() {
+        val now = System.currentTimeMillis()
+        val oneDayMillis = 24 * 60 * 60 * 1000L
+        var changed = false
+        val updated = _classifieds.value.map { item ->
+            if (item.isBooked && !item.isSold && (now - item.bookedAtTimestamp >= oneDayMillis)) {
+                changed = true
+                item.copy(
+                    isBooked = false,
+                    bookedByUserId = null,
+                    bookedByName = null,
+                    bookedByPhone = null,
+                    bookedAtTimestamp = 0L,
+                    bookingNote = null
+                )
+            } else {
+                item
+            }
+        }
+        if (changed) {
+            _classifieds.value = updated
+        }
+    }
+
+    fun isBookingActive(item: ClassifiedItem): Boolean {
+        if (!item.isBooked || item.isSold) return false
+        val now = System.currentTimeMillis()
+        val oneDayMillis = 24 * 60 * 60 * 1000L
+        return (now - item.bookedAtTimestamp) < oneDayMillis
+    }
+
+    fun getActiveBookingForUser(userId: String): ClassifiedItem? {
+        checkAndExpireBookings()
+        return _classifieds.value.firstOrNull { item ->
+            isBookingActive(item) && item.bookedByUserId == userId
+        }
+    }
+
+    suspend fun bookClassified(
+        itemId: String,
+        user: User,
+        phone: String,
+        note: String
+    ): Result<Boolean> {
+        checkAndExpireBookings()
+        val existingBooking = getActiveBookingForUser(user.id)
+        if (existingBooking != null && existingBooking.id != itemId) {
+            return Result.failure(
+                IllegalStateException("You already have an active 24h booking for '${existingBooking.title}'. Per Spinny guidelines, you can only hold one product at a time. Please cancel your previous reservation or wait for it to expire.")
+            )
+        }
+
+        val target = _classifieds.value.firstOrNull { it.id == itemId }
+            ?: return Result.failure(IllegalArgumentException("Product not found."))
+
+        if (target.isSold) {
+            return Result.failure(IllegalStateException("This product has already been sold."))
+        }
+        if (isBookingActive(target) && target.bookedByUserId != user.id) {
+            return Result.failure(IllegalStateException("This product is already booked by another resident."))
+        }
+
+        val updated = _classifieds.value.map { item ->
+            if (item.id == itemId) {
+                item.copy(
+                    isBooked = true,
+                    bookedByUserId = user.id,
+                    bookedByName = user.displayName,
+                    bookedByPhone = phone,
+                    bookedAtTimestamp = System.currentTimeMillis(),
+                    bookingNote = note
+                )
+            } else item
+        }
+        _classifieds.value = updated
+        addContributionPoints("Reserved Marketplace Product", 5)
+        return Result.success(true)
+    }
+
+    suspend fun cancelBooking(itemId: String, userId: String): Result<Boolean> {
+        val target = _classifieds.value.firstOrNull { it.id == itemId }
+            ?: return Result.failure(IllegalArgumentException("Product not found."))
+
+        val updated = _classifieds.value.map { item ->
+            if (item.id == itemId) {
+                item.copy(
+                    isBooked = false,
+                    bookedByUserId = null,
+                    bookedByName = null,
+                    bookedByPhone = null,
+                    bookedAtTimestamp = 0L,
+                    bookingNote = null
+                )
+            } else item
+        }
+        _classifieds.value = updated
+        return Result.success(true)
+    }
+
+    suspend fun markClassifiedSold(itemId: String, sellerUserId: String?): Result<Boolean> {
+        val updated = _classifieds.value.map { item ->
+            if (item.id == itemId) {
+                item.copy(isSold = true)
+            } else item
+        }
+        _classifieds.value = updated
+        addContributionPoints("Sold Marketplace Item", 25)
+        return Result.success(true)
+    }
+
+    suspend fun removeClassified(itemId: String): Result<Boolean> {
+        _classifieds.value = _classifieds.value.filter { it.id != itemId }
+        return Result.success(true)
+    }
+
+    suspend fun postClassified(item: ClassifiedItem): Result<Boolean> {
+        val user = _currentUser.value
+        val enriched = if (item.sellerUserId.isNullOrBlank() && user != null) {
+            item.copy(sellerUserId = user.id)
+        } else item
+        _classifieds.value = listOf(enriched) + _classifieds.value
+        return SupabaseClient.submitMarketplace(enriched).onSuccess {
+            addContributionPoints("Submitted Marketplace Listing", 15)
+            syncWithCloud()
+        }
+    }
+
+    // ── Genuine Profile Posts & Community Feed ───────────────
+    private val _userCommunityPosts = MutableStateFlow<List<UserPostItem>>(emptyList())
+    val userCommunityPosts: StateFlow<List<UserPostItem>> = _userCommunityPosts.asStateFlow()
+
+    fun addUserCommunityPost(post: UserPostItem) {
+        _userCommunityPosts.value = listOf(post) + _userCommunityPosts.value
+        addContributionPoints("Shared Community Post", 10)
+    }
+
+    fun getUserPosts(user: User?): List<UserPostItem> {
+        if (user == null) return emptyList()
+        val posts = mutableListOf<UserPostItem>()
+        val userName = user.displayName.trim().lowercase()
+        val userPhone = user.phone?.trim()
+
+        // 1. Direct community updates authored by user
+        posts.addAll(_userCommunityPosts.value)
+
+        // 2. Marketplace items created by user
+        _classifieds.value.filter {
+            it.sellerName.trim().lowercase() == userName ||
+            (!userPhone.isNullOrBlank() && it.phone.trim() == userPhone)
+        }.forEach { item ->
+            posts.add(
+                UserPostItem(
+                    id = item.id,
+                    title = item.title,
+                    type = "Marketplace • ${item.category}",
+                    content = "${item.price} • ${item.description}\nArea: ${item.area}",
+                    date = item.date,
+                    imageUrl = item.images.firstOrNull(),
+                    likes = 14,
+                    comments = 3
+                )
+            )
+        }
+
+        // 3. Lost & Found items reported by user
+        _lostFound.value.filter {
+            (!userPhone.isNullOrBlank() && it.contactPhone.trim() == userPhone)
+        }.forEach { item ->
+            posts.add(
+                UserPostItem(
+                    id = item.id,
+                    title = "${if (item.isLost) "Lost" else "Found"}: ${item.title}",
+                    type = "Lost & Found • ${item.category}",
+                    content = "${item.description}\nLocation: ${item.area}",
+                    date = item.date,
+                    imageUrl = item.images.firstOrNull(),
+                    likes = 8,
+                    comments = 1
+                )
+            )
+        }
+
+        // 4. Events organized by user
+        _events.value.filter {
+            it.organizer.trim().lowercase() == userName
+        }.forEach { item ->
+            posts.add(
+                UserPostItem(
+                    id = item.id,
+                    title = item.title,
+                    type = "Event • ${item.category}",
+                    content = "When: ${item.date} • Where: ${item.venue}",
+                    date = item.date,
+                    imageUrl = null,
+                    likes = item.rsvpGoing,
+                    comments = 2
+                )
+            )
+        }
+
+        // 5. Gallery photos by user
+        _galleryItems.value.filter {
+            it.photographer.trim().lowercase() == userName
+        }.forEach { item ->
+            posts.add(
+                UserPostItem(
+                    id = item.id,
+                    title = item.title,
+                    type = "Gallery Photo",
+                    content = item.caption.ifBlank { "Photo shared to Hoode Gallery" },
+                    date = "Community Photo",
+                    imageUrl = item.imageUrl,
+                    likes = 18,
+                    comments = 2
+                )
+            )
+        }
+
+        return posts
     }
 
     // ── F12: Ramadan Timetable ────────────────────────────────
@@ -895,28 +1141,7 @@ object HoodeRepository {
     }
 
     // ── F14: Verified Local News ─────────────────────────────
-    private val _newsArticles = MutableStateFlow(
-        listOf(
-            NewsArticle(
-                title = "New Bengre–Hoode Coastal Seawall Project Approved",
-                summary = "State fisheries and ports department sanctions ₹4.2 crore for sea erosion prevention works.",
-                body = "The Karnataka Minor Ports & Fisheries Department has officially approved the Phase-2 sea erosion protection project for Hoode and Bengre beach sections. Works are slated to commence post-monsoon in October 2026. Local fishermen cooperatives welcomed the move.",
-                verifier = "Udupi District Information Center",
-                verifiedDate = "09 Sep 2026",
-                sources = listOf("Official Gazette Notification #FD-892/2026", "Deccan Herald Regional Bureau"),
-                isRumorClarification = false
-            ),
-            NewsArticle(
-                title = "Clarification: No Power Shutdown Scheduled for This Weekend",
-                summary = "Social media rumors claiming 48-hour total blackout in Kemmannu sub-station are false.",
-                body = "MESCOM Assistant Executive Engineer has issued an official statement dismissing WhatsApp rumors of a 48-hour continuous power cut in Hoode, Kemmannu, and Tonse areas. Routine line maintenance will occur only on Tuesday from 10 AM to 1 PM.",
-                verifier = "MESCOM Kemmannu Sub-Division",
-                verifiedDate = "08 Sep 2026",
-                sources = listOf("MESCOM Press Note Ref: EE/KM/2026-11"),
-                isRumorClarification = true
-            )
-        )
-    )
+    private val _newsArticles = MutableStateFlow<List<NewsArticle>>(emptyList())
     val newsArticles: StateFlow<List<NewsArticle>> = _newsArticles.asStateFlow()
 
     // ── F15: Handyman & Service Providers ────────────────────
@@ -1235,4 +1460,100 @@ object HoodeRepository {
         )
     )
     val calendarEvents: StateFlow<List<CalendarEvent>> = _calendarEvents.asStateFlow()
+
+    // ── Cloud Sync & Content Moderation ──────────────────────
+
+    private val syncScope = CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO)
+    private var syncJob: kotlinx.coroutines.Job? = null
+
+    @Synchronized fun syncWithCloud() {
+        if (syncJob?.isActive == true) return
+        syncJob = syncScope.launch {
+            if (!SupabaseConfig.isConfigured) return@launch
+
+            try {
+                // 1. Sync News
+                SupabaseClient.fetchNews("published").getOrNull()?.let { liveNews ->
+                    _newsArticles.value = liveNews
+                }
+
+                // 2. Sync Events
+                SupabaseClient.fetchEvents("published").getOrNull()?.let { liveEvents ->
+                    _events.value = liveEvents
+                }
+
+                // 3. Sync Marketplace
+                SupabaseClient.fetchMarketplace("published").getOrNull()?.let { liveMarket ->
+                    _classifieds.value = liveMarket
+                }
+
+                // 4. Sync Blood Requests
+                SupabaseClient.fetchBloodRequests().getOrNull()?.let { liveBlood ->
+                    _bloodRequests.value = liveBlood
+                }
+
+                // 5. Sync Carousel Ads (Managed by Admin Console)
+                SupabaseClient.fetchCarouselAds().getOrNull()?.let { liveAds ->
+                    _adSlides.value = liveAds
+                }
+
+                // 6. Sync Prayer Schedules (Managed by Admin Console)
+                SupabaseClient.fetchPrayerSchedules(_activeMosque.value.name).getOrNull()?.let { livePrayers ->
+                    if (livePrayers.isNotEmpty()) {
+                        updatePrayerTimingsFromCloud(livePrayers)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w("HoodeRepository", "Cloud sync notice", e)
+            }
+        }
+    }
+
+    data class ModerationItem(
+        val id: String,
+        val type: String, // "News", "Event", "Marketplace"
+        val title: String,
+        val subtitle: String,
+        val description: String,
+        val imageUrl: String = ""
+    )
+
+    suspend fun fetchPendingModerationItems(): List<ModerationItem> = withContext(Dispatchers.IO) {
+        val list = mutableListOf<ModerationItem>()
+        if (!SupabaseConfig.isConfigured) return@withContext list
+
+        try {
+            // Pending News
+            SupabaseClient.fetchNews("pending").getOrNull()?.forEach {
+                list.add(ModerationItem(it.id, "News", it.title, "${it.verifier} • ${it.verifiedDate}", it.body, it.imageUrl))
+            }
+
+            // Pending Events
+            SupabaseClient.fetchEvents("pending").getOrNull()?.forEach {
+                list.add(ModerationItem(it.id, "Event", it.title, "${it.organizer} • ${it.date}", it.venue, ""))
+            }
+
+            // Pending Marketplace
+            SupabaseClient.fetchMarketplace("pending").getOrNull()?.forEach {
+                list.add(ModerationItem(it.id, "Marketplace", it.title, "${it.price} • ${it.sellerName}", it.description, it.images.firstOrNull() ?: ""))
+            }
+        } catch (e: Exception) {
+            Log.e("HoodeRepository", "Failed to fetch pending items", e)
+        }
+        list
+    }
+
+    suspend fun moderateItem(itemId: String, type: String, approve: Boolean): Boolean = withContext(Dispatchers.IO) {
+        val newStatus = if (approve) "published" else "rejected"
+        val success = when (type) {
+            "News" -> SupabaseClient.updateNewsStatus(itemId, newStatus).getOrDefault(false)
+            "Event" -> SupabaseClient.updateEventStatus(itemId, newStatus).getOrDefault(false)
+            "Marketplace" -> SupabaseClient.updateMarketplaceStatus(itemId, newStatus).getOrDefault(false)
+            else -> false
+        }
+        if (success && approve) {
+            syncWithCloud()
+        }
+        success
+    }
 }

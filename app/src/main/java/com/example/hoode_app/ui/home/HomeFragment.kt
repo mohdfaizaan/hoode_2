@@ -151,12 +151,14 @@ class HomeFragment : Fragment() {
                         headline = it.headline,
                         subheadline = it.subheadline,
                         advertiser = it.advertiser,
-                        ctaLabel = "Know More",
+                        ctaLabel = it.ctaLabel,
+                        ctaUrl = it.ctaUrl,
                         imageUrl = it.imageUrl
                     )
                 }
 
                 currentSlides = carouselSlides
+                binding.cardCarousel.visibility = if (carouselSlides.isEmpty()) View.GONE else View.VISIBLE
                 val adapter = CarouselAdapter(carouselSlides) { slide ->
                     showSponsoredDetailDialog(slide)
                 }
@@ -262,13 +264,16 @@ class HomeFragment : Fragment() {
             dialog.dismiss()
         }
 
+        val partnerUri = slide.ctaUrl?.takeIf { it.isNotBlank() }?.let(android.net.Uri::parse)
+        dialogBinding.btnModalLearnMore.visibility =
+            if (partnerUri?.scheme in setOf("https", "http")) View.VISIBLE else View.GONE
         dialogBinding.btnModalLearnMore.setOnClickListener {
-            dialog.dismiss()
-            Toast.makeText(
-                requireContext(),
-                "Opening partner link: ${slide.advertiser}",
-                Toast.LENGTH_SHORT
-            ).show()
+            try {
+                startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, partnerUri))
+                dialog.dismiss()
+            } catch (_: android.content.ActivityNotFoundException) {
+                Toast.makeText(requireContext(), "No browser is available to open this link.", Toast.LENGTH_LONG).show()
+            }
         }
 
         dialog.setOnDismissListener {
@@ -376,8 +381,8 @@ class HomeFragment : Fragment() {
         binding.boxActBlood.setOnClickListener {
             findNavController().navigate(R.id.bloodNetworkFragment)
         }
-        binding.boxActMosques.setOnClickListener {
-            findNavController().navigate(R.id.prayerDetailFragment)
+        binding.boxActNews.setOnClickListener {
+            findNavController().navigate(R.id.newsFragment)
         }
         binding.boxActEmergency.setOnClickListener {
             findNavController().navigate(R.id.emergencyFragment)

@@ -235,20 +235,50 @@
                     android:textColor="@color/text_primary" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Choose / Upload Image from Gallery Button -->
+            <LinearLayout
+                android:id="@+id/btn_lf_upload_image"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_primary_grey_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_camera_fab"
+                    app:tint="@color/text_primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Choose / Upload from Gallery"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13.5sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
             <!-- Image URL with Live Preview -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_lf_image"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="Photo URL (optional)"
+                android:layout_marginTop="8dp"
+                android:hint="Or Photo URL (optional)"
                 app:boxCornerRadiusBottomEnd="14dp"
                 app:boxCornerRadiusBottomStart="14dp"
                 app:boxCornerRadiusTopEnd="14dp"
                 app:boxCornerRadiusTopStart="14dp"
                 app:boxStrokeColor="@color/border_green"
-                app:startIconDrawable="@drawable/ic_camera_fab"
+                app:startIconDrawable="@drawable/ic_gallery"
                 app:startIconTint="@color/accent">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -262,8 +292,10 @@
             <FrameLayout
                 android:id="@+id/fl_lf_preview_container"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="130dp"
                 android:layout_marginTop="8dp"
+                android:clickable="true"
+                android:focusable="true"
                 android:visibility="gone">
 
                 <com.google.android.material.imageview.ShapeableImageView
@@ -273,6 +305,19 @@
                     android:scaleType="centerCrop"
                     android:background="@drawable/bg_gallery_luxury_gradient"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="8dp"
+                    android:background="@drawable/bg_gallery_pill"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:text="Tap to change photo"
+                    android:textColor="@color/white"
+                    android:textSize="10.5sp"
+                    android:fontFamily="sans-serif-medium" />
             </FrameLayout>
 
             <!-- Description -->

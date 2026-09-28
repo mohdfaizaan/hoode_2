@@ -172,6 +172,7 @@ class PrayerDetailFragment : Fragment() {
                 selectedMosqueId = mosque.id
                 binding.tvMosqueTitle.text = mosque.name
                 binding.tvMosqueLocation.text = "${mosque.location} · IST"
+                HoodeRepository.loadPrayerTimetableForMosque(mosque.name)
                 Toast.makeText(requireContext(), "Selected ${mosque.name}", Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
             }

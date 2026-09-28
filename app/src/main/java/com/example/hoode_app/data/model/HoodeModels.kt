@@ -20,7 +20,10 @@ data class User(
     val fatherName: String? = null,
     val bloodGroup: String? = null,
     val profession: String? = null,
-    val locality: String? = null
+    val locality: String? = null,
+    val username: String? = null,
+    val bio: String? = null,
+    val coverPicUri: String? = null
 )
 
 data class Community(
@@ -244,7 +247,14 @@ data class ClassifiedItem(
     val date: String,
     val isSold: Boolean = false,
     val images: List<String> = emptyList(),
-    val phone: String = "9876543210"
+    val phone: String = "9876543210",
+    val sellerUserId: String? = null,
+    val isBooked: Boolean = false,
+    val bookedByUserId: String? = null,
+    val bookedByName: String? = null,
+    val bookedByPhone: String? = null,
+    val bookedAtTimestamp: Long = 0L,
+    val bookingNote: String? = null
 )
 
 // ── F13: Notifications ───────────────────────────────────────
@@ -371,4 +381,16 @@ data class CalendarEvent(
     val dateStr: String, // Format: YYYY-MM-DD
     val title: String,
     val type: String // "holiday" or "event"
+)
+
+// ── Profile Genuine Posts ──────────────────────────────────
+data class UserPostItem(
+    val id: String = UUID.randomUUID().toString(),
+    val title: String,
+    val type: String, // "Marketplace", "Lost & Found", "Event", "Civic Issue", "Community Update"
+    val content: String,
+    val date: String,
+    val imageUrl: String? = null,
+    val likes: Int = 0,
+    val comments: Int = 0
 )

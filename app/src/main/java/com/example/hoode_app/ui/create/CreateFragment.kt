@@ -1,19 +1,24 @@
 package com.example.hoode_app.ui.create
 
 import android.app.Dialog
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import coil.load
 import com.example.hoode_app.R
 import com.example.hoode_app.data.model.BloodRequest
 import com.example.hoode_app.data.model.ClassifiedItem
+import com.example.hoode_app.data.model.CommunityEvent
 import com.example.hoode_app.data.model.JobPosting
 import com.example.hoode_app.data.model.LostFoundItem
 import com.example.hoode_app.data.repository.HoodeRepository
@@ -24,11 +29,29 @@ import com.example.hoode_app.databinding.DialogFormPostMarketplaceBinding
 import com.example.hoode_app.databinding.DialogFormReportCivicBinding
 import com.example.hoode_app.databinding.DialogFormReportLostFoundBinding
 import com.example.hoode_app.databinding.FragmentCreateBinding
+import com.example.hoode_app.databinding.ItemImageFormationChipBinding
+import kotlinx.coroutines.launch
 
 class CreateFragment : Fragment() {
 
     private var _binding: FragmentCreateBinding? = null
     private val binding get() = _binding!!
+
+    private var onImagePicked: ((Uri) -> Unit)? = null
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        uri?.let { onImagePicked?.invoke(it) }
+    }
+
+    private var onMultipleImagesPicked: ((List<Uri>) -> Unit)? = null
+    private val pickMultipleImagesLauncher = registerForActivityResult(
+        ActivityResultContracts.PickMultipleVisualMedia(8)
+    ) { uris: List<Uri> ->
+        if (uris.isNotEmpty()) {
+            onMultipleImagesPicked?.invoke(uris)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -101,27 +124,112 @@ class CreateFragment : Fragment() {
             }
         }
 
-        fun updatePreview(url: String) {
-            val first = url.split(",").firstOrNull()?.trim() ?: ""
-            if (first.isNotBlank()) {
-                formBinding.ivImagePreview.load(first) {
+        val orderedImages = mutableListOf<String>()
+        val defaultInitial = formBinding.etItemImages.text.toString().trim()
+        if (defaultInitial.isNotBlank()) {
+            orderedImages.addAll(defaultInitial.split(",").map { it.trim() }.filter { it.isNotBlank() })
+        }
+
+        fun refreshFormationUI() {
+            formBinding.llFormationImagesContainer.removeAllViews()
+
+            if (orderedImages.isEmpty()) {
+                formBinding.tvFormationInstruction.text = "No images selected yet. Tap above to pick photos."
+                formBinding.ivImagePreview.setImageResource(R.drawable.bg_gallery_luxury_gradient)
+                formBinding.tvPreviewBadge.text = "No Cover Image"
+                formBinding.etItemImages.setText("")
+                return
+            }
+
+            formBinding.tvFormationInstruction.text = "Formation & Order (◀ / ▶ to move. Photo #1 is your Cover):"
+            val coverUrl = orderedImages.firstOrNull() ?: ""
+            if (coverUrl.isNotBlank()) {
+                formBinding.ivImagePreview.load(coverUrl) {
                     crossfade(true)
                     placeholder(R.drawable.bg_gallery_luxury_gradient)
                     error(R.drawable.bg_gallery_luxury_gradient)
                 }
-            } else {
-                formBinding.ivImagePreview.setImageResource(R.drawable.bg_gallery_luxury_gradient)
+                formBinding.tvPreviewBadge.text = "#1 Cover Photo Selected"
+            }
+
+            formBinding.etItemImages.setText(orderedImages.joinToString(", "))
+
+            for (idx in orderedImages.indices) {
+                val imgUrl = orderedImages[idx]
+                val chipBinding = ItemImageFormationChipBinding.inflate(layoutInflater, formBinding.llFormationImagesContainer, false)
+
+                chipBinding.ivChipThumb.load(imgUrl) {
+                    crossfade(true)
+                    placeholder(R.drawable.bg_gallery_luxury_gradient)
+                    error(R.drawable.bg_gallery_luxury_gradient)
+                }
+
+                if (idx == 0) {
+                    chipBinding.tvChipPosition.text = "⭐ #1 COVER"
+                    chipBinding.tvChipPosition.setBackgroundResource(R.drawable.bg_pill_accent)
+                    chipBinding.btnChipMoveLeft.visibility = View.INVISIBLE
+                } else {
+                    chipBinding.tvChipPosition.text = "#${idx + 1}"
+                    chipBinding.tvChipPosition.setBackgroundResource(R.drawable.bg_gallery_pill)
+                    chipBinding.btnChipMoveLeft.visibility = View.VISIBLE
+                }
+
+                if (idx == orderedImages.size - 1) {
+                    chipBinding.btnChipMoveRight.visibility = View.INVISIBLE
+                } else {
+                    chipBinding.btnChipMoveRight.visibility = View.VISIBLE
+                }
+
+                // Move Left in Formation
+                chipBinding.btnChipMoveLeft.setOnClickListener {
+                    if (idx > 0) {
+                        val temp = orderedImages[idx]
+                        orderedImages[idx] = orderedImages[idx - 1]
+                        orderedImages[idx - 1] = temp
+                        refreshFormationUI()
+                    }
+                }
+
+                // Move Right in Formation
+                chipBinding.btnChipMoveRight.setOnClickListener {
+                    if (idx < orderedImages.size - 1) {
+                        val temp = orderedImages[idx]
+                        orderedImages[idx] = orderedImages[idx + 1]
+                        orderedImages[idx + 1] = temp
+                        refreshFormationUI()
+                    }
+                }
+
+                // Remove from Formation
+                chipBinding.btnChipRemove.setOnClickListener {
+                    orderedImages.removeAt(idx)
+                    refreshFormationUI()
+                }
+
+                formBinding.llFormationImagesContainer.addView(chipBinding.root)
             }
         }
 
-        updatePreview(formBinding.etItemImages.text.toString())
-        formBinding.etItemImages.addTextChangedListener(object : android.text.TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                updatePreview(s?.toString() ?: "")
+        refreshFormationUI()
+
+        // Pick Multiple Images from Gallery
+        val launchMarketplacePicker = View.OnClickListener {
+            onMultipleImagesPicked = { uris ->
+                for (u in uris) {
+                    val str = u.toString()
+                    if (!orderedImages.contains(str)) {
+                        orderedImages.add(str)
+                    }
+                }
+                refreshFormationUI()
+                Toast.makeText(requireContext(), "${uris.size} photos added! Rearrange using ◀ / ▶ to pick cover.", Toast.LENGTH_SHORT).show()
             }
-            override fun afterTextChanged(s: android.text.Editable?) {}
-        })
+            pickMultipleImagesLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        }
+        formBinding.btnUploadImage.setOnClickListener(launchMarketplacePicker)
+        formBinding.flImagePreviewContainer.setOnClickListener(launchMarketplacePicker)
 
         formBinding.btnClosePost.setOnClickListener {
             dialog.dismiss()
@@ -132,7 +240,6 @@ class CreateFragment : Fragment() {
             val rawPrice = formBinding.etItemPrice.text.toString().trim()
             val type = formBinding.etItemType.text.toString().trim().ifBlank { "Sell" }
             val desc = formBinding.etItemDescription.text.toString().trim()
-            val rawImages = formBinding.etItemImages.text.toString().trim()
             val area = formBinding.etItemArea.text.toString().trim().ifBlank { "Hoode" }
 
             if (title.isBlank()) {
@@ -148,7 +255,13 @@ class CreateFragment : Fragment() {
             formBinding.tilItemPrice.error = null
 
             val priceFormatted = if (rawPrice.startsWith("₹")) rawPrice else "₹$rawPrice"
-            val imageList = rawImages.split(",").map { it.trim() }.filter { it.isNotBlank() }
+            val finalImages = if (orderedImages.isNotEmpty()) {
+                orderedImages.toList()
+            } else {
+                val typed = formBinding.etItemImages.text.toString().trim()
+                if (typed.isNotBlank()) typed.split(",").map { it.trim() }.filter { it.isNotBlank() }
+                else listOf("https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=800")
+            }
 
             val user = HoodeRepository.currentUser.value
             val newItem = ClassifiedItem(
@@ -159,14 +272,23 @@ class CreateFragment : Fragment() {
                 area = area,
                 description = desc,
                 sellerName = user?.displayName ?: "Verified Resident",
+                sellerUserId = user?.id,
                 date = "Today",
-                images = if (imageList.isNotEmpty()) imageList else listOf("https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=800")
+                images = finalImages
             )
 
-            HoodeRepository.postClassified(newItem)
-            Toast.makeText(requireContext(), "Listing '$title' published to Hoode Marketplace!", Toast.LENGTH_LONG).show()
-            dialog.dismiss()
-            findNavController().navigate(R.id.marketplaceFragment)
+            formBinding.btnSubmitListing.isEnabled = false
+            viewLifecycleOwner.lifecycleScope.launch {
+                val result = HoodeRepository.postClassified(newItem)
+                formBinding.btnSubmitListing.isEnabled = true
+                result.onSuccess {
+                    Toast.makeText(requireContext(), "Listing '$title' published to Marketplace!", Toast.LENGTH_LONG).show()
+                    dialog.dismiss()
+                    findNavController().navigate(R.id.marketplaceFragment)
+                }.onFailure { error ->
+                    Toast.makeText(requireContext(), error.message ?: "Could not submit. Please retry.", Toast.LENGTH_LONG).show()
+                }
+            }
         }
 
         dialog.show()
@@ -234,9 +356,27 @@ class CreateFragment : Fragment() {
             }
             formBinding.tilEventVenue.error = null
 
-            Toast.makeText(requireContext(), "Event '$title' submitted for moderator review!", Toast.LENGTH_LONG).show()
+            val user = HoodeRepository.currentUser.value
+            val newEvent = CommunityEvent(
+                title = title,
+                organizer = user?.displayName ?: "Hoode Resident",
+                category = selectedCategory,
+                date = date,
+                time = "",
+                venue = venue
+            )
+            formBinding.btnSubmitEvent.isEnabled = false
+            viewLifecycleOwner.lifecycleScope.launch {
+                val result = HoodeRepository.postEvent(newEvent)
+                formBinding.btnSubmitEvent.isEnabled = true
+                result.onSuccess {
+            Toast.makeText(requireContext(), "Event '$title' submitted for Admin review! It will appear once approved.", Toast.LENGTH_LONG).show()
             dialog.dismiss()
             findNavController().navigate(R.id.eventsFragment)
+                }.onFailure { error ->
+                    Toast.makeText(requireContext(), error.message ?: "Could not submit. Please retry.", Toast.LENGTH_LONG).show()
+                }
+            }
         }
 
         dialog.show()
@@ -377,6 +517,42 @@ class CreateFragment : Fragment() {
             }
         }
 
+        fun updatePreview(url: String) {
+            if (url.isNotBlank()) {
+                formBinding.flLfPreviewContainer.visibility = View.VISIBLE
+                formBinding.ivLfPreview.load(url) {
+                    crossfade(true)
+                    placeholder(R.drawable.bg_gallery_luxury_gradient)
+                    error(R.drawable.bg_gallery_luxury_gradient)
+                }
+            } else {
+                formBinding.flLfPreviewContainer.visibility = View.GONE
+            }
+        }
+
+        updatePreview(formBinding.etLfImage.text.toString())
+        formBinding.etLfImage.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                updatePreview(s?.toString()?.trim() ?: "")
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
+        // Pick / Upload from Gallery
+        val launchLfPicker = View.OnClickListener {
+            onImagePicked = { uri ->
+                formBinding.etLfImage.setText(uri.toString())
+                updatePreview(uri.toString())
+                Toast.makeText(requireContext(), "Image selected from gallery", Toast.LENGTH_SHORT).show()
+            }
+            pickImageLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        }
+        formBinding.btnLfUploadImage.setOnClickListener(launchLfPicker)
+        formBinding.flLfPreviewContainer.setOnClickListener(launchLfPicker)
+
         formBinding.btnCloseReport.setOnClickListener {
             dialog.dismiss()
         }
@@ -487,10 +663,18 @@ class CreateFragment : Fragment() {
                 neededBy = "Immediate Emergency",
                 coordinatorPhone = phone
             )
-            HoodeRepository.postBloodRequest(newReq)
+            formBinding.btnSubmitBloodReq.isEnabled = false
+            viewLifecycleOwner.lifecycleScope.launch {
+                val result = HoodeRepository.postBloodRequest(newReq)
+                formBinding.btnSubmitBloodReq.isEnabled = true
+                result.onSuccess {
             Toast.makeText(requireContext(), "Emergency blood call ($selectedBlood) broadcasted to verified donors!", Toast.LENGTH_LONG).show()
             dialog.dismiss()
             findNavController().navigate(R.id.bloodNetworkFragment)
+                }.onFailure { error ->
+                    Toast.makeText(requireContext(), error.message ?: "Could not submit. Please retry.", Toast.LENGTH_LONG).show()
+                }
+            }
         }
 
         dialog.show()

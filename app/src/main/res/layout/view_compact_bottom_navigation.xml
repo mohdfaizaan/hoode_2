@@ -15,7 +15,8 @@
         android:layout_width="match_parent"
         android:layout_height="76dp"
         android:background="@drawable/bg_bottom_nav_container"
-        android:elevation="1dp"
+        android:elevation="6dp"
+        android:outlineProvider="background"
         android:gravity="center"
         android:orientation="horizontal"
         android:padding="5dp">

@@ -16,6 +16,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.hoode_app.data.repository.HoodeRepository
 import com.example.hoode_app.databinding.ActivityMainBinding
+import com.example.hoode_app.ui.common.CommunityFeaturesHelper
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -37,8 +38,21 @@ class MainActivity : AppCompatActivity() {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
+        // Dynamic start destination: if user is logged in, immediately open Home; otherwise Sign In
+        val graph = navController.navInflater.inflate(R.navigation.nav_graph)
+        graph.setStartDestination(if (HoodeRepository.isLoggedIn()) R.id.homeFragment else R.id.signInFragment)
+        navController.graph = graph
+
         setupNavigation()
         setupSideDrawer()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (true) {
+                    HoodeRepository.syncWithCloud()
+                    kotlinx.coroutines.delay(30_000)
+                }
+            }
+        }
     }
 
     /**
@@ -160,6 +174,14 @@ class MainActivity : AppCompatActivity() {
         }
         sideMenu.itemMenuAdmin.setOnClickListener {
             navigateFromMenu(R.id.adminDashboardFragment)
+        }
+        sideMenu.itemMenuDonate.setOnClickListener {
+            closeDrawer()
+            CommunityFeaturesHelper.showDonationDialog(this, layoutInflater)
+        }
+        sideMenu.itemMenuOurWork.setOnClickListener {
+            closeDrawer()
+            CommunityFeaturesHelper.showOurWorkDialog(this, layoutInflater)
         }
     }
 

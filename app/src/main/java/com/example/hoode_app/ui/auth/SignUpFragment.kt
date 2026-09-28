@@ -1,27 +1,24 @@
 package com.example.hoode_app.ui.auth
 
-import android.app.AlertDialog
 import android.os.Bundle
-import android.text.InputType
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.hoode_app.R
 import com.example.hoode_app.data.repository.HoodeRepository
 import com.example.hoode_app.databinding.FragmentSignupBinding
+import kotlinx.coroutines.launch
 
 class SignUpFragment : Fragment() {
 
     private var _binding: FragmentSignupBinding? = null
     private val binding get() = _binding!!
-
-    private var isPasswordVisible = false
-    private var isConfirmPasswordVisible = false
-    private var selectedWard = "Hoode"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,68 +32,46 @@ class SignUpFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Status bar icons: white on top of blue/purple gradient
+        activity?.window?.let { win ->
+            WindowCompat.getInsetsController(win, win.decorView).isAppearanceLightStatusBars = false
+        }
+
         binding.btnBack.setOnClickListener {
             findNavController().navigateUp()
         }
 
-        // Google Sign-Up shortcut (displayed but not clickable)
-        binding.btnGoogleSignUp.setOnClickListener(null)
-        binding.btnGoogleSignUp.isClickable = false
-
-        // Toggle Password Visibility
-        binding.btnTogglePassword.setOnClickListener {
-            isPasswordVisible = !isPasswordVisible
-            if (isPasswordVisible) {
-                binding.etPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                binding.btnTogglePassword.setImageResource(R.drawable.ic_visibility_off)
-            } else {
-                binding.etPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                binding.btnTogglePassword.setImageResource(R.drawable.ic_visibility)
-            }
-            binding.etPassword.setSelection(binding.etPassword.text.length)
+        // Header "Sign in" button -> navigate back to SignIn
+        binding.tvSignIn.setOnClickListener {
+            findNavController().navigateUp()
         }
 
-        // Toggle Confirm Password Visibility
-        binding.btnToggleConfirmPassword.setOnClickListener {
-            isConfirmPasswordVisible = !isConfirmPasswordVisible
-            if (isConfirmPasswordVisible) {
-                binding.etConfirmPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                binding.btnToggleConfirmPassword.setImageResource(R.drawable.ic_visibility_off)
-            } else {
-                binding.etConfirmPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                binding.btnToggleConfirmPassword.setImageResource(R.drawable.ic_visibility)
-            }
-            binding.etConfirmPassword.setSelection(binding.etConfirmPassword.text.length)
-        }
-
-        // Submit Sign Up
-        binding.btnSubmitSignup.setOnClickListener {
-            val name = binding.etName.text.toString().trim()
+        binding.btnSignUp.setOnClickListener {
             val email = binding.etEmail.text.toString().trim()
-            val phone = binding.etPhone.text.toString().trim()
-            val password = binding.etPassword.text.toString().trim()
-            val confirmPassword = binding.etConfirmPassword.text.toString().trim()
+            val name = binding.etName.text.toString().trim()
+            val password = binding.etPassword.text.toString()
+            val confirmPassword = binding.etConfirmPassword.text.toString()
 
-            if (name.length < 2) {
-                binding.etName.error = "Please enter your full name"
-                binding.etName.requestFocus()
+            if (email.isEmpty()) {
+                binding.etEmail.error = "Enter your email"
+                binding.etEmail.requestFocus()
                 return@setOnClickListener
             }
 
-            if (email.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 binding.etEmail.error = "Please enter a valid email address"
                 binding.etEmail.requestFocus()
                 return@setOnClickListener
             }
 
-            if (phone.isNotBlank() && phone.length != 10) {
-                binding.etPhone.error = "Please enter a valid 10-digit phone number"
-                binding.etPhone.requestFocus()
+            if (name.isEmpty()) {
+                binding.etName.error = "Enter your full name"
+                binding.etName.requestFocus()
                 return@setOnClickListener
             }
 
             if (password.length < 6) {
-                binding.etPassword.error = "Password must be at least 6 characters"
+                binding.etPassword.error = "Password must contain at least 6 characters"
                 binding.etPassword.requestFocus()
                 return@setOnClickListener
             }
@@ -107,46 +82,41 @@ class SignUpFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            if (!binding.cbAgreeTerms.isChecked) {
-                Toast.makeText(requireContext(), "Please agree to the Community Guidelines & Terms", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            binding.btnSignUp.isEnabled = false
+            binding.btnSignUp.text = "Creating account..."
 
-            val result = HoodeRepository.registerUser(
-                name = name,
-                email = email,
-                password = password,
-                phone = phone,
-                ward = selectedWard
-            )
+            viewLifecycleOwner.lifecycleScope.launch {
+                val result = HoodeRepository.registerUser(name, email, password)
+                binding.btnSignUp.isEnabled = true
+                binding.btnSignUp.text = "Sign up"
 
-            result.onSuccess { user ->
-                Toast.makeText(
-                    requireContext(),
-                    "Welcome to Hoode Connect, ${user.displayName}!",
-                    Toast.LENGTH_SHORT
-                ).show()
-                findNavController().navigate(R.id.action_signUp_to_home)
-            }.onFailure { exception ->
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Registration Notice")
-                    .setMessage(exception.message ?: "Could not complete registration.")
-                    .setPositiveButton("Sign In") { _, _ ->
-                        findNavController().navigate(R.id.action_signUp_to_signIn)
-                    }
-                    .setNegativeButton("Try with another email", null)
-                    .show()
+                if (result.isSuccess) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Account created! Welcome to Hoode Connect.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    findNavController().navigate(R.id.action_signUp_to_home)
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        result.exceptionOrNull()?.message ?: "Registration failed",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
 
-        // Navigate to Sign In
-        binding.btnGoToSignin.setOnClickListener {
-            findNavController().navigate(R.id.action_signUp_to_signIn)
+        binding.btnGoogle.setOnClickListener {
+            findNavController().navigate(R.id.action_signUp_to_googleSignIn)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        activity?.window?.let { win ->
+            WindowCompat.getInsetsController(win, win.decorView).isAppearanceLightStatusBars = true
+        }
         _binding = null
     }
 }

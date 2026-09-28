@@ -204,14 +204,19 @@ class ExploreFragment : Fragment() {
             "polls vote civic issue road streetlight water election feedback"
         )
 
-        configureCard(
-            binding.featureBadges,
-            R.drawable.ic_badge,
-            getString(R.string.feature_badges),
-            "Points & rewards ledger",
-            R.id.badgesFragment,
-            "badges rewards points contribution pillar volunteer honors"
-        )
+        binding.featureBadges.apply {
+            ivFeatureIcon.setImageResource(R.drawable.ic_badge)
+            tvFeatureName.text = getString(R.string.feature_badges)
+            tvFeatureDesc.text = "Coming Soon • Points & rewards"
+            root.setOnClickListener {
+                com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Contributions & Rewards")
+                    .setMessage("Community Contributions and Points Ledger is coming soon in the upcoming update!\n\nThank you for your patience.")
+                    .setPositiveButton("Got it", null)
+                    .show()
+            }
+        }
+        allCards.add(binding.featureBadges to "contributions coming soon badges rewards points ledger honors".lowercase())
     }
 
     private fun configureCard(

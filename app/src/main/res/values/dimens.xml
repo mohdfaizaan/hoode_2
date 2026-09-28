@@ -21,24 +21,24 @@
     <dimen name="screen_padding_vertical">16dp</dimen>
 
     <!-- Card Radii -->
-    <dimen name="radius_card">24dp</dimen>
-    <dimen name="radius_card_lg">28dp</dimen>
-    <dimen name="radius_control">16dp</dimen>
-    <dimen name="radius_button">14dp</dimen>
+    <dimen name="radius_card">22dp</dimen>
+    <dimen name="radius_card_lg">26dp</dimen>
+    <dimen name="radius_control">18dp</dimen>
+    <dimen name="radius_button">24dp</dimen>
     <dimen name="radius_chip">20dp</dimen>
-    <dimen name="radius_input">12dp</dimen>
-    <dimen name="radius_small">8dp</dimen>
+    <dimen name="radius_input">14dp</dimen>
+    <dimen name="radius_small">10dp</dimen>
     <dimen name="radius_circle">999dp</dimen>
 
     <!-- Card Stroke -->
-    <dimen name="card_stroke">1.5dp</dimen>
-    <dimen name="card_stroke_thick">2dp</dimen>
+    <dimen name="card_stroke">1dp</dimen>
+    <dimen name="card_stroke_thick">1.5dp</dimen>
 
-    <!-- Card Elevation -->
+    <!-- Card Elevation (Soft Neumorphic Ambient Lift) -->
     <dimen name="elevation_none">0dp</dimen>
     <dimen name="elevation_xs">1dp</dimen>
-    <dimen name="elevation_sm">2dp</dimen>
-    <dimen name="elevation_md">4dp</dimen>
+    <dimen name="elevation_sm">3dp</dimen>
+    <dimen name="elevation_md">5dp</dimen>
     <dimen name="elevation_lg">8dp</dimen>
     <dimen name="elevation_xl">12dp</dimen>
 
@@ -69,7 +69,7 @@
     <!-- Component Sizes -->
     <dimen name="bottom_nav_height">68dp</dimen>
     <dimen name="bottom_nav_content_padding">110dp</dimen>
-    <dimen name="carousel_height">200dp</dimen>
+    <dimen name="carousel_height">228dp</dimen>
     <dimen name="prayer_hero_height">160dp</dimen>
     <dimen name="prayer_ring_size">88dp</dimen>
     <dimen name="prayer_ring_stroke">6dp</dimen>

@@ -199,9 +199,17 @@ class BloodNetworkFragment : Fragment() {
                 neededBy = "Immediate Emergency",
                 coordinatorPhone = phone
             )
-            HoodeRepository.postBloodRequest(newReq)
+            formBinding.btnSubmitBloodReq.isEnabled = false
+            viewLifecycleOwner.lifecycleScope.launch {
+                val result = HoodeRepository.postBloodRequest(newReq)
+                formBinding.btnSubmitBloodReq.isEnabled = true
+                result.onSuccess {
             Toast.makeText(requireContext(), "Emergency blood call ($selectedBlood) broadcasted to verified donors!", Toast.LENGTH_LONG).show()
             dialog.dismiss()
+                }.onFailure { error ->
+                    Toast.makeText(requireContext(), error.message ?: "Could not submit. Please retry.", Toast.LENGTH_LONG).show()
+                }
+            }
         }
 
         dialog.show()

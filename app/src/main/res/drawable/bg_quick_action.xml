@@ -1,11 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
-    <solid android:color="@color/accent_surface" />
-    <stroke
-        android:width="@dimen/card_stroke"
-        android:color="@color/accent" />
-    <size
-        android:width="@dimen/quick_action_icon_size"
-        android:height="@dimen/quick_action_icon_size" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Layer 1: Outermost diffused ambient halo -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#0F1E293B" />
+        </shape>
+    </item>
+
+    <!-- Layer 2: Mid-level soft shadow ring -->
+    <item
+        android:bottom="1dp"
+        android:left="1dp"
+        android:right="1dp"
+        android:top="1dp">
+        <shape android:shape="oval">
+            <solid android:color="#1A1E293B" />
+        </shape>
+    </item>
+
+    <!-- Layer 3: Inner soft shadow rim -->
+    <item
+        android:bottom="2dp"
+        android:left="2dp"
+        android:right="2dp"
+        android:top="2dp">
+        <shape android:shape="oval">
+            <solid android:color="#241E293B" />
+        </shape>
+    </item>
+
+    <!-- Layer 4: Pure white floating circular disc with ultra-soft rim -->
+    <item
+        android:bottom="3dp"
+        android:left="3dp"
+        android:right="3dp"
+        android:top="3dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/surface" />
+            <stroke
+                android:width="1dp"
+                android:color="#EEF2F6" />
+        </shape>
+    </item>
+</layer-list>

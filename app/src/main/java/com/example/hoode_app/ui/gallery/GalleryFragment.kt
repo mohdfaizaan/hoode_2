@@ -32,6 +32,13 @@ class GalleryFragment : Fragment() {
     private var _binding: FragmentGalleryBinding? = null
     private val binding get() = _binding!!
 
+    private var onPhotoPicked: ((android.net.Uri) -> Unit)? = null
+    private val pickPhotoLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+    ) { uri: android.net.Uri? ->
+        uri?.let { onPhotoPicked?.invoke(it) }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -123,6 +130,22 @@ class GalleryFragment : Fragment() {
             }
             override fun afterTextChanged(s: android.text.Editable?) {}
         })
+
+        // Pick Photo from Gallery
+        val launchPicker = View.OnClickListener {
+            onPhotoPicked = { uri ->
+                formBinding.etPhotoUrl.setText(uri.toString())
+                updatePreview(uri.toString())
+                Toast.makeText(requireContext(), "Photo selected from gallery", Toast.LENGTH_SHORT).show()
+            }
+            pickPhotoLauncher.launch(
+                androidx.activity.result.PickVisualMediaRequest(
+                    androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
+                )
+            )
+        }
+        formBinding.btnUploadPhoto.setOnClickListener(launchPicker)
+        formBinding.flPhotoPreviewContainer.setOnClickListener(launchPicker)
 
         formBinding.btnClosePhoto.setOnClickListener {
             dialog.dismiss()

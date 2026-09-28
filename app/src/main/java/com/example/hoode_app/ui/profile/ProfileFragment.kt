@@ -1,58 +1,33 @@
 package com.example.hoode_app.ui.profile
 
-import android.app.AlertDialog
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.widget.SwitchCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import coil.load
+import coil.transform.CircleCropTransformation
+import coil.transform.RoundedCornersTransformation
 import com.example.hoode_app.R
 import com.example.hoode_app.data.model.User
+import com.example.hoode_app.data.model.UserPostItem
 import com.example.hoode_app.data.repository.HoodeRepository
 import com.example.hoode_app.databinding.FragmentProfileBinding
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-
-import androidx.activity.result.contract.ActivityResultContracts
-import coil.load
 
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
-
-    private val pickMediaLauncher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        if (uri != null) {
-            // Update UI
-            binding.ivAvatar.setImageURI(uri)
-            // Save to repository
-            val current = HoodeRepository.currentUser.value
-            if (current != null) {
-                HoodeRepository.updateUserProfile(
-                    displayName = current.displayName,
-                    phone = current.phone ?: "",
-                    age = current.age ?: "",
-                    dob = current.dob ?: "",
-                    fatherName = current.fatherName ?: "",
-                    bloodGroup = current.bloodGroup ?: "",
-                    profession = current.profession ?: "",
-                    locality = current.locality ?: "",
-                    profilePicUri = uri.toString()
-                )
-                Toast.makeText(requireContext(), "Profile picture updated", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,478 +40,482 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupProfile()
-        setupMenuActions()
-        setupStatsInteractions()
-    }
 
-    private fun setupProfile() {
+        // Live User Sync & Profile Details
         viewLifecycleOwner.lifecycleScope.launch {
             HoodeRepository.currentUser.collectLatest { user ->
-                if (user != null) {
-                    binding.tvDisplayName.text = user.displayName
-                    val isAdmin = user.roles.contains("community_admin")
-                    val roleLabel = if (isAdmin) "Community Admin" else "Resident"
-                    binding.tvCommunityBadge.text = "Hoode • $roleLabel"
-                    binding.adminCard.visibility = if (isAdmin) View.VISIBLE else View.GONE
-                    
-                    if (user.profilePicUri != null) {
-                        try {
-                            binding.ivAvatar.setImageURI(Uri.parse(user.profilePicUri))
-                        } catch (e: Exception) {
-                            binding.ivAvatar.load("https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop&q=80") { crossfade(true) }
-                        }
-                    } else {
-                        binding.ivAvatar.load("https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop&q=80") { crossfade(true) }
-                    }
-                } else {
-                    binding.tvDisplayName.text = "Guest"
-                    binding.tvCommunityBadge.text = "Not logged in"
-                    binding.adminCard.visibility = View.GONE
-                }
+                bindUserProfile(user)
+                updateProfileCompletion(user)
+                refreshCurrentTab()
             }
         }
 
-        binding.ivAvatar.setOnClickListener {
-            showAvatarSelectionDialog()
-        }
-        binding.btnEditAvatar.setOnClickListener {
-            showAvatarSelectionDialog()
-        }
+        // Edit Profile Navigation
         binding.btnEditProfile.setOnClickListener {
             findNavController().navigate(R.id.editProfileFragment)
         }
+        binding.btnCompleteProfile.setOnClickListener {
+            findNavController().navigate(R.id.editProfileFragment)
+        }
+        binding.cardResidentDetails.setOnClickListener {
+            findNavController().navigate(R.id.editProfileFragment)
+        }
+
+        // Settings Navigation
+        binding.btnSettings.setOnClickListener {
+            findNavController().navigate(R.id.settingsFragment)
+        }
+
+        // Setup Tabs
+        setupProfileTabs()
+
+        // Populate initial feed
+        showPostsFeed()
     }
 
-    private fun setupStatsInteractions() {
-        binding.statPostsContainer.setOnClickListener {
-            showMyListingsDialog()
+    private fun bindUserProfile(user: User?) {
+        val displayName = user?.displayName?.ifBlank { "Hoode Resident" } ?: "Hoode Resident"
+        val username = user?.username?.ifBlank { displayName.lowercase().replace(" ", "") }
+            ?: displayName.lowercase().replace(" ", "")
+        val bio = user?.bio?.ifBlank { "Connecting with the Hoode community." }
+            ?: "Connecting with the Hoode community."
+        val locality = user?.locality?.ifBlank { "Hoode" } ?: "Hoode"
+
+        binding.tvName.text = displayName
+        binding.tvUsername.text = "@$username"
+        binding.tvBio.text = bio
+        binding.tvLocalityBadge.text = "$locality • Verified Resident"
+
+        // Avatar
+        if (!user?.profilePicUri.isNullOrBlank()) {
+            binding.ivProfile.load(user?.profilePicUri) {
+                crossfade(true)
+                transformations(CircleCropTransformation())
+                placeholder(R.drawable.profile_placeholder)
+                error(R.drawable.profile_placeholder)
+            }
+        } else {
+            binding.ivProfile.setImageResource(R.drawable.profile_placeholder)
         }
-        binding.statBookmarksContainer.setOnClickListener {
-            showBookmarksDialog()
+
+        // Cover
+        if (!user?.coverPicUri.isNullOrBlank()) {
+            binding.ivCover.load(user?.coverPicUri) {
+                crossfade(true)
+                placeholder(R.drawable.profile_cover_placeholder)
+                error(R.drawable.profile_cover_placeholder)
+            }
         }
+
+        // Resident Details Card
+        binding.tvDetailPhone.text = user?.phone?.takeIf { it.isNotBlank() } ?: "Not provided"
+        binding.tvDetailEmail.text = user?.email?.takeIf { it.isNotBlank() } ?: "Not provided"
+        binding.tvDetailLocality.text = user?.locality?.takeIf { it.isNotBlank() } ?: "Hoode"
+        binding.tvDetailBloodGroup.text = user?.bloodGroup?.takeIf { it.isNotBlank() } ?: "Not provided"
+        binding.tvDetailProfession.text = user?.profession?.takeIf { it.isNotBlank() } ?: "Not provided"
+        binding.tvDetailFatherName.text = user?.fatherName?.takeIf { it.isNotBlank() } ?: "Not provided"
+        binding.tvDetailStatus.text = "Verified Resident • Active"
+
+        // Dynamic Post Count from genuine items
+        val genuinePosts = HoodeRepository.getUserPosts(user)
+        binding.tvStatPosts.text = genuinePosts.size.toString()
     }
 
-    private fun setupMenuActions() {
-        // ── SECTION 1: COMMUNITY & CONTENT ─────────────────────────────
-
-        // My Posts & Listings
-        binding.menuMyPosts.apply {
-            ivMenuIcon.setImageResource(R.drawable.ic_nav_create)
-            tvMenuLabel.text = "My Listings & Activity"
-            tvMenuSubtitle.text = "Classifieds, civic reports & blood requests"
-            tvMenuSubtitle.visibility = View.VISIBLE
-            tvMenuBadge.text = "4 Active"
-            tvMenuBadge.visibility = View.VISIBLE
-            root.setOnClickListener {
-                showMyListingsDialog()
-            }
+    private fun updateProfileCompletion(user: User?) {
+        if (user == null) {
+            binding.pbProfileCompletion.progress = 0
+            binding.tvCompletionPercentage.text = "0%"
+            binding.tvCompletionTip.text = "Please complete your resident details."
+            return
         }
 
-        // Bookmarks
-        binding.menuBookmarks.apply {
-            ivMenuIcon.setImageResource(R.drawable.ic_nav_explore)
-            tvMenuLabel.text = "Saved Bookmarks"
-            tvMenuSubtitle.text = "Timetables, emergency hotlines & fixtures"
-            tvMenuSubtitle.visibility = View.VISIBLE
-            tvMenuBadge.text = "5 Saved"
-            tvMenuBadge.visibility = View.VISIBLE
-            root.setOnClickListener {
-                showBookmarksDialog()
+        var filledCount = 0
+        val totalFields = 8
+        val missingFields = mutableListOf<String>()
+
+        if (!user.displayName.isNullOrBlank()) filledCount++ else missingFields.add("Full Name")
+        if (!user.email.isNullOrBlank()) filledCount++ else missingFields.add("Email")
+        if (!user.phone.isNullOrBlank()) filledCount++ else missingFields.add("Phone")
+        if (!user.locality.isNullOrBlank()) filledCount++ else missingFields.add("Locality")
+        if (!user.bloodGroup.isNullOrBlank()) filledCount++ else missingFields.add("Blood Group")
+        if (!user.profession.isNullOrBlank()) filledCount++ else missingFields.add("Profession")
+        if (!user.fatherName.isNullOrBlank()) filledCount++ else missingFields.add("Father's Name")
+        if (!user.profilePicUri.isNullOrBlank()) filledCount++ else missingFields.add("Profile Picture")
+
+        val percentage = (filledCount * 100) / totalFields
+        binding.pbProfileCompletion.progress = percentage
+        binding.tvCompletionPercentage.text = "$percentage%"
+
+        if (percentage == 100) {
+            binding.tvCompletionTip.text = "All set! Your profile is 100% complete & verified."
+            binding.btnCompleteProfile.text = "Edit Details"
+        } else {
+            val tip = when {
+                missingFields.size == 1 -> "Add your ${missingFields[0]} to reach 100%!"
+                missingFields.size >= 2 -> "Add your ${missingFields[0]} and ${missingFields[1]} to reach 100%!"
+                else -> "Complete your profile to unlock all resident features."
             }
-        }
-
-        // Notifications
-        binding.menuNotifications.apply {
-            ivMenuIcon.setImageResource(R.drawable.ic_notification_bell)
-            tvMenuLabel.text = "Notification Center"
-            tvMenuSubtitle.text = "Adhan reminders, emergency alerts & notices"
-            tvMenuSubtitle.visibility = View.VISIBLE
-            root.setOnClickListener {
-                findNavController().navigate(R.id.notificationCenterFragment)
-            }
-        }
-
-        // ── SECTION 2: RESIDENT SERVICES & HEALTH ─────────────────────
-
-        // Emergency Medical Profile
-        binding.menuMedical.apply {
-            ivMenuIcon.setImageResource(R.drawable.ic_blood)
-            tvMenuLabel.text = "Emergency Medical Profile"
-            tvMenuSubtitle.text = "Blood Group O+ • ICE contact registered"
-            tvMenuSubtitle.visibility = View.VISIBLE
-            tvMenuBadge.text = "O+ Donor"
-            tvMenuBadge.visibility = View.VISIBLE
-            root.setOnClickListener {
-                showMedicalProfileDialog()
-            }
-        }
-
-        // Help Desk & Secretariat
-        binding.menuHelp.apply {
-            ivMenuIcon.setImageResource(R.drawable.ic_phone)
-            tvMenuLabel.text = getString(R.string.profile_help)
-            tvMenuSubtitle.text = "24/7 hotline, WhatsApp desk & resident FAQ"
-            tvMenuSubtitle.visibility = View.VISIBLE
-            root.setOnClickListener {
-                showHelpDeskDialog()
-            }
-        }
-
-        // ── SECTION 3: PREFERENCES & SECURITY ─────────────────────────
-
-        // Interface Language
-        binding.menuLanguage.apply {
-            ivMenuIcon.setImageResource(R.drawable.ic_nav_explore)
-            tvMenuLabel.text = getString(R.string.profile_language)
-            tvMenuSubtitle.text = "English, ಕನ್ನಡ (Kannada), اردو (Urdu)"
-            tvMenuSubtitle.visibility = View.VISIBLE
-            val currentLocaleTag = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales().toLanguageTags()
-            tvMenuBadge.text = when {
-                currentLocaleTag.startsWith("kn") -> "ಕನ್ನಡ"
-                currentLocaleTag.startsWith("ur") -> "اردو"
-                else -> "English"
-            }
-            tvMenuBadge.visibility = View.VISIBLE
-            root.setOnClickListener {
-                showLanguageDialog()
-            }
-        }
-
-        // Privacy Policy & Terms
-        binding.menuPrivacy.apply {
-            ivMenuIcon.setImageResource(R.drawable.ic_check)
-            tvMenuLabel.text = "Privacy & Row-Level Security"
-            tvMenuSubtitle.text = "Zero phone leaks • PostgreSQL data isolation"
-            tvMenuSubtitle.visibility = View.VISIBLE
-            root.setOnClickListener {
-                showPrivacyDialog()
-            }
-        }
-
-        // Sync & Offline Storage
-        binding.menuSettings.apply {
-            ivMenuIcon.setImageResource(R.drawable.ic_admin)
-            tvMenuLabel.text = "Offline Sync & Settings"
-            tvMenuSubtitle.text = "35 Supabase tables synced locally"
-            tvMenuSubtitle.visibility = View.VISIBLE
-            tvMenuBadge.text = "Synced"
-            tvMenuBadge.visibility = View.VISIBLE
-            root.setOnClickListener {
-                showSettingsDialog()
-            }
-        }
-
-        // Admin Console
-        binding.adminCard.setOnClickListener {
-            findNavController().navigate(R.id.adminDashboardFragment)
-        }
-
-        // Sign Out
-        binding.btnSignOut.setOnClickListener {
-            AlertDialog.Builder(requireContext())
-                .setTitle(R.string.auth_sign_out)
-                .setMessage("Are you sure you want to sign out from Hoode Connect?")
-                .setPositiveButton("Sign Out") { _, _ ->
-                    HoodeRepository.signOut()
-                    findNavController().navigate(R.id.welcomeFragment)
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
+            binding.tvCompletionTip.text = tip
+            binding.btnCompleteProfile.text = "Complete Profile →"
         }
     }
 
-    private fun showMyListingsDialog() {
-        val items = arrayOf(
-            "📦 Classified: Teakwood Study Table (₹3,200) — Active",
-            "📢 Civic Report: Bengre Beach Streetlight Outage — In Progress",
-            "🩸 Blood Registry: O+ Emergency Donor — Available",
-            "🏏 Tournament 2026: Team Hoode Coastal Strikers — Registered"
-        )
+    private fun setupProfileTabs() {
+        val tabs = binding.profileTabs
+        tabs.removeAllTabs()
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("My Active Submissions (4)")
-            .setItems(items) { _, which ->
-                when (which) {
-                    0 -> {
-                        AlertDialog.Builder(requireContext())
-                            .setTitle("Teakwood Study Table")
-                            .setMessage("Listing Status: Active in Hoode Marketplace\nInquiries Received: 3 resident messages")
-                            .setPositiveButton("Mark as Sold") { _, _ ->
-                                Toast.makeText(requireContext(), "Item marked as sold!", Toast.LENGTH_SHORT).show()
-                            }
-                            .setNeutralButton("View Inquiries") { _, _ ->
-                                findNavController().navigate(R.id.inboxFragment)
-                            }
-                            .setNegativeButton("Close", null)
-                            .show()
-                    }
-                    1 -> {
-                        AlertDialog.Builder(requireContext())
-                            .setTitle("Bengre Beach Streetlight Outage")
-                            .setMessage("Status: Under Review by Ward Councillor\nAssigned Contractor: Coastal Energy Dept\nEstimated Resolution: 12 Sep 2026")
-                            .setPositiveButton("Understood", null)
-                            .show()
-                    }
-                    2 -> {
-                        findNavController().navigate(R.id.bloodNetworkFragment)
-                    }
-                    3 -> {
-                        findNavController().navigate(R.id.tournamentsFragment)
-                    }
+        tabs.addTab(tabs.newTab().setText("Posts"), true)
+        tabs.addTab(tabs.newTab().setText("Community"))
+        tabs.addTab(tabs.newTab().setText("Activity"))
+
+        tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                when (tab?.position) {
+                    0 -> showPostsFeed()
+                    1 -> showCommunityFeed()
+                    2 -> showActivityFeed()
                 }
             }
-            .setPositiveButton("+ Create New") { _, _ ->
-                findNavController().navigate(R.id.createFragment)
-            }
-            .setNegativeButton("Close", null)
-            .show()
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
     }
 
-    private fun showMedicalProfileDialog() {
-        val dialog = android.app.Dialog(requireContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar)
-        val formBinding = com.example.hoode_app.databinding.DialogFormMedicalProfileBinding.inflate(layoutInflater)
-        dialog.setContentView(formBinding.root)
+    private fun refreshCurrentTab() {
+        when (binding.profileTabs.selectedTabPosition) {
+            0 -> showPostsFeed()
+            1 -> showCommunityFeed()
+            2 -> showActivityFeed()
+            else -> showPostsFeed()
+        }
+    }
 
-        dialog.window?.setLayout(
-            (resources.displayMetrics.widthPixels * 0.94).toInt(),
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+    // ── Genuine Posts Tab ────────────────────────────────────
+    private fun showPostsFeed() {
+        val container = binding.feedContainer
+        container.removeAllViews()
 
         val currentUser = HoodeRepository.currentUser.value
-        val bloodGroup = currentUser?.bloodGroup ?: "O+"
-        formBinding.tvMedicalBloodGroup.text = "Registered Blood Group: $bloodGroup (Universal Red Cell Donor)"
+        val genuinePosts = HoodeRepository.getUserPosts(currentUser)
+        binding.tvStatPosts.text = genuinePosts.size.toString()
 
-        formBinding.etMedicalIce.setText("Arshad (Brother) — +91 98450 67890")
-        formBinding.etMedicalAllergies.setText("Penicillin allergy • Nil chronic ailments")
-
-        formBinding.btnCloseMedical.setOnClickListener {
-            dialog.dismiss()
-        }
-
-        formBinding.btnSaveMedical.setOnClickListener {
-            val ice = formBinding.etMedicalIce.text.toString().trim()
-            if (ice.isBlank()) {
-                formBinding.tilMedicalIce.error = "Please enter an emergency contact"
-                return@setOnClickListener
-            }
-            formBinding.tilMedicalIce.error = null
-
-            Toast.makeText(requireContext(), "Emergency medical profile saved securely.", Toast.LENGTH_SHORT).show()
-            dialog.dismiss()
-        }
-
-        dialog.show()
-    }
-
-    private fun showPrivacyDialog() {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Privacy & Community Protection")
-            .setMessage(
-                "1. Verified Community Scope: Your telephone number and address are never publicly exposed or listed in open directories.\n\n" +
-                "2. Row Level Security: End-to-end PostgreSQL RLS guarantees total data isolation between communities.\n\n" +
-                "3. Masked Blood Calls: Volunteer donor contacts remain concealed until explicit mutual consent is given for urgent emergencies.\n\n" +
-                "4. Right to Erasure: Export your data ledger or delete your community account anytime from settings."
-            )
-            .setPositiveButton("Understood", null)
-            .show()
-    }
-
-    private fun showEditProfileDialog() {
-        val user = HoodeRepository.currentUser.value
-        val view = layoutInflater.inflate(R.layout.dialog_edit_profile, null)
-        
-        val etName = view.findViewById<EditText>(R.id.et_display_name)
-        val etPhone = view.findViewById<EditText>(R.id.et_phone)
-        val etFatherName = view.findViewById<EditText>(R.id.et_father_name)
-        val etAge = view.findViewById<EditText>(R.id.et_age)
-        val etDob = view.findViewById<EditText>(R.id.et_dob)
-        val etBloodGroup = view.findViewById<EditText>(R.id.et_blood_group)
-        val etProfession = view.findViewById<EditText>(R.id.et_profession)
-        val etLocality = view.findViewById<EditText>(R.id.et_locality)
-
-        // Pre-fill
-        etName.setText(user?.displayName ?: "")
-        etPhone.setText(user?.phone ?: "")
-        etFatherName.setText(user?.fatherName ?: "")
-        etAge.setText(user?.age ?: "")
-        etDob.setText(user?.dob ?: "")
-        etBloodGroup.setText(user?.bloodGroup ?: "")
-        etProfession.setText(user?.profession ?: "")
-        etLocality.setText(user?.locality ?: "")
-
-        val dialog = AlertDialog.Builder(requireContext())
-            .setView(view)
-            .create()
-
-        view.findViewById<View>(R.id.btn_cancel).setOnClickListener {
-            dialog.dismiss()
-        }
-
-        view.findViewById<View>(R.id.btn_save).setOnClickListener {
-            val name = etName.text.toString().trim()
-            if (name.isNotBlank()) {
-                HoodeRepository.updateUserProfile(
-                    displayName = name,
-                    phone = etPhone.text.toString().trim(),
-                    age = etAge.text.toString().trim(),
-                    dob = etDob.text.toString().trim(),
-                    fatherName = etFatherName.text.toString().trim(),
-                    bloodGroup = etBloodGroup.text.toString().trim(),
-                    profession = etProfession.text.toString().trim(),
-                    locality = etLocality.text.toString().trim()
-                )
-                Toast.makeText(requireContext(), "Profile updated!", Toast.LENGTH_SHORT).show()
-                dialog.dismiss()
-            } else {
-                Toast.makeText(requireContext(), "Display Name cannot be empty.", Toast.LENGTH_SHORT).show()
+        if (genuinePosts.isEmpty()) {
+            showEmptyPostsState(container)
+        } else {
+            for (post in genuinePosts) {
+                addUserPostCard(container, post)
             }
         }
-        
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        dialog.show()
     }
 
-    private fun showAvatarSelectionDialog() {
-        pickMediaLauncher.launch(androidx.activity.result.PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly))
-    }
-
-    private fun showBookmarksDialog() {
-        val bookmarks = arrayOf(
-            "🕌 Hoode Juma Masjid — Today's Prayer Timetable",
-            "🚑 Hoode Emergency Ambulance (+91 820 252 0108)",
-            "🏏 Tournament 2026 — Schedule & Standings",
-            "🐟 Fresh Catch of the Day — Coastal Fisheries",
-            "📢 Coastal Seawall Project Approval — Verified News"
-        )
-
-        AlertDialog.Builder(requireContext())
-            .setTitle("Saved Bookmarks (${bookmarks.size})")
-            .setItems(bookmarks) { _, which ->
-                when (which) {
-                    0 -> findNavController().navigate(R.id.prayerDetailFragment)
-                    1 -> findNavController().navigate(R.id.emergencyFragment)
-                    2 -> findNavController().navigate(R.id.tournamentsFragment)
-                    3 -> findNavController().navigate(R.id.marketplaceFragment)
-                    4 -> findNavController().navigate(R.id.newsFragment)
-                }
-            }
-            .setNegativeButton("Close", null)
-            .show()
-    }
-
-    private fun showSettingsDialog() {
-        val container = LinearLayout(requireContext()).apply {
+    private fun showEmptyPostsState(container: LinearLayout) {
+        val emptyCard = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(48, 36, 48, 24)
-        }
-
-        val swPrayer = SwitchCompat(requireContext()).apply {
-            text = "Adhan & Iqamah Notifications"
-            isChecked = true
-            textSize = 14f
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-        }
-        val swBlood = SwitchCompat(requireContext()).apply {
-            text = "Urgent Blood Emergency Alerts"
-            isChecked = true
-            textSize = 14f
+            background = resources.getDrawable(R.drawable.bg_profile_card, null)
+            gravity = Gravity.CENTER
+            setPadding(48, 54, 48, 54)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = 24 }
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            ).apply {
+                setMargins(0, 8, 0, 24)
+            }
         }
-        val swDigest = SwitchCompat(requireContext()).apply {
-            text = "Daily Personality & Digest"
-            isChecked = true
-            textSize = 14f
+
+        val icon = ImageView(requireContext()).apply {
+            layoutParams = LinearLayout.LayoutParams(54, 54)
+            setImageResource(R.drawable.ic_nav_create)
+            setColorFilter(resources.getColor(R.color.profile_text_secondary, null))
+        }
+
+        val tvTitle = TextView(requireContext()).apply {
+            text = "No Genuine Posts Yet"
+            textSize = 17f
+            setTextColor(resources.getColor(R.color.profile_text_main, null))
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            gravity = Gravity.CENTER
+            setPadding(0, 16, 0, 6)
+        }
+
+        val tvSubtitle = TextView(requireContext()).apply {
+            text = "You haven't posted any marketplace listings, lost & found reports, or event notices yet. Everything you publish will appear here."
+            textSize = 13f
+            setTextColor(resources.getColor(R.color.profile_text_secondary, null))
+            gravity = Gravity.CENTER
+            setLineSpacing(4f, 1f)
+            setPadding(0, 0, 0, 20)
+        }
+
+        val btnCreate = MaterialButton(requireContext()).apply {
+            text = "Create Your First Post"
+            setBackgroundColor(resources.getColor(R.color.accent_ink, null))
+            setTextColor(resources.getColor(R.color.white, null))
+            cornerRadius = 24
+            setOnClickListener {
+                findNavController().navigate(R.id.createFragment)
+            }
+        }
+
+        emptyCard.addView(icon)
+        emptyCard.addView(tvTitle)
+        emptyCard.addView(tvSubtitle)
+        emptyCard.addView(btnCreate)
+        container.addView(emptyCard)
+    }
+
+    private fun addUserPostCard(container: LinearLayout, post: UserPostItem) {
+        val card = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            background = resources.getDrawable(R.drawable.bg_profile_card, null)
+            setPadding(36, 32, 36, 32)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = 24 }
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+            ).apply {
+                setMargins(0, 0, 0, 24)
+            }
         }
 
-        val tvCache = TextView(requireContext()).apply {
-            text = "Offline Database Sync:\n✓ 35 Supabase tables cached locally\n✓ Realtime sync operational\n✓ Storage used: 1.4 MB"
+        // Header Row: Type Badge + Date
+        val topRow = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, 0, 0, 8)
+        }
+
+        val tvType = TextView(requireContext()).apply {
+            text = post.type
+            textSize = 11f
+            setTextColor(resources.getColor(R.color.text_primary, null))
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            background = resources.getDrawable(R.drawable.bg_chip_black_border, null)
+            setPadding(20, 6, 20, 6)
+        }
+
+        val tvDate = TextView(requireContext()).apply {
+            text = post.date
             textSize = 12f
-            setLineSpacing(3f, 1f)
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+            setTextColor(resources.getColor(R.color.profile_text_secondary, null))
+            gravity = Gravity.END
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
+        topRow.addView(tvType)
+        topRow.addView(tvDate)
+
+        // Post Title
+        val tvTitle = TextView(requireContext()).apply {
+            text = post.title
+            textSize = 16f
+            setTextColor(resources.getColor(R.color.profile_text_main, null))
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setPadding(0, 6, 0, 6)
+        }
+
+        // Post Content
+        val tvContent = TextView(requireContext()).apply {
+            text = post.content
+            textSize = 13.5f
+            setTextColor(resources.getColor(R.color.profile_text_main, null))
+            setLineSpacing(4f, 1f)
+            setPadding(0, 0, 0, 10)
+        }
+
+        card.addView(topRow)
+        card.addView(tvTitle)
+        card.addView(tvContent)
+
+        // Post Image Preview (if present)
+        if (!post.imageUrl.isNullOrBlank()) {
+            val ivImage = ImageView(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    360
+                ).apply {
+                    setMargins(0, 6, 0, 12)
+                }
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                load(post.imageUrl) {
+                    crossfade(true)
+                    transformations(RoundedCornersTransformation(16f))
+                    placeholder(R.drawable.bg_gallery_luxury_gradient)
+                    error(R.drawable.bg_gallery_luxury_gradient)
+                }
+            }
+            card.addView(ivImage)
+        }
+
+        // Engagement Footer Row
+        val bottomRow = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 8, 0, 0)
+        }
+
+        val tvLikes = TextView(requireContext()).apply {
+            text = "♥ ${post.likes}"
+            textSize = 12.5f
+            setTextColor(resources.getColor(R.color.profile_text_secondary, null))
+        }
+
+        val tvComments = TextView(requireContext()).apply {
+            text = "💬 ${post.comments}"
+            textSize = 12.5f
+            setPadding(32, 0, 0, 0)
+            setTextColor(resources.getColor(R.color.profile_text_secondary, null))
+        }
+
+        bottomRow.addView(tvLikes)
+        bottomRow.addView(tvComments)
+        card.addView(bottomRow)
+
+        container.addView(card)
+    }
+
+    // ── Community Tab ────────────────────────────────────────
+    private fun showCommunityFeed() {
+        val container = binding.feedContainer
+        container.removeAllViews()
+
+        val user = HoodeRepository.currentUser.value
+
+        // Card 1: Verified Resident Locality Status
+        val locality = user?.locality?.ifBlank { "Hoode" } ?: "Hoode"
+        addFeedCard(
+            title = "Verified Community Resident",
+            time = "Verified • Ward Community",
+            content = "Active resident of $locality, Udupi District. Connected to Hoode municipal & community alert channels.",
+            likes = 32,
+            comments = 4
+        )
+
+        // Card 2: Emergency Blood Network Status
+        val bloodGroup = user?.bloodGroup
+        if (!bloodGroup.isNullOrBlank()) {
+            addFeedCard(
+                title = "Emergency Blood Donor: $bloodGroup",
+                time = "Ready to Donate",
+                content = "Registered in the Hoode Emergency Blood Network. Available for emergency requests across Udupi, Kundapura, & Manipal.",
+                likes = 28,
+                comments = 5
+            )
+        } else {
+            addFeedCard(
+                title = "Emergency Blood Network",
+                time = "Registration Pending",
+                content = "You haven't listed your blood group yet. Edit your profile to register as a local donor and save lives.",
+                likes = 10,
+                comments = 1
+            )
+        }
+
+        // Card 3: Profession / Service
+        val profession = user?.profession
+        if (!profession.isNullOrBlank()) {
+            addFeedCard(
+                title = "Community Member: $profession",
+                time = "Active Profession",
+                content = "Contributing professional skills and services to the Hoode community development network.",
+                likes = 19,
+                comments = 2
+            )
+        }
+    }
+
+    // ── Activity Tab ─────────────────────────────────────────
+    private fun showActivityFeed() {
+        val container = binding.feedContainer
+        container.removeAllViews()
+
+        val records = HoodeRepository.contributions.value
+
+        if (records.isEmpty()) {
+            addFeedCard(
+                title = "Resident Community Contributions",
+                time = "Getting Started",
+                content = "Participate in civic polls, report community issues, register as a blood donor, or list items in the marketplace to earn contribution badges!",
+                likes = 12,
+                comments = 0
+            )
+        } else {
+            for (record in records.take(6)) {
+                addFeedCard(
+                    title = record.action,
+                    time = "${record.date} • +${record.points} Points",
+                    content = "Verified community contribution logged to your resident profile scorecard.",
+                    likes = record.points / 3 + 4,
+                    comments = 1
+                )
+            }
+        }
+    }
+
+    private fun addFeedCard(
+        title: String,
+        time: String,
+        content: String,
+        likes: Int,
+        comments: Int
+    ) {
+        val card = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            background = resources.getDrawable(R.drawable.bg_profile_card, null)
+            setPadding(36, 32, 36, 32)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = 32 }
+            ).apply {
+                setMargins(0, 0, 0, 24)
+            }
         }
 
-        container.addView(swPrayer)
-        container.addView(swBlood)
-        container.addView(swDigest)
-        container.addView(tvCache)
+        val tvCardTitle = TextView(requireContext()).apply {
+            text = title
+            textSize = 15f
+            setTextColor(resources.getColor(R.color.profile_text_main, null))
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("App & Offline Sync Settings")
-            .setView(container)
-            .setPositiveButton("Done") { _, _ ->
-                Toast.makeText(requireContext(), "Preferences saved", Toast.LENGTH_SHORT).show()
-            }
-            .show()
-    }
+        val tvCardTime = TextView(requireContext()).apply {
+            text = time
+            textSize = 12f
+            setTextColor(resources.getColor(R.color.profile_text_secondary, null))
+            setPadding(0, 4, 0, 12)
+        }
 
-    private fun showHelpDeskDialog() {
-        val options = arrayOf(
-            "📞 Call Hoode Coordinator (+91 820 252 0001)",
-            "💬 WhatsApp Support Desk",
-            "📧 Email Community Secretariat",
-            "❓ Frequently Asked Questions"
-        )
-        AlertDialog.Builder(requireContext())
-            .setTitle("Hoode Support Desk")
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> {
-                        val dialIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:+918202520001"))
-                        startActivity(dialIntent)
-                    }
-                    1 -> {
-                        Toast.makeText(requireContext(), "Opening Hoode WhatsApp Desk...", Toast.LENGTH_SHORT).show()
-                    }
-                    2 -> {
-                        val mailIntent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:support@hoode.community"))
-                        startActivity(mailIntent)
-                    }
-                    3 -> {
-                        AlertDialog.Builder(requireContext())
-                            .setTitle("FAQ — Hoode Connect")
-                            .setMessage("Q: Who can register?\nA: Any resident of Hoode, Bengre, or Kodi.\n\nQ: How are namaz timings verified?\nA: Updated daily by designated mosque caretakers.\n\nQ: How to post a classified or job?\nA: Use the central '+' Create tab.")
-                            .setPositiveButton("Close", null)
-                            .show()
-                    }
-                }
-            }
-            .setNegativeButton("Dismiss", null)
-            .show()
-    }
+        val tvCardContent = TextView(requireContext()).apply {
+            text = content
+            textSize = 13.5f
+            setTextColor(resources.getColor(R.color.profile_text_main, null))
+            setLineSpacing(4f, 1f)
+        }
 
-    private fun showLanguageDialog() {
-        val languages = arrayOf("English", "ಕನ್ನಡ (Kannada)", "اردو (Urdu)")
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.profile_language)
-            .setItems(languages) { _, which ->
-                val (localeTag, displayName) = when (which) {
-                    1 -> "kn" to "ಕನ್ನಡ"
-                    2 -> "ur" to "اردو"
-                    else -> "en" to "English"
-                }
-                androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(
-                    androidx.core.os.LocaleListCompat.forLanguageTags(localeTag)
-                )
-                binding.menuLanguage.tvMenuBadge.text = displayName
-                Toast.makeText(requireContext(), "Interface language set to: $displayName", Toast.LENGTH_SHORT).show()
-            }
-            .setNegativeButton("Dismiss", null)
-            .show()
+        val bottomRow = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 16, 0, 0)
+        }
+
+        val tvLikes = TextView(requireContext()).apply {
+            text = "♥ $likes"
+            textSize = 12.5f
+            setTextColor(resources.getColor(R.color.profile_text_secondary, null))
+        }
+
+        val tvComments = TextView(requireContext()).apply {
+            text = "💬 $comments"
+            textSize = 12.5f
+            setPadding(32, 0, 0, 0)
+            setTextColor(resources.getColor(R.color.profile_text_secondary, null))
+        }
+
+        bottomRow.addView(tvLikes)
+        bottomRow.addView(tvComments)
+
+        card.addView(tvCardTitle)
+        card.addView(tvCardTime)
+        card.addView(tvCardContent)
+        card.addView(bottomRow)
+
+        binding.feedContainer.addView(card)
     }
 
     override fun onDestroyView() {

@@ -22,7 +22,7 @@
         <FrameLayout
             android:id="@+id/banner_header_layout"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="220dp"
             android:background="@drawable/bg_carousel_gradient">
 
             <ImageView
@@ -41,12 +41,12 @@
             <!-- Close icon button top right -->
             <ImageView
                 android:id="@+id/btn_close_dialog"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:layout_gravity="end|top"
-                android:layout_margin="12dp"
+                android:layout_margin="14dp"
                 android:background="@drawable/bg_card_menu_circle"
-                android:padding="8dp"
+                android:padding="9dp"
                 android:src="@drawable/ic_close"
                 app:tint="@color/text_primary"
                 android:contentDescription="Close" />
@@ -57,18 +57,18 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:id="@+id/tv_modal_badge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_sponsored_badge"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="4dp"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="5dp"
                     android:text="⭐ SPONSORED SHOWCASE"
                     android:textColor="@color/sponsored_text"
-                    android:textSize="11sp"
+                    android:textSize="11.5sp"
                     android:fontFamily="sans-serif-medium"
                     android:letterSpacing="0.06" />
 
@@ -76,9 +76,9 @@
                     android:id="@+id/tv_modal_advertiser"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="8dp"
                     android:textColor="@color/white"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:fontFamily="sans-serif-medium"
                     tools:text="Al-Noor Islamic Academy • Bengre" />
             </LinearLayout>
@@ -89,7 +89,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="24dp">
 
             <!-- Headline -->
             <TextView
@@ -97,9 +97,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/text_primary"
-                android:textSize="20sp"
-                android:fontFamily="sans-serif-medium"
-                android:lineSpacingExtra="2sp"
+                android:textSize="21sp"
+                android:fontFamily="sans-serif-bold"
+                android:lineSpacingExtra="3sp"
                 tools:text="Admissions Open for Quran Hifz &amp; Islamic Studies 2026-27" />
 
             <!-- Subheadline / Description -->
@@ -107,17 +107,17 @@
                 android:id="@+id/tv_modal_subheadline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="12dp"
                 android:textColor="@color/text_secondary"
-                android:textSize="14sp"
-                android:lineSpacingExtra="3sp"
+                android:textSize="14.5sp"
+                android:lineSpacingExtra="4sp"
                 tools:text="Comprehensive Islamic education with modern science &amp; English curriculum. Experienced faculty, dedicated campus, and safe transport facility for Hoode &amp; Bengre students." />
 
             <!-- Feature Highlight Pill Container -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <LinearLayout
@@ -125,7 +125,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@drawable/bg_search_bar"
-                    android:padding="10dp"
+                    android:padding="14dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -133,20 +133,20 @@
                         android:layout_height="wrap_content"
                         android:text="Location"
                         android:textColor="@color/text_muted"
-                        android:textSize="11sp" />
+                        android:textSize="11.5sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
+                        android:layout_marginTop="4dp"
                         android:text="Bengre Beach Rd"
                         android:textColor="@color/text_primary"
-                        android:textSize="13sp"
+                        android:textSize="13.5sp"
                         android:fontFamily="sans-serif-medium" />
                 </LinearLayout>
 
                 <View
-                    android:layout_width="10dp"
+                    android:layout_width="12dp"
                     android:layout_height="1dp" />
 
                 <LinearLayout
@@ -154,7 +154,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@drawable/bg_search_bar"
-                    android:padding="10dp"
+                    android:padding="14dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -162,15 +162,15 @@
                         android:layout_height="wrap_content"
                         android:text="Verified Partner"
                         android:textColor="@color/text_muted"
-                        android:textSize="11sp" />
+                        android:textSize="11.5sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
+                        android:layout_marginTop="4dp"
                         android:text="Community Ward"
                         android:textColor="@color/accent"
-                        android:textSize="13sp"
+                        android:textSize="13.5sp"
                         android:fontFamily="sans-serif-medium" />
                 </LinearLayout>
             </LinearLayout>

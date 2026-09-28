@@ -8,56 +8,85 @@
     android:background="@color/background"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:padding="@dimen/screen_padding_horizontal">
+    android:paddingHorizontal="24dp">
 
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.8" />
 
-    <!-- Brand Emblem -->
+    <!-- Brand Emblem Card -->
     <androidx.cardview.widget.CardView
-        android:layout_width="88dp"
-        android:layout_height="88dp"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="4dp"
+        android:layout_width="84dp"
+        android:layout_height="84dp"
+        app:cardCornerRadius="26dp"
+        app:cardElevation="3dp"
         app:cardBackgroundColor="@color/surface">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:background="@drawable/bg_card_bordered">
+            android:background="@drawable/bg_auth_card">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="HC"
-                android:textColor="@color/accent_ink"
-                android:textSize="32sp"
-                android:textStyle="bold" />
+                android:textColor="@color/accent"
+                android:textSize="30sp"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.05" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+    <!-- Capsule Badge -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/bg_auth_badge_pill"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="6dp">
+
+        <View
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:background="@drawable/bg_badge_indicator"
+            app:backgroundTint="@color/accent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="COMMUNITY PLATFORM"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.08" />
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_xl"
+        android:layout_marginTop="14dp"
         android:text="@string/auth_welcome_title"
         android:textColor="@color/text_primary"
         android:textSize="30sp"
-        android:textStyle="bold"
+        android:fontFamily="sans-serif-bold"
         android:gravity="center"
-        android:lineSpacingExtra="4sp" />
+        android:letterSpacing="-0.02" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_md"
-        android:layout_marginHorizontal="@dimen/spacing_lg"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="12dp"
         android:text="@string/auth_welcome_subtitle"
         android:textColor="@color/text_secondary"
-        android:textSize="15sp"
+        android:textSize="14sp"
         android:gravity="center"
         android:lineSpacingExtra="3sp" />
 
@@ -66,11 +95,11 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <!-- Action Buttons -->
+    <!-- Action Buttons Suite -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_google_sign_in"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/button_height_primary"
+        android:layout_height="52dp"
         android:text="Continue with Google"
         android:textColor="@color/text_primary"
         android:fontFamily="sans-serif-medium"
@@ -78,57 +107,60 @@
         app:icon="@drawable/ic_google_color"
         app:iconTint="@null"
         app:iconGravity="textStart"
-        app:cornerRadius="24dp"
+        app:iconPadding="12dp"
+        app:cornerRadius="26dp"
         app:backgroundTint="@color/surface"
-        app:strokeColor="@color/border_green"
-        app:strokeWidth="1.5dp"
+        app:strokeColor="@color/border_soft"
+        app:strokeWidth="1dp"
         app:elevation="1dp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_sign_in"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/button_height_primary"
-        android:layout_marginTop="@dimen/spacing_md"
+        android:layout_height="52dp"
+        android:layout_marginTop="12dp"
         android:text="Sign In with Email"
         android:textColor="@color/white"
         android:fontFamily="sans-serif-medium"
         android:textSize="15sp"
-        app:cornerRadius="24dp"
+        android:letterSpacing="0.02"
+        app:cornerRadius="26dp"
         app:backgroundTint="@color/accent"
         app:elevation="2dp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_sign_up"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/button_height_primary"
-        android:layout_marginTop="@dimen/spacing_md"
+        android:layout_height="52dp"
+        android:layout_marginTop="12dp"
         android:text="@string/auth_sign_up"
         android:textColor="@color/text_primary"
         android:fontFamily="sans-serif-medium"
         android:textSize="15sp"
-        app:cornerRadius="24dp"
+        app:cornerRadius="26dp"
         app:backgroundTint="@color/surface"
-        app:strokeColor="@color/border_green"
-        app:strokeWidth="1.5dp"
+        app:strokeColor="@color/border_soft"
+        app:strokeWidth="1dp"
         app:elevation="1dp" />
 
     <TextView
         android:id="@+id/btn_guest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_lg"
-        android:padding="@dimen/spacing_sm"
-        android:text="Continue as Guest"
+        android:layout_marginTop="20dp"
+        android:paddingVertical="8dp"
+        android:paddingHorizontal="16dp"
+        android:text="Explore as Guest →"
         android:textColor="@color/text_secondary"
         android:textSize="14sp"
-        android:textStyle="bold" />
+        android:fontFamily="sans-serif-bold" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_xl"
-        android:layout_marginBottom="@dimen/spacing_md"
-        android:text="By continuing, you agree to our Terms of Service and Privacy Policy."
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:text="By continuing, you agree to our Terms of Service &amp; Privacy Policy."
         android:textColor="@color/text_muted"
         android:textSize="12sp"
         android:gravity="center" />

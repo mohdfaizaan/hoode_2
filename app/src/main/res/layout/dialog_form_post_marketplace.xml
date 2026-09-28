@@ -236,20 +236,77 @@
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
-            <!-- Image URL Input -->
+            <!-- Choose / Upload from Gallery Button -->
+            <LinearLayout
+                android:id="@+id/btn_upload_image"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_primary_grey_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_camera_fab"
+                    app:tint="@color/text_primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="📷 Choose Multiple Photos from Gallery"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13.5sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Image Formation Order Controls Header -->
+            <TextView
+                android:id="@+id/tv_formation_instruction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Formation &amp; Order (Use ◀ / ▶ arrows. First is Cover):"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium" />
+
+            <!-- Horizontal Formation Reorder Strip -->
+            <HorizontalScrollView
+                android:id="@+id/hsv_formation_images"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/ll_formation_images_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+
+            <!-- Image URL Input (Alternative) -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_item_images"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="Photo URL(s) (comma-separated)"
+                android:layout_marginTop="10dp"
+                android:hint="Or paste Photo URL(s) separated by comma"
                 app:boxCornerRadiusBottomEnd="14dp"
                 app:boxCornerRadiusBottomStart="14dp"
                 app:boxCornerRadiusTopEnd="14dp"
                 app:boxCornerRadiusTopStart="14dp"
                 app:boxStrokeColor="@color/border_green"
-                app:startIconDrawable="@drawable/ic_camera_fab"
+                app:startIconDrawable="@drawable/ic_gallery"
                 app:startIconTint="@color/accent">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -261,11 +318,14 @@
                     android:textColor="@color/text_primary" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Live Image Preview Card -->
+            <!-- Live Cover Preview Card -->
             <FrameLayout
+                android:id="@+id/fl_image_preview_container"
                 android:layout_width="match_parent"
                 android:layout_height="140dp"
-                android:layout_marginTop="10dp">
+                android:layout_marginTop="10dp"
+                android:clickable="true"
+                android:focusable="true">
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/iv_image_preview"
@@ -284,9 +344,9 @@
                     android:background="@drawable/bg_gallery_pill"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="3dp"
-                    android:text="Photo Preview"
+                    android:text="#1 Cover Photo Preview"
                     android:textColor="@color/white"
-                    android:textSize="10sp"
+                    android:textSize="10.5sp"
                     android:fontFamily="sans-serif-medium" />
             </FrameLayout>
 

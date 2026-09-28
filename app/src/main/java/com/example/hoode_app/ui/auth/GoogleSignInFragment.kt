@@ -56,16 +56,8 @@ class GoogleSignInFragment : Fragment() {
     }
 
     private fun performGoogleSignIn(name: String, email: String, role: String) {
-        binding.layoutAccountsScroll.visibility = View.GONE
-        binding.layoutLoading.visibility = View.VISIBLE
-        binding.tvLoadingMessage.text = "Signing in with Google as $name..."
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            delay(750) // Realistic Google OAuth token exchange animation
-            HoodeRepository.signInWithGoogleAccount(name, email, role)
-            Toast.makeText(requireContext(), "Signed in as $name via Google", Toast.LENGTH_SHORT).show()
-            findNavController().navigate(R.id.action_googleSignIn_to_home)
-        }
+        Toast.makeText(requireContext(), "Use email and password to sign in.", Toast.LENGTH_LONG).show()
+        findNavController().navigateUp()
     }
 
     private fun showCustomGoogleAccountDialog() {

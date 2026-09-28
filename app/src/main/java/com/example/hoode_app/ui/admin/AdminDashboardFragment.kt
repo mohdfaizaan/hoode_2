@@ -9,12 +9,14 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.hoode_app.R
 import com.example.hoode_app.data.model.GalleryItem
 import com.example.hoode_app.data.model.HuffazProfile
 import com.example.hoode_app.data.repository.HoodeRepository
 import com.example.hoode_app.databinding.FragmentAdminDashboardBinding
+import kotlinx.coroutines.launch
 
 class AdminDashboardFragment : Fragment() {
 
@@ -37,6 +39,10 @@ class AdminDashboardFragment : Fragment() {
             findNavController().navigateUp()
         }
 
+        binding.cardAdminModeration.setOnClickListener {
+            showModerationQueueDialog()
+        }
+
         binding.cardAdminCarousel.setOnClickListener {
             findNavController().navigate(R.id.action_admin_to_carousel)
         }
@@ -56,6 +62,70 @@ class AdminDashboardFragment : Fragment() {
         binding.cardAdminHuffaz.setOnClickListener {
             showAddHuffazDialog()
         }
+    }
+
+    private fun showModerationQueueDialog() {
+        val progress = AlertDialog.Builder(requireContext())
+            .setTitle("Fetching Submissions...")
+            .setMessage("Checking Supabase for pending News, Events, and Marketplace posts...")
+            .setCancelable(false)
+            .create()
+        progress.show()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val items = HoodeRepository.fetchPendingModerationItems()
+            progress.dismiss()
+
+            if (items.isEmpty()) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Moderation Queue Clean")
+                    .setMessage("✨ All caught up!\n\nThere are no pending submissions awaiting review right now. When residents submit posts, they will appear here.")
+                    .setPositiveButton("OK", null)
+                    .show()
+                return@launch
+            }
+
+            showIndividualModerationDialog(items, 0)
+        }
+    }
+
+    private fun showIndividualModerationDialog(items: List<HoodeRepository.ModerationItem>, index: Int) {
+        if (index >= items.size) {
+            Toast.makeText(requireContext(), "Finished reviewing pending items!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val item = items[index]
+        val message = "Type: [${item.type}]\n" +
+                "Details: ${item.subtitle}\n\n" +
+                "${item.description}\n\n" +
+                "Item ${index + 1} of ${items.size}"
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(item.title)
+            .setMessage(message)
+            .setPositiveButton("✓ Approve & Publish") { _, _ ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val ok = HoodeRepository.moderateItem(item.id, item.type, approve = true)
+                    if (ok) {
+                        Toast.makeText(requireContext(), "Approved '${item.title}'! It is now live in the community feed.", Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Notice: Status updated locally.", Toast.LENGTH_SHORT).show()
+                    }
+                    showIndividualModerationDialog(items, index + 1)
+                }
+            }
+            .setNegativeButton("✕ Reject") { _, _ ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    HoodeRepository.moderateItem(item.id, item.type, approve = false)
+                    Toast.makeText(requireContext(), "Rejected '${item.title}'.", Toast.LENGTH_SHORT).show()
+                    showIndividualModerationDialog(items, index + 1)
+                }
+            }
+            .setNeutralButton("Skip") { _, _ ->
+                showIndividualModerationDialog(items, index + 1)
+            }
+            .show()
     }
 
     private fun showAddGalleryDialog() {
