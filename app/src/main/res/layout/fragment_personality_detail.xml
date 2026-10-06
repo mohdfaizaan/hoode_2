@@ -1,287 +1,45 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background"
-    android:orientation="vertical">
-
-    <!-- ═══════════════════════════════════════════════════ -->
-    <!-- TOP APP BAR                                         -->
-    <!-- ═══════════════════════════════════════════════════ -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/surface"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/screen_padding_horizontal"
-        android:paddingVertical="@dimen/spacing_md"
-        android:elevation="1dp">
-
-        <FrameLayout
-            android:id="@+id/btn_back"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/cd_back">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_arrow_back"
-                app:tint="@color/text_primary" />
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/background" android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/screen_padding_horizontal" android:paddingVertical="@dimen/spacing_md" android:elevation="1dp">
+        <FrameLayout android:id="@+id/btn_back" android:layout_width="48dp" android:layout_height="48dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@string/cd_back" android:padding="12dp" android:focusable="true" android:minHeight="48dp" android:minWidth="48dp" android:clickable="true" android:foreground="?attr/selectableItemBackground">
+            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@drawable/ic_arrow_back" app:tint="@color/text_primary" />
         </FrameLayout>
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="@dimen/spacing_sm"
-            android:text="@string/feature_personality"
-            android:textColor="@color/text_primary"
-            android:textSize="20sp"
-            android:fontFamily="sans-serif-medium"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tv_featured_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_sponsored_badge"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="5dp"
-            android:textColor="@color/icon_green"
-            android:textSize="12sp"
-            android:fontFamily="sans-serif-medium"
-            android:textStyle="bold"
-            tools:text="10 Sep 2026" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/feature_personality" android:textColor="@color/text_primary" android:textSize="28sp" android:fontFamily="sans-serif-condensed" android:textStyle="bold" />
+        <TextView android:id="@+id/tv_featured_date" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_sponsored_badge" android:paddingHorizontal="12dp" android:paddingVertical="5dp" android:textColor="@color/icon_green" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:textStyle="bold" tools:text="10 Sep 2026" />
     </LinearLayout>
-
-    <!-- ═══════════════════════════════════════════════════ -->
-    <!-- SCROLLABLE PROFILE CONTENT                          -->
-    <!-- ═══════════════════════════════════════════════════ -->
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true"
-        android:overScrollMode="never">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="@dimen/screen_padding_horizontal"
-            android:paddingTop="@dimen/spacing_lg"
-            android:paddingBottom="@dimen/spacing_xxxl">
-
-            <!-- 1. Profile Hero Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/surface"
-                app:strokeColor="@color/border_green"
-                app:strokeWidth="1.5dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="@dimen/spacing_xl"
-                    android:paddingTop="@dimen/spacing_xxl"
-                    android:paddingBottom="@dimen/spacing_xl">
-
-                    <!-- Spotlight Badge -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_sponsored_badge"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="3dp"
-                        android:text="COMMUNITY SPOTLIGHT"
-                        android:textColor="@color/icon_green"
-                        android:textSize="11sp"
-                        android:letterSpacing="0.06"
-                        android:fontFamily="sans-serif-medium"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="@dimen/spacing_md" />
-
-                    <!-- Avatar Photo Frame -->
-                    <FrameLayout
-                        android:layout_width="104dp"
-                        android:layout_height="104dp"
-                        android:background="@drawable/bg_ring_circle_green"
-                        android:elevation="4dp">
-
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/iv_person_avatar"
-                            android:layout_width="96dp"
-                            android:layout_height="96dp"
-                            android:layout_gravity="center"
-                            android:scaleType="centerCrop"
-                            android:background="@drawable/bg_circle_lavender"
-                            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-                            android:contentDescription="Personality Photo"
-                            tools:src="@drawable/ic_personality" />
+    <androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true" android:overScrollMode="never">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/screen_padding_horizontal" android:paddingTop="@dimen/spacing_lg" android:paddingBottom="@dimen/spacing_xxxl">
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="24dp" app:cardElevation="2dp" app:cardBackgroundColor="@color/surface" app:strokeColor="@color/border_green" app:strokeWidth="1.5dp" app:contentPadding="0dp" app:cardPreventCornerOverlap="false">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_horizontal" android:orientation="vertical" android:paddingHorizontal="@dimen/spacing_xl" android:paddingTop="@dimen/spacing_xxl" android:paddingBottom="@dimen/spacing_xl">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_sponsored_badge" android:paddingHorizontal="10dp" android:paddingVertical="3dp" android:text="COMMUNITY SPOTLIGHT" android:textColor="@color/icon_green" android:textSize="11sp" android:letterSpacing="0.06" android:fontFamily="sans-serif-medium" android:textStyle="bold" android:layout_marginBottom="@dimen/spacing_md" />
+                    <FrameLayout android:layout_width="104dp" android:layout_height="104dp" android:background="@drawable/bg_ring_circle_green" android:elevation="4dp">
+                        <com.google.android.material.imageview.ShapeableImageView android:id="@+id/iv_person_avatar" android:layout_width="96dp" android:layout_height="96dp" android:layout_gravity="center" android:scaleType="centerCrop" android:background="@drawable/bg_circle_lavender" app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent" android:contentDescription="Personality Photo" tools:src="@drawable/ic_personality" />
                     </FrameLayout>
-
-                    <!-- Name -->
-                    <TextView
-                        android:id="@+id/tv_person_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_lg"
-                        android:gravity="center"
-                        android:textColor="@color/text_primary"
-                        android:textSize="22sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textStyle="bold"
-                        tools:text="Janab Haji K. M. Abdul Khadar" />
-
-                    <!-- Role -->
-                    <TextView
-                        android:id="@+id/tv_person_role"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:gravity="center"
-                        android:textColor="@color/icon_green"
-                        android:textSize="14.5sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textStyle="bold"
-                        tools:text="Education Pioneer &amp; Philanthropist" />
-
-                    <!-- Quote Bubble -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_xl"
-                        android:background="@drawable/bg_search_bar"
-                        android:orientation="vertical"
-                        android:paddingHorizontal="@dimen/spacing_lg"
-                        android:paddingVertical="@dimen/spacing_md">
-
-                        <TextView
-                            android:id="@+id/tv_person_quote"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:lineSpacingExtra="3dp"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="14sp"
-                            android:textStyle="italic"
-                            tools:text="&quot;True wealth is what you leave in the minds and hearts of the next generation.&quot;" />
+                    <TextView android:id="@+id/tv_person_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/spacing_lg" android:gravity="center" android:textColor="@color/text_primary" android:textSize="22sp" android:fontFamily="sans-serif-medium" android:textStyle="bold" tools:text="Janab Haji K. M. Abdul Khadar" />
+                    <TextView android:id="@+id/tv_person_role" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center" android:textColor="@color/icon_green" android:textSize="14.5sp" android:fontFamily="sans-serif-medium" android:textStyle="bold" tools:text="Education Pioneer &amp; Philanthropist" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/spacing_xl" android:background="@drawable/bg_search_bar" android:orientation="vertical" android:paddingHorizontal="@dimen/spacing_lg" android:paddingVertical="@dimen/spacing_md">
+                        <TextView android:id="@+id/tv_person_quote" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:lineSpacingExtra="3dp" android:textColor="@color/text_secondary" android:textSize="14sp" android:textStyle="italic" tools:text="&quot;True wealth is what you leave in the minds and hearts of the next generation.&quot;" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-
-            <!-- 2. Biography Section -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_lg"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/surface"
-                app:strokeColor="@color/border_green"
-                app:strokeWidth="1.5dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/spacing_xl">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <View
-                            android:layout_width="4dp"
-                            android:layout_height="18dp"
-                            android:background="@drawable/bg_tab_indicator_green"
-                            android:layout_marginEnd="8dp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Community Biography"
-                            android:textColor="@color/text_primary"
-                            android:textSize="17sp"
-                            android:fontFamily="sans-serif-medium"
-                            android:textStyle="bold" />
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/spacing_lg" app:cardCornerRadius="20dp" app:cardElevation="2dp" app:cardBackgroundColor="@color/surface" app:strokeColor="@color/border_green" app:strokeWidth="1.5dp" app:contentPadding="0dp" app:cardPreventCornerOverlap="false">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/spacing_xl">
+                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+                        <View android:layout_width="4dp" android:layout_height="18dp" android:background="@drawable/bg_tab_indicator_green" android:layout_marginEnd="8dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Community Biography" android:textColor="@color/text_primary" android:textSize="17sp" android:fontFamily="sans-serif-medium" android:textStyle="bold" />
                     </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tv_person_biography"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_md"
-                        android:lineSpacingExtra="5dp"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="15sp"
-                        tools:text="Born in Hoode in 1948, Haji Abdul Khadar spearheaded the establishment of the first community high school in Kemmannu-Hoode region." />
+                    <TextView android:id="@+id/tv_person_biography" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/spacing_md" android:lineSpacingExtra="5dp" android:textColor="@color/text_secondary" android:textSize="15sp" tools:text="Born in Hoode in 1948, Haji Abdul Khadar spearheaded the establishment of the first community high school in Kemmannu-Hoode region." />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-
-            <!-- 3. Key Contributions Section -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_lg"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/surface"
-                app:strokeColor="@color/border_green"
-                app:strokeWidth="1.5dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/spacing_xl">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <View
-                            android:layout_width="4dp"
-                            android:layout_height="18dp"
-                            android:background="@drawable/bg_tab_indicator_green"
-                            android:layout_marginEnd="8dp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Key Contributions &amp; Impact"
-                            android:textColor="@color/text_primary"
-                            android:textSize="17sp"
-                            android:fontFamily="sans-serif-medium"
-                            android:textStyle="bold" />
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/spacing_lg" app:cardCornerRadius="20dp" app:cardElevation="2dp" app:cardBackgroundColor="@color/surface" app:strokeColor="@color/border_green" app:strokeWidth="1.5dp" app:contentPadding="0dp" app:cardPreventCornerOverlap="false">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/spacing_xl">
+                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+                        <View android:layout_width="4dp" android:layout_height="18dp" android:background="@drawable/bg_tab_indicator_green" android:layout_marginEnd="8dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Key Contributions &amp; Impact" android:textColor="@color/text_primary" android:textSize="17sp" android:fontFamily="sans-serif-medium" android:textStyle="bold" />
                     </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/ll_contributions_list"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_md"
-                        android:orientation="vertical" />
+                    <LinearLayout android:id="@+id/ll_contributions_list" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/spacing_md" android:orientation="vertical" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
 </LinearLayout>

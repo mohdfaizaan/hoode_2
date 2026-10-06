@@ -2,91 +2,61 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="168dp"
+    android:layout_width="218dp"
     android:layout_height="wrap_content"
-    android:layout_marginEnd="@dimen/spacing_md"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="2dp"
-    app:strokeColor="@color/border_green"
-    app:strokeWidth="1.5dp">
-
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp"
+        app:cardPreventCornerOverlap="false"
+        app:cardUseCompatPadding="false"
+        app:contentPadding="0dp"
+        android:clipToOutline="true"
+    app:strokeWidth="0dp"
+    app:cardBackgroundColor="@color/dashboard_surface"
+    android:layout_marginEnd="12dp"
+    android:foreground="?attr/selectableItemBackground"
+    android:focusable="true">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
-        <FrameLayout
+        <ImageView
+            android:id="@+id/iv_highlight_image"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:background="@color/accent_surface">
-
-            <ImageView
-                android:id="@+id/iv_highlight_image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                tools:background="@color/accent_soft" />
-
-            <!-- Category badge -->
-            <TextView
-                android:id="@+id/tv_category"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|start"
-                android:layout_margin="@dimen/spacing_sm"
-                android:background="@drawable/bg_sponsored_badge"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="3dp"
-                android:textColor="@color/accent"
-                android:textSize="10sp"
-                android:fontFamily="sans-serif-medium"
-                tools:text="Event" />
-
-            <!-- Canva 3-dot menu button -->
-            <FrameLayout
-                android:id="@+id/btn_card_menu"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:layout_gravity="top|end"
-                android:layout_margin="@dimen/spacing_sm"
-                android:background="@drawable/bg_card_menu_circle">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_more_horiz" />
-            </FrameLayout>
-        </FrameLayout>
-
+            android:layout_height="126dp"
+            android:scaleType="centerCrop"
+            android:background="@color/dashboard_soft"
+            android:importantForAccessibility="no" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="@dimen/spacing_md"
-            android:paddingTop="@dimen/spacing_sm"
-            android:paddingBottom="@dimen/spacing_md">
-
+            android:padding="16dp">
+            <TextView
+                android:id="@+id/tv_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:textColor="@color/dashboard_primary"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing=".06" />
             <TextView
                 android:id="@+id/tv_highlight_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/text_primary"
-                android:textSize="@dimen/text_sm"
+                android:textSize="17sp"
+                android:textColor="@color/dashboard_ink"
                 android:fontFamily="sans-serif-medium"
-                android:maxLines="2"
-                android:ellipsize="end"
-                tools:text="Community Iftar" />
-
+                android:layout_marginTop="7dp"
+                android:maxLines="3"
+                android:ellipsize="end" />
             <TextView
                 android:id="@+id/tv_highlight_subtitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_xxs"
-                android:textColor="@color/text_muted"
-                android:textSize="@dimen/text_xs"
-                tools:text="Tomorrow, 6:30 PM" />
+                android:textSize="12sp"
+                android:textColor="@color/dashboard_secondary"
+                android:fontFamily="sans-serif"
+                android:layout_marginTop="6dp" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

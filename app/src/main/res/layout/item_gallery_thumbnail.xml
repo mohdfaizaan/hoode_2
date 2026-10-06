@@ -1,87 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="160dp"
-    android:layout_height="148dp"
-    android:layout_marginEnd="10dp"
-    android:layout_marginVertical="4dp"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="3dp"
-    app:strokeColor="@color/border_green"
-    app:strokeWidth="1.5dp"
-    app:cardBackgroundColor="@color/surface">
-
-    <FrameLayout
-        android:id="@+id/fl_gallery_bg"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <!-- Real Image Loaded from Internet -->
-        <ImageView
-            android:id="@+id/iv_gallery_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:background="@drawable/bg_gallery_luxury_gradient"
-            android:contentDescription="Gallery Photo" />
-
-        <!-- Full Dark Scrim Overlay for Readability -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#4D000000" />
-
-        <!-- Decorative Watermark Icon -->
-        <ImageView
-            android:id="@+id/iv_gallery_watermark"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center"
-            android:layout_marginBottom="12dp"
-            android:src="@drawable/ic_gallery"
-            android:alpha="0.12"
-            app:tint="@color/white" />
-
-        <!-- Hidden view to preserve binding compatibility without visual overlay -->
-        <TextView
-            android:id="@+id/tv_gallery_item_order"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone" />
-
-        <!-- Bottom Scrim & Info -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:layout_gravity="bottom"
-            android:background="@drawable/bg_gallery_scrim"
-            android:gravity="bottom"
-            android:padding="10dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tv_gallery_item_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Sunset at Hoode Beach"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:fontFamily="sans-serif-medium" />
-
-            <TextView
-                android:id="@+id/tv_gallery_item_photographer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="📸 by Rashid Hoode"
-                android:textColor="#6EE7B7"
-                android:textSize="10sp"
-                android:fontFamily="sans-serif-medium" />
+<?xml version='1.0' encoding='utf-8'?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="160dp" android:layout_height="148dp" android:layout_marginEnd="10dp" android:layout_marginVertical="4dp" app:cardCornerRadius="18dp" app:cardElevation="0dp" app:strokeColor="@color/border_primary" app:strokeWidth="1dp" app:cardBackgroundColor="@color/surface" app:contentPadding="0dp" app:cardPreventCornerOverlap="false">
+    <FrameLayout android:id="@+id/fl_gallery_bg" android:layout_width="match_parent" android:layout_height="match_parent">
+        <ImageView android:id="@+id/iv_gallery_image" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:background="@drawable/bg_gallery_luxury_gradient" android:contentDescription="Gallery Photo" />
+        <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#4D000000" />
+        <ImageView android:id="@+id/iv_gallery_watermark" android:layout_width="48dp" android:layout_height="48dp" android:layout_gravity="center" android:layout_marginBottom="12dp" android:src="@drawable/ic_gallery" android:alpha="0.12" app:tint="@color/white" />
+        <TextView android:id="@+id/tv_gallery_item_order" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="72dp" android:layout_gravity="bottom" android:background="@drawable/bg_gallery_scrim" android:gravity="bottom" android:padding="10dp" android:orientation="vertical">
+            <TextView android:id="@+id/tv_gallery_item_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sunset at Hoode Beach" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end" android:fontFamily="sans-serif-medium" />
+            <TextView android:id="@+id/tv_gallery_item_photographer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="📸 by Rashid Hoode" android:textColor="#FFFFFF" android:textSize="10sp" android:fontFamily="sans-serif-medium" />
         </LinearLayout>
-
     </FrameLayout>
 </com.google.android.material.card.MaterialCardView>

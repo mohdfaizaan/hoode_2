@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home aliases preserve the approved design using the shared resident palette. -->
+    <color name="dashboard_background">@color/background</color>
+    <color name="dashboard_surface">@color/surface</color>
+    <color name="dashboard_ink">@color/text_primary</color>
+    <color name="dashboard_secondary">@color/text_secondary</color>
+    <color name="dashboard_primary">@color/accent</color>
+    <color name="dashboard_soft">@color/surface_dim</color>
+    <color name="dashboard_border">@color/border_soft</color>
+    <color name="dashboard_navy">@color/navy</color>
+    <color name="dashboard_on_navy">@color/white</color>
+    <color name="dashboard_on_navy_secondary">@color/on_navy_secondary</color>
+    <color name="dashboard_amber">@color/amber</color>
+    <color name="dashboard_danger">@color/danger</color>
+    <color name="dashboard_danger_surface">@color/danger_soft</color>
+
+    <style name="TextAppearance.Hoode.Dashboard.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/dashboard_secondary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="TextAppearance.Hoode.Dashboard.Title" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/dashboard_ink</item>
+        <item name="android:textSize">21sp</item>
+    </style>
+    <style name="Widget.Hoode.DashboardChip" parent="Widget.Hoode.Chip">
+        <item name="chipBackgroundColor">@color/dashboard_chip_background</item>
+        <item name="android:textColor">@color/dashboard_chip_text</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="chipCornerRadius">16dp</item>
+        <item name="ensureMinTouchTargetSize">true</item>
+        <item name="android:textSize">13sp</item>
+        <item name="checkedIconVisible">false</item>
+    </style>
+    <style name="Widget.Hoode.DashboardLink" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/dashboard_primary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+    </style>
+    <string name="dashboard_brand">HOODE</string>
+    <string name="dashboard_title">Hoode, today.</string>
+    <string name="dashboard_menu">Open community menu</string>
+    <string name="dashboard_profile">Open your profile</string>
+    <string name="dashboard_next_prayer">NEXT PRAYER</string>
+    <string name="dashboard_prayer_unavailable">Prayer times</string>
+    <string name="dashboard_prayer_hint">Open the timetable for your mosque</string>
+    <string name="dashboard_timetable">Timetable</string>
+    <string name="dashboard_iqamah">Iqamah %1$s</string>
+    <string name="dashboard_iqamah_countdown">Iqamah in\n%1$s</string>
+    <string name="dashboard_countdown">In %1$s</string>
+    <string name="dashboard_greeting">%1$s, %2$s</string>
+    <string name="dashboard_partners">Community partners</string>
+    <string name="dashboard_next_partner">Next partner</string>
+    <string name="dashboard_partner_count">%1$d / %2$d</string>
+    <string name="dashboard_updates">The noticeboard</string>
+    <string name="dashboard_updates_subtitle">News, gatherings and conversations</string>
+    <string name="dashboard_browse">Browse</string>
+    <string name="dashboard_all">All</string>
+    <string name="dashboard_news">News</string>
+    <string name="dashboard_events">Events</string>
+    <string name="dashboard_polls">Polls</string>
+    <string name="dashboard_activities">Activities</string>
+    <string name="dashboard_empty_updates">No updates to show here yet.</string>
+    <string name="dashboard_empty_updates_hint">Pull down to refresh, or explore the community below.</string>
+    <string name="dashboard_highlights">In the spotlight</string>
+    <string name="dashboard_people">PEOPLE OF HOODE</string>
+    <string name="dashboard_read_story">Read the story</string>
+    <string name="dashboard_explore">Your community, closer</string>
+    <string name="dashboard_explore_subtitle">Find what you need. Join what you love.</string>
+    <string name="dashboard_gallery">Through our lens</string>
+    <string name="dashboard_gallery_subtitle">Everyday moments, shared by Hoode</string>
+    <string name="dashboard_gallery_browse">Open gallery</string>
+    <string name="dashboard_gallery_empty">Make room for a new perspective.</string>
+    <string name="dashboard_gallery_hint">Browse community photos or share a moment of your own.</string>
+    <string name="dashboard_services">Services</string>
+    <string name="dashboard_market">Market</string>
+    <string name="dashboard_emergency">Emergency</string>
+    <string name="dashboard_blood">Blood help</string>
+    <string name="dashboard_jobs">Jobs</string>
+    <string name="dashboard_lost_found">Lost &amp; found</string>
+    <string name="dashboard_huffaz">Huffaz</string>
+    <string name="dashboard_tournaments">Tournaments</string>
+    <string name="dashboard_local_news">Local news</string>
+    <string name="dashboard_view_details">View details</string>
+    <string name="dashboard_sponsored_by">Sponsored · %1$s</string>
+    <string name="dashboard_refresh_timeout">Refreshing is taking longer than expected. Pull down to try again.</string>
+    <style name="ShapeAppearance.Hoode.DashboardMedia" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+    <string name="dashboard_hours_minutes">%1$dh %2$dm</string>
+    <string name="dashboard_minutes">%1$dm</string>
+    <string name="dashboard_seconds">%1$ds</string>
+    <plurals name="dashboard_unread_notifications">
+        <item quantity="one">%d unread notification</item>
+        <item quantity="other">%d unread notifications</item>
+    </plurals>
+</resources>

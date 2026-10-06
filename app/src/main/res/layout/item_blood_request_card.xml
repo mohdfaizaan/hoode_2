@@ -80,7 +80,7 @@
             android:textSize="13sp"
             android:textStyle="bold"
             app:cornerRadius="@dimen/radius_control"
-            app:backgroundTint="#FDE8E8"
+            app:backgroundTint="@color/danger_soft"
             app:strokeColor="@color/danger"
             app:strokeWidth="1dp" />
 

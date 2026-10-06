@@ -143,7 +143,8 @@ data class Standing(
     val won: Int,
     val lost: Int,
     val points: Int,
-    val netRunRate: String = "+0.00"
+    val netRunRate: String = "+0.00",
+    val tournamentId:String = ""
 )
 
 // ── F06: Events & Weddings ────────────────────────────────────
@@ -159,7 +160,8 @@ data class CommunityEvent(
     val isPrivate: Boolean = false,
     val rsvpGoing: Int = 0,
     val rsvpTotalCapacity: Int = 100,
-    val userRsvp: Boolean? = null
+    val userRsvp: Boolean? = null,
+    val description: String = ""
 )
 
 // ── F07: Blood Donor Network ─────────────────────────────────
@@ -373,7 +375,8 @@ data class AdCarouselSlide(
     val ctaLabel: String? = "Learn More",
     val ctaUrl: String? = null,
     var isEnabled: Boolean = true,
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
+    val description:String = ""
 )
 
 // ── Calendar (Explore) ───────────────────────────────────
@@ -391,6 +394,9 @@ data class UserPostItem(
     val content: String,
     val date: String,
     val imageUrl: String? = null,
-    val likes: Int = 0,
-    val comments: Int = 0
-)
+    var likes: Int = 0,
+    var isLikedByMe: Boolean = false,
+    val commentsList: MutableList<String> = mutableListOf()
+) {
+    val comments: Int get() = commentsList.size
+}

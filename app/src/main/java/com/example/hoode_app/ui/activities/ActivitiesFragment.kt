@@ -6,6 +6,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import com.example.hoode_app.ui.common.showEmptyContent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -119,6 +120,7 @@ class ActivitiesFragment : Fragment() {
             }
         } else {
             val filtered = if (selectedCategory == "All") all else all.filter { it.category.equals(selectedCategory, ignoreCase = true) }
+            if (filtered.isEmpty()) binding.llActivitiesContainer.showEmptyContent("No activities to show")
             for (act in filtered) {
                 val itemBinding = ItemActivityCardBinding.inflate(layoutInflater, binding.llActivitiesContainer, false)
                 itemBinding.tvActCategory.text = act.category

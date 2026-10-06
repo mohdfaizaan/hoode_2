@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Masks the cover photo's bottom corners on devices below Android 12,
+     where android:clipToOutline is not applied from XML. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/background" />
+    <corners android:topLeftRadius="28dp" android:topRightRadius="28dp" />
+</shape>

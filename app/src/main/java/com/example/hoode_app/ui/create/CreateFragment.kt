@@ -2,6 +2,7 @@ package com.example.hoode_app.ui.create
 
 import android.app.Dialog
 import android.net.Uri
+import com.example.hoode_app.ui.common.submitForReview
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -91,6 +92,7 @@ class CreateFragment : Fragment() {
     private fun showPostMarketplaceDialog() {
         val dialog = Dialog(requireContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar)
         val formBinding = DialogFormPostMarketplaceBinding.inflate(layoutInflater)
+        formBinding.etItemPhone.setText(HoodeRepository.currentUser.value?.phone.orEmpty())
         dialog.setContentView(formBinding.root)
 
         dialog.window?.setLayout(
@@ -114,8 +116,8 @@ class CreateFragment : Fragment() {
                 selectedFormCategory = cat
                 for ((v, c) in catChips) {
                     if (c == selectedFormCategory) {
-                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
-                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                        v.setBackgroundResource(R.drawable.bg_chip_accent_filled)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                     } else {
                         v.setBackgroundResource(R.drawable.bg_chip_unselected)
                         v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
@@ -237,6 +239,9 @@ class CreateFragment : Fragment() {
 
         formBinding.btnSubmitListing.setOnClickListener {
             val title = formBinding.etItemTitle.text.toString().trim()
+            val sellerPhone=formBinding.etItemPhone.text.toString().trim()
+            if(sellerPhone.isBlank()){formBinding.tilItemPhone.error="Enter your contact number";return@setOnClickListener}
+            formBinding.tilItemPhone.error=null
             val rawPrice = formBinding.etItemPrice.text.toString().trim()
             val type = formBinding.etItemType.text.toString().trim().ifBlank { "Sell" }
             val desc = formBinding.etItemDescription.text.toString().trim()
@@ -260,12 +265,13 @@ class CreateFragment : Fragment() {
             } else {
                 val typed = formBinding.etItemImages.text.toString().trim()
                 if (typed.isNotBlank()) typed.split(",").map { it.trim() }.filter { it.isNotBlank() }
-                else listOf("https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=800")
+                else emptyList()
             }
 
             val user = HoodeRepository.currentUser.value
             val newItem = ClassifiedItem(
                 title = title,
+                phone = sellerPhone,
                 price = priceFormatted,
                 type = type,
                 category = selectedFormCategory,
@@ -277,18 +283,7 @@ class CreateFragment : Fragment() {
                 images = finalImages
             )
 
-            formBinding.btnSubmitListing.isEnabled = false
-            viewLifecycleOwner.lifecycleScope.launch {
-                val result = HoodeRepository.postClassified(newItem)
-                formBinding.btnSubmitListing.isEnabled = true
-                result.onSuccess {
-                    Toast.makeText(requireContext(), "Listing '$title' published to Marketplace!", Toast.LENGTH_LONG).show()
-                    dialog.dismiss()
-                    findNavController().navigate(R.id.marketplaceFragment)
-                }.onFailure { error ->
-                    Toast.makeText(requireContext(), error.message ?: "Could not submit. Please retry.", Toast.LENGTH_LONG).show()
-                }
-            }
+            submitForReview(formBinding.btnSubmitListing,dialog) { HoodeRepository.postClassified(newItem) }
         }
 
         dialog.show()
@@ -319,8 +314,8 @@ class CreateFragment : Fragment() {
                 selectedCategory = categoryName
                 for ((v, name) in categoryChips) {
                     if (name == selectedCategory) {
-                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
-                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                        v.setBackgroundResource(R.drawable.bg_chip_accent_filled)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                     } else {
                         v.setBackgroundResource(R.drawable.bg_chip_unselected)
                         v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
@@ -359,24 +354,14 @@ class CreateFragment : Fragment() {
             val user = HoodeRepository.currentUser.value
             val newEvent = CommunityEvent(
                 title = title,
-                organizer = user?.displayName ?: "Hoode Resident",
+                organizer = formBinding.etEventOrganizer.text.toString().trim().ifBlank { user?.displayName ?: "Hoode Resident" },
                 category = selectedCategory,
                 date = date,
                 time = "",
-                venue = venue
+                venue = venue,
+                description = formBinding.etEventDescription.text.toString().trim()
             )
-            formBinding.btnSubmitEvent.isEnabled = false
-            viewLifecycleOwner.lifecycleScope.launch {
-                val result = HoodeRepository.postEvent(newEvent)
-                formBinding.btnSubmitEvent.isEnabled = true
-                result.onSuccess {
-            Toast.makeText(requireContext(), "Event '$title' submitted for Admin review! It will appear once approved.", Toast.LENGTH_LONG).show()
-            dialog.dismiss()
-            findNavController().navigate(R.id.eventsFragment)
-                }.onFailure { error ->
-                    Toast.makeText(requireContext(), error.message ?: "Could not submit. Please retry.", Toast.LENGTH_LONG).show()
-                }
-            }
+            submitForReview(formBinding.btnSubmitEvent,dialog) { HoodeRepository.postEvent(newEvent) }
         }
 
         dialog.show()
@@ -406,8 +391,8 @@ class CreateFragment : Fragment() {
                 selectedType = typeName
                 for ((v, name) in typeChips) {
                     if (name == selectedType) {
-                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
-                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                        v.setBackgroundResource(R.drawable.bg_chip_accent_filled)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                     } else {
                         v.setBackgroundResource(R.drawable.bg_chip_unselected)
                         v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
@@ -453,12 +438,9 @@ class CreateFragment : Fragment() {
                 pay = if (pay.isNotBlank()) pay else "Competitive",
                 location = if (loc.isNotBlank()) loc else "Hoode",
                 description = if (desc.isNotBlank()) desc else "Contact $phone for full details and schedule.",
-                deadline = "30 Sep 2026"
+                deadline = "Contact employer"
             )
-            HoodeRepository.postJob(newJob)
-            Toast.makeText(requireContext(), "Job '$title' published to Hoode Community!", Toast.LENGTH_SHORT).show()
-            dialog.dismiss()
-            findNavController().navigate(R.id.jobsFragment)
+            submitForReview(formBinding.btnSubmitJob,dialog) { HoodeRepository.postJob(newJob,phone) }
         }
 
         dialog.show()
@@ -507,8 +489,8 @@ class CreateFragment : Fragment() {
                 selectedCategory = cat
                 for ((v, c) in catChips) {
                     if (c == selectedCategory) {
-                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
-                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                        v.setBackgroundResource(R.drawable.bg_chip_accent_filled)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                     } else {
                         v.setBackgroundResource(R.drawable.bg_chip_unselected)
                         v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
@@ -576,6 +558,7 @@ class CreateFragment : Fragment() {
             }
             formBinding.tilLfArea.error = null
 
+            if(phone.isBlank()) { formBinding.tilLfPhone.error="Enter a contact phone number";return@setOnClickListener }
             val newItem = LostFoundItem(
                 title = title,
                 isLost = isLostSelection,
@@ -585,13 +568,10 @@ class CreateFragment : Fragment() {
                 description = if (desc.isNotBlank()) desc else "Reported in $area.",
                 status = "open",
                 images = if (imgUrl.isNotBlank()) listOf(imgUrl) else emptyList(),
-                contactPhone = if (phone.isNotBlank()) phone else "+91 820 252 0100"
+                contactPhone = phone
             )
 
-            HoodeRepository.postLostFound(newItem)
-            Toast.makeText(requireContext(), "Item report posted to Lost & Found!", Toast.LENGTH_LONG).show()
-            dialog.dismiss()
-            findNavController().navigate(R.id.lostFoundFragment)
+            submitForReview(formBinding.btnSubmitReport,dialog) { HoodeRepository.postLostFound(newItem) }
         }
 
         dialog.show()
@@ -625,8 +605,8 @@ class CreateFragment : Fragment() {
                 selectedBlood = groupName
                 for ((v, name) in groupChips) {
                     if (name == selectedBlood) {
-                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
-                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                        v.setBackgroundResource(R.drawable.bg_chip_accent_filled)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                     } else {
                         v.setBackgroundResource(R.drawable.bg_chip_unselected)
                         v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
@@ -658,23 +638,13 @@ class CreateFragment : Fragment() {
 
             val newReq = BloodRequest(
                 bloodGroup = selectedBlood,
+                patientNamePlaceholder = formBinding.etBloodPatient.text.toString().trim().ifBlank { "Patient in need" },
                 hospital = hospital,
                 unitsNeeded = units,
                 neededBy = "Immediate Emergency",
                 coordinatorPhone = phone
             )
-            formBinding.btnSubmitBloodReq.isEnabled = false
-            viewLifecycleOwner.lifecycleScope.launch {
-                val result = HoodeRepository.postBloodRequest(newReq)
-                formBinding.btnSubmitBloodReq.isEnabled = true
-                result.onSuccess {
-            Toast.makeText(requireContext(), "Emergency blood call ($selectedBlood) broadcasted to verified donors!", Toast.LENGTH_LONG).show()
-            dialog.dismiss()
-            findNavController().navigate(R.id.bloodNetworkFragment)
-                }.onFailure { error ->
-                    Toast.makeText(requireContext(), error.message ?: "Could not submit. Please retry.", Toast.LENGTH_LONG).show()
-                }
-            }
+            submitForReview(formBinding.btnSubmitBloodReq,dialog) { HoodeRepository.postBloodRequest(newReq) }
         }
 
         dialog.show()
@@ -705,8 +675,8 @@ class CreateFragment : Fragment() {
                 selectedCategory = catName
                 for ((v, name) in categoryChips) {
                     if (name == selectedCategory) {
-                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
-                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                        v.setBackgroundResource(R.drawable.bg_chip_accent_filled)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                     } else {
                         v.setBackgroundResource(R.drawable.bg_chip_unselected)
                         v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
@@ -735,14 +705,7 @@ class CreateFragment : Fragment() {
             }
             formBinding.tilCivicLocation.error = null
 
-            HoodeRepository.submitCivicIssue(
-                title = title,
-                category = selectedCategory,
-                location = loc
-            )
-            Toast.makeText(requireContext(), "Civic issue reported to Hoode board!", Toast.LENGTH_SHORT).show()
-            dialog.dismiss()
-            findNavController().navigate(R.id.pollsFragment)
+            submitForReview(formBinding.btnSubmitCivic,dialog) { HoodeRepository.submitCivicIssue(title,selectedCategory,loc,formBinding.etCivicDetails.text.toString().trim()) }
         }
 
         dialog.show()

@@ -1,368 +1,54 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/bg_card_bordered"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <!-- Top Bar with Title & Close -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:fontFamily="sans-serif-bold"
-            android:text="Product Details"
-            android:textColor="@color/text_primary"
-            android:textSize="17sp" />
-
-        <FrameLayout
-            android:id="@+id/btn_close_detail"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless">
-
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_close"
-                app:tint="@color/text_secondary" />
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_bordered" android:orientation="vertical" android:padding="16dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="sans-serif-bold" android:text="Product Details" android:textColor="@color/text_primary" android:textSize="17sp" />
+        <FrameLayout android:id="@+id/btn_close_detail" android:layout_width="36dp" android:layout_height="48dp" android:background="?attr/selectableItemBackgroundBorderless" android:minHeight="48dp" android:minWidth="48dp" android:focusable="true" android:clickable="true" android:foreground="?attr/selectableItemBackground">
+            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:layout_gravity="center" android:src="@drawable/ic_close" app:tint="@color/text_secondary" />
         </FrameLayout>
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginVertical="10dp"
-        android:background="@color/border_faint" />
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxHeight="520dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- Multi-Image Carousel Container -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="210dp">
-
-                <androidx.viewpager2.widget.ViewPager2
-                    android:id="@+id/vp_detail_images"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_gallery_luxury_gradient" />
-
-                <!-- Image index indicator badge -->
-                <TextView
-                    android:id="@+id/tv_detail_image_index"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|end"
-                    android:layout_margin="12dp"
-                    android:background="@drawable/bg_gallery_pill"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="4dp"
-                    android:textColor="@color/white"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    tools:text="1 / 3" />
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginVertical="10dp" android:background="@color/border_faint" />
+    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:maxHeight="520dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+            <FrameLayout android:layout_width="match_parent" android:layout_height="210dp">
+                <androidx.viewpager2.widget.ViewPager2 android:id="@+id/vp_detail_images" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_gallery_luxury_gradient" />
+                <TextView android:id="@+id/tv_detail_image_index" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="bottom|end" android:layout_margin="12dp" android:background="@drawable/bg_gallery_pill" android:paddingHorizontal="10dp" android:paddingVertical="4dp" android:textColor="@color/white" android:textSize="11sp" android:textStyle="bold" tools:text="1 / 3" />
             </FrameLayout>
-
-            <!-- Price & Type -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tv_detail_price"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-black"
-                    android:textColor="@color/text_primary"
-                    android:textSize="22sp"
-                    tools:text="₹3,800" />
-
-                <TextView
-                    android:id="@+id/tv_detail_type"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_pill_accent"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="4dp"
-                    android:textColor="@color/accent_ink"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    tools:text="FOR SALE" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <TextView android:id="@+id/tv_detail_price" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="sans-serif-black" android:textColor="@color/text_primary" android:textSize="22sp" tools:text="₹3,800" />
+                <TextView android:id="@+id/tv_detail_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_pill_accent" android:paddingHorizontal="10dp" android:paddingVertical="4dp" android:textColor="@color/accent_ink" android:textSize="11sp" android:textStyle="bold" tools:text="FOR SALE" />
             </LinearLayout>
-
-            <!-- Title -->
-            <TextView
-                android:id="@+id/tv_detail_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:fontFamily="sans-serif-bold"
-                android:textColor="@color/text_primary"
-                android:textSize="17sp"
-                tools:text="Hercules 26T Mountain Bicycle with Disc Brakes" />
-
-            <!-- Location & Category Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tv_detail_category"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_pill_neutral"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="3dp"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    tools:text="Vehicles" />
-
-                <TextView
-                    android:id="@+id/tv_detail_area_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:textColor="@color/text_muted"
-                    android:textSize="12sp"
-                    tools:text="Kemmannu Road • 08 Sep 2026" />
+            <TextView android:id="@+id/tv_detail_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:fontFamily="sans-serif-bold" android:textColor="@color/text_primary" android:textSize="17sp" tools:text="Hercules 26T Mountain Bicycle with Disc Brakes" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <TextView android:id="@+id/tv_detail_category" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_pill_neutral" android:paddingHorizontal="8dp" android:paddingVertical="3dp" android:textColor="@color/text_secondary" android:textSize="11sp" tools:text="Vehicles" />
+                <TextView android:id="@+id/tv_detail_area_date" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:textColor="@color/text_muted" android:textSize="12sp" tools:text="Kemmannu Road • 08 Sep 2026" />
             </LinearLayout>
-
-            <!-- Seller Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                app:cardBackgroundColor="@color/surface_dim"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/border_green_soft"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
-
-                    <ImageView
-                        android:layout_width="38dp"
-                        android:layout_height="38dp"
-                        android:background="@drawable/bg_circle_green"
-                        android:padding="8dp"
-                        android:src="@drawable/ic_person"
-                        app:tint="@color/white" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/tv_detail_seller"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-bold"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp"
-                            tools:text="Sold by Arshad" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp"
-                            android:text="Verified Hoode Resident"
-                            android:textColor="@color/accent"
-                            android:textSize="11sp" />
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" app:cardBackgroundColor="@color/surface_dim" app:cardCornerRadius="12dp" app:cardElevation="0dp" app:strokeColor="@color/border_green_soft" app:strokeWidth="1dp" app:contentPadding="0dp" app:cardPreventCornerOverlap="false">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:padding="12dp">
+                    <ImageView android:layout_width="38dp" android:layout_height="38dp" android:background="@drawable/bg_circle_green" android:padding="8dp" android:src="@drawable/ic_person" app:tint="@color/white" />
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:id="@+id/tv_detail_seller" android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-bold" android:textColor="@color/text_primary" android:textSize="14sp" tools:text="Sold by Arshad" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:text="Verified Hoode Resident" android:textColor="@color/accent" android:textSize="11sp" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-
-            <!-- Description -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="DESCRIPTION"
-                android:textColor="@color/text_muted"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_detail_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:lineSpacingExtra="3dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp"
-                tools:text="Excellent condition with front suspension and dual disc brakes. Used occasionally for 6 months. Selling because moving out." />
-
-            <!-- ── Spinny-style 24-Hour Reservation Banner ── -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_detail_booking_info"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:visibility="gone"
-                tools:visibility="visible"
-                app:cardBackgroundColor="#FFFBEB"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                app:strokeColor="#F59E0B"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="12dp">
-
-                    <TextView
-                        android:id="@+id/tv_detail_booking_status"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-bold"
-                        android:textColor="#B45309"
-                        android:textSize="13sp"
-                        tools:text="🔒 Spinny Hold: Reserved • 22h 45m remaining" />
-
-                    <TextView
-                        android:id="@+id/tv_detail_booking_subtext"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
-                        android:textColor="#78350F"
-                        android:textSize="12sp"
-                        tools:text="Reserved exclusively. Product goes live automatically after 24h if not completed." />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="DESCRIPTION" android:textColor="@color/text_muted" android:textSize="11sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tv_detail_description" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:lineSpacingExtra="3dp" android:textColor="@color/text_secondary" android:textSize="14sp" tools:text="Excellent condition with front suspension and dual disc brakes. Used occasionally for 6 months. Selling because moving out." />
+            <com.google.android.material.card.MaterialCardView android:id="@+id/card_detail_booking_info" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:visibility="gone" tools:visibility="visible" app:cardBackgroundColor="@color/warning_soft" app:cardCornerRadius="12dp" app:cardElevation="0dp" app:strokeColor="@color/warning" app:strokeWidth="1dp" app:contentPadding="0dp" app:cardPreventCornerOverlap="false">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                    <TextView android:id="@+id/tv_detail_booking_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:fontFamily="sans-serif-bold" android:textColor="@color/warning" android:textSize="13sp" tools:text="🔒 Spinny Hold: Reserved • 22h 45m remaining" />
+                    <TextView android:id="@+id/tv_detail_booking_subtext" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:textColor="@color/warning" android:textSize="12sp" tools:text="Reserved exclusively. Product goes live automatically after 24h if not completed." />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-
-            <!-- Spinny-Style 24h Book Button in Detail -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_detail_book"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="14dp"
-                android:backgroundTint="@color/accent"
-                android:text="⚡ Book &amp; Hold for 24 Hours (Spinny-style)"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="13.5sp"
-                android:fontFamily="sans-serif-bold"
-                app:cornerRadius="12dp" />
-
-            <!-- Cancel Reservation Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_detail_cancel_booking"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="46dp"
-                android:layout_marginTop="8dp"
-                android:visibility="gone"
-                tools:visibility="gone"
-                android:text="Cancel My Reservation"
-                android:textAllCaps="false"
-                android:textColor="@color/danger"
-                android:textSize="13sp"
-                app:strokeColor="@color/danger"
-                app:cornerRadius="12dp" />
-
-            <!-- Seller Controls -->
-            <LinearLayout
-                android:id="@+id/ll_detail_seller_controls"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                tools:visibility="visible">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_detail_mark_sold"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_weight="1"
-                    android:text="Mark as Sold"
-                    android:textAllCaps="false"
-                    android:textColor="@color/text_primary"
-                    android:textSize="12.5sp"
-                    app:strokeColor="@color/border_green"
-                    app:cornerRadius="12dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_detail_delete"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="44dp"
-                    android:layout_marginStart="8dp"
-                    android:text="Remove Listing"
-                    android:textAllCaps="false"
-                    android:textColor="@color/danger"
-                    android:textSize="12sp" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btn_detail_book" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:backgroundTint="@color/accent" android:text="⚡ Book &amp; Hold for 24 Hours (Spinny-style)" android:textAllCaps="false" android:textColor="@color/white" android:textSize="13.5sp" android:fontFamily="sans-serif-bold" app:cornerRadius="12dp" android:minHeight="48dp" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btn_detail_cancel_booking" style="@style/Widget.Hoode.Button.Secondary" android:layout_width="match_parent" android:layout_height="46dp" android:layout_marginTop="8dp" android:visibility="gone" tools:visibility="gone" android:text="Cancel My Reservation" android:textAllCaps="false" android:textColor="@color/danger" android:textSize="13sp" app:strokeColor="@color/danger" app:cornerRadius="12dp" />
+            <LinearLayout android:id="@+id/ll_detail_seller_controls" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="horizontal" android:visibility="gone" tools:visibility="visible">
+                <com.google.android.material.button.MaterialButton android:id="@+id/btn_detail_mark_sold" style="@style/Widget.Hoode.Button.Secondary" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Mark as Sold" android:textAllCaps="false" android:textColor="@color/text_primary" android:textSize="12.5sp" app:strokeColor="@color/border_green" app:cornerRadius="12dp" android:minHeight="48dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btn_detail_delete" style="@style/Widget.Hoode.Button.Text" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Remove Listing" android:textAllCaps="false" android:textColor="@color/danger" android:textSize="12sp" android:minHeight="48dp" />
             </LinearLayout>
-
         </LinearLayout>
     </ScrollView>
-
-    <!-- Bottom Actions -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_call_seller"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_weight="1"
-            android:text="📞 Call Seller"
-            android:textColor="@color/accent"
-            app:cornerRadius="12dp"
-            app:strokeColor="@color/accent" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_chat_seller"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_marginStart="10dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/accent"
-            android:text="💬 Message"
-            android:textColor="@color/white"
-            app:cornerRadius="12dp" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:gravity="center_vertical" android:orientation="horizontal">
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_call_seller" style="@style/Widget.Hoode.Button.Secondary" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="📞 Call Seller" android:textColor="@color/accent" app:cornerRadius="12dp" app:strokeColor="@color/accent" android:minHeight="48dp" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_chat_seller" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_weight="1" android:backgroundTint="@color/accent" android:text="💬 Message" android:textColor="@color/white" app:cornerRadius="12dp" android:minHeight="48dp" />
     </LinearLayout>
-
 </LinearLayout>

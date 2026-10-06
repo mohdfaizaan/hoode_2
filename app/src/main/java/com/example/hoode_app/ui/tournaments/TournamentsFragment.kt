@@ -1,6 +1,7 @@
 package com.example.hoode_app.ui.tournaments
 
 import android.app.Dialog
+import com.example.hoode_app.ui.common.submitForReview
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -39,90 +40,55 @@ class TournamentsFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        binding.btnBack.setOnClickListener {
-            findNavController().navigateUp()
+    private var tournamentId:String?=null
+    private lateinit var selector:android.widget.Spinner
+    private fun visibleTournaments()=HoodeRepository.tournaments.value.filter{selectedSport=="All"||it.sport.equals(selectedSport,true)}
+    private fun selectedTournament()=visibleTournaments().find{it.id==tournamentId}
+    override fun onViewCreated(view:View,savedInstanceState:Bundle?) {
+        binding.btnBack.setOnClickListener{findNavController().navigateUp()}
+        binding.btnRegisterTeam.setOnClickListener{showRegisterTeamDialog()}
+        binding.btnHeroRegister.setOnClickListener{showRegisterTeamDialog()}
+        selector=android.widget.Spinner(requireContext()).apply{contentDescription="Choose a tournament"}
+        (binding.tvTournamentTitle.parent as android.widget.LinearLayout).addView(selector,0)
+        selector.onItemSelectedListener=object:android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent:android.widget.AdapterView<*>?,v:View?,position:Int,id:Long){tournamentId=visibleTournaments().getOrNull(position)?.id;render()}
+            override fun onNothingSelected(parent:android.widget.AdapterView<*>?){}
         }
-
-        binding.btnRegisterTeam.setOnClickListener {
-            showRegisterTeamDialog()
+        listOf(binding.chipSportAll to "All",binding.chipSportCricket to "Cricket",binding.chipSportFootball to "Football",binding.chipSportBadminton to "Badminton").forEach{(chip,sport)->
+            chip.setOnClickListener{selectedSport=sport;updateSelector()}
         }
-
-        binding.btnHeroRegister?.setOnClickListener {
-            showRegisterTeamDialog()
-        }
-
-        setupSportFilterChips()
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            HoodeRepository.standings.collectLatest { standingsList ->
-                binding.llStandingsContainer.removeAllViews()
-                standingsList.forEachIndexed { index, standing ->
-                    val rowBinding = ItemStandingRowBinding.inflate(layoutInflater, binding.llStandingsContainer, false)
-                    rowBinding.tvStandingRank.text = (index + 1).toString()
-                    rowBinding.tvStandingTeam.text = standing.teamName
-                    rowBinding.tvStandingPlayed.text = standing.played.toString()
-                    rowBinding.tvStandingWon.text = standing.won.toString()
-                    rowBinding.tvStandingLost.text = standing.lost.toString()
-                    rowBinding.tvStandingStats.text = "${standing.points} pts"
-                    rowBinding.tvStandingNrr.text = standing.netRunRate
-                    binding.llStandingsContainer.addView(rowBinding.root)
-                }
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            HoodeRepository.fixtures.collectLatest { fixturesList ->
-                binding.llFixturesContainer.removeAllViews()
-                for (fixture in fixturesList) {
-                    val cardBinding = ItemFixtureCardBinding.inflate(layoutInflater, binding.llFixturesContainer, false)
-                    cardBinding.tvFixtureRound.text = fixture.round
-                    cardBinding.tvFixtureTime.text = fixture.time
-                    cardBinding.tvFixtureTeamA.text = fixture.teamA
-                    cardBinding.tvFixtureTeamB.text = fixture.teamB
-                    cardBinding.tvFixtureVenue.text = fixture.venue
-                    if (fixture.scoreA != null) {
-                        cardBinding.tvFixtureScore.visibility = View.VISIBLE
-                        cardBinding.tvFixtureScore.text = "${fixture.teamA}: ${fixture.scoreA} • ${fixture.teamB}: ${fixture.scoreB}"
-                    } else {
-                        cardBinding.tvFixtureScore.visibility = View.GONE
-                    }
-                    binding.llFixturesContainer.addView(cardBinding.root)
-                }
-            }
-        }
+        viewLifecycleOwner.lifecycleScope.launch{HoodeRepository.tournaments.collectLatest{updateSelector()}}
+        viewLifecycleOwner.lifecycleScope.launch{HoodeRepository.fixtures.collectLatest{render()}}
+        viewLifecycleOwner.lifecycleScope.launch{HoodeRepository.standings.collectLatest{render()}}
     }
-
-    private fun setupSportFilterChips() {
-        val chips = listOf(
-            binding.chipSportAll to "All",
-            binding.chipSportCricket to "Cricket",
-            binding.chipSportFootball to "Football",
-            binding.chipSportBadminton to "Badminton"
-        )
-
-        for ((view, sport) in chips) {
-            view.setOnClickListener {
-                selectedSport = sport
-                for ((v, s) in chips) {
-                    if (s == selectedSport) {
-                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
-                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-                    } else {
-                        v.setBackgroundResource(R.drawable.bg_chip_unselected)
-                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
-                    }
-                }
-                if (sport != "Cricket" && sport != "All") {
-                    Toast.makeText(requireContext(), "$sport tournaments scheduled for next quarter!", Toast.LENGTH_SHORT).show()
-                }
-            }
+    private fun updateSelector() {
+        val choices=visibleTournaments();if(choices.none{it.id==tournamentId})tournamentId=choices.firstOrNull()?.id
+        selector.adapter=android.widget.ArrayAdapter(requireContext(),android.R.layout.simple_spinner_dropdown_item,choices.map{it.title})
+        selector.setSelection(choices.indexOfFirst{it.id==tournamentId}.coerceAtLeast(0));render()
+    }
+    private fun render() {
+        if(_binding==null)return
+        val tournament=selectedTournament()
+        binding.tvTournamentTitle.text=tournament?.title ?: "No tournament announced"
+        binding.tvTournamentVenue.text=tournament?.let{"${it.venue} · ${it.dates} · ${it.format}"} ?: "The community team will publish upcoming tournaments here."
+        binding.btnRegisterTeam.isEnabled=tournament!=null;binding.btnHeroRegister.isEnabled=tournament!=null
+        binding.llStandingsContainer.removeAllViews();binding.llFixturesContainer.removeAllViews()
+        HoodeRepository.standings.value.filter{it.tournamentId==tournamentId}.forEachIndexed{index,standing->
+            val row=ItemStandingRowBinding.inflate(layoutInflater,binding.llStandingsContainer,false)
+            row.tvStandingRank.text=(index+1).toString();row.tvStandingTeam.text=standing.teamName;row.tvStandingPlayed.text=standing.played.toString()
+            row.tvStandingWon.text=standing.won.toString();row.tvStandingLost.text=standing.lost.toString();row.tvStandingStats.text="${standing.points} pts";row.tvStandingNrr.text=standing.netRunRate
+            binding.llStandingsContainer.addView(row.root)
+        }
+        HoodeRepository.fixtures.value.filter{it.tournamentId==tournamentId}.forEach{fixture->
+            val card=ItemFixtureCardBinding.inflate(layoutInflater,binding.llFixturesContainer,false)
+            card.tvFixtureRound.text=fixture.round;card.tvFixtureTime.text=fixture.time;card.tvFixtureTeamA.text=fixture.teamA;card.tvFixtureTeamB.text=fixture.teamB;card.tvFixtureVenue.text=fixture.venue
+            card.tvFixtureScore.visibility=if(fixture.scoreA==null)View.GONE else View.VISIBLE;card.tvFixtureScore.text="${fixture.teamA}: ${fixture.scoreA} · ${fixture.teamB}: ${fixture.scoreB}"
+            binding.llFixturesContainer.addView(card.root)
         }
     }
 
     private fun showRegisterTeamDialog() {
+        val tournament=selectedTournament() ?: return
         val dialog = Dialog(requireContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar)
         val dialogBinding = DialogFormRegisterTeamBinding.inflate(layoutInflater)
         dialog.setContentView(dialogBinding.root)
@@ -169,9 +135,7 @@ class TournamentsFragment : Fragment() {
             }
             dialogBinding.tilCaptainPhone.error = null
 
-            HoodeRepository.registerTournamentTeam(teamName)
-            Toast.makeText(requireContext(), "Team '$teamName' registered for the Tournament!", Toast.LENGTH_LONG).show()
-            dialog.dismiss()
+            submitForReview(dialogBinding.btnSubmitTeam,dialog,privateRequest=true) { HoodeRepository.registerTournamentTeam(teamName,captainName,phone,tournament.id) }
         }
 
         dialog.show()

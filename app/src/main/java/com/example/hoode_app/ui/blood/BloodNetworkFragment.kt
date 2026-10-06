@@ -2,6 +2,7 @@ package com.example.hoode_app.ui.blood
 
 import android.content.Intent
 import android.net.Uri
+import com.example.hoode_app.ui.common.submitForReview
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -80,7 +81,7 @@ class BloodNetworkFragment : Fragment() {
                 for ((v, g) in chips) {
                     if (g == selectedGroup) {
                         v.setBackgroundResource(R.drawable.bg_chip_selected)
-                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.border_primary))
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.accent))
                     } else {
                         v.setBackgroundResource(R.drawable.bg_chip_unselected)
                         v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
@@ -103,7 +104,7 @@ class BloodNetworkFragment : Fragment() {
 
         if (filtered.isEmpty()) {
             val emptyTv = TextView(requireContext()).apply {
-                text = "No urgent requests for $selectedGroup blood at this time.\nAlhamdulillah, supplies are stable."
+                text = "No requests to show for this blood group. Check another group or refresh the community feed."
                 textSize = 13f
                 setPadding(24, 48, 24, 24)
                 gravity = android.view.Gravity.CENTER
@@ -194,22 +195,13 @@ class BloodNetworkFragment : Fragment() {
 
             val newReq = BloodRequest(
                 bloodGroup = selectedBlood,
+                patientNamePlaceholder=patient.ifBlank{"Patient in need"},
                 hospital = hospital,
                 unitsNeeded = units,
                 neededBy = "Immediate Emergency",
                 coordinatorPhone = phone
             )
-            formBinding.btnSubmitBloodReq.isEnabled = false
-            viewLifecycleOwner.lifecycleScope.launch {
-                val result = HoodeRepository.postBloodRequest(newReq)
-                formBinding.btnSubmitBloodReq.isEnabled = true
-                result.onSuccess {
-            Toast.makeText(requireContext(), "Emergency blood call ($selectedBlood) broadcasted to verified donors!", Toast.LENGTH_LONG).show()
-            dialog.dismiss()
-                }.onFailure { error ->
-                    Toast.makeText(requireContext(), error.message ?: "Could not submit. Please retry.", Toast.LENGTH_LONG).show()
-                }
-            }
+            submitForReview(formBinding.btnSubmitBloodReq,dialog) { HoodeRepository.postBloodRequest(newReq) }
         }
 
         dialog.show()
@@ -283,9 +275,7 @@ class BloodNetworkFragment : Fragment() {
             }
             formBinding.tilDonorPhone.error = null
 
-            HoodeRepository.registerDonor(DonorRegistration(name = name, bloodGroup = selectedBlood, area = if (area.isNotBlank()) area else "Hoode", phone = phone))
-            Toast.makeText(requireContext(), "Thank you! Registered as a life-saving donor ($selectedBlood).", Toast.LENGTH_LONG).show()
-            dialog.dismiss()
+            submitForReview(formBinding.btnSubmitDonor,dialog) { HoodeRepository.registerDonor(DonorRegistration(name = name, bloodGroup = selectedBlood, area = if (area.isNotBlank()) area else "Hoode", phone = phone)) }
         }
 
         dialog.show()

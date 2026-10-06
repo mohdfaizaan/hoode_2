@@ -1,5 +1,8 @@
 package com.example.hoode_app.ui.polls
 
+import com.example.hoode_app.ui.common.submitForReview
+import com.example.hoode_app.ui.common.saveAction
+import com.example.hoode_app.ui.common.showEmptyContent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -49,6 +52,7 @@ class PollsFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             HoodeRepository.polls.collectLatest { pollsList ->
                 binding.llPollsContainer.removeAllViews()
+        if (pollsList.isEmpty()) binding.llPollsContainer.showEmptyContent("No polls to show")
                 for (poll in pollsList) {
                     val cardBinding = ItemPollCardBinding.inflate(layoutInflater, binding.llPollsContainer, false)
                     cardBinding.tvPollQuestion.text = poll.question
@@ -79,8 +83,7 @@ class PollsFragment : Fragment() {
                     } else {
                         cardBinding.btnVoteSubmit.setOnClickListener {
                             if (selectedOptionId != null) {
-                                HoodeRepository.castVote(poll.id, selectedOptionId!!)
-                                Toast.makeText(requireContext(), "Vote recorded. Thank you for participating!", Toast.LENGTH_SHORT).show()
+                                saveAction(cardBinding.btnVoteSubmit,"Vote saved.") { HoodeRepository.castVote(poll.id, selectedOptionId!!) }
                             } else {
                                 Toast.makeText(requireContext(), "Please select an option first.", Toast.LENGTH_SHORT).show()
                             }
@@ -95,6 +98,7 @@ class PollsFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             HoodeRepository.civicIssues.collectLatest { issues ->
                 binding.llCivicIssuesContainer.removeAllViews()
+        if (issues.isEmpty()) binding.llCivicIssuesContainer.showEmptyContent("No civic reports to show")
                 for (issue in issues) {
                     val issueBinding = ItemCivicIssueCardBinding.inflate(layoutInflater, binding.llCivicIssuesContainer, false)
                     issueBinding.tvIssueCategory.text = issue.category
@@ -108,8 +112,7 @@ class PollsFragment : Fragment() {
                         issueBinding.btnEndorseIssue.isEnabled = false
                     } else {
                         issueBinding.btnEndorseIssue.setOnClickListener {
-                            HoodeRepository.endorseCivicIssue(issue.id)
-                            Toast.makeText(requireContext(), "Endorsed issue: ${issue.title}", Toast.LENGTH_SHORT).show()
+                            saveAction(issueBinding.btnEndorseIssue,"Endorsement saved.") { HoodeRepository.endorseCivicIssue(issue.id) }
                         }
                     }
 
@@ -175,13 +178,7 @@ class PollsFragment : Fragment() {
             }
             formBinding.tilCivicLocation.error = null
 
-            HoodeRepository.submitCivicIssue(
-                title = title,
-                category = selectedCategory,
-                location = loc
-            )
-            Toast.makeText(requireContext(), "Civic issue reported to Hoode board!", Toast.LENGTH_SHORT).show()
-            dialog.dismiss()
+            submitForReview(formBinding.btnSubmitCivic,dialog) { HoodeRepository.submitCivicIssue(title,selectedCategory,loc,formBinding.etCivicDetails.text.toString().trim()) }
         }
 
         dialog.show()

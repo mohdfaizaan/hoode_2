@@ -1,104 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  Root is MaterialCardView so cardCornerRadius clips all children
-  including the banner image — this eliminates the corner glitch
-  when swiping between carousel slides.
--->
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clipToOutline="true"
-    android:clipChildren="true"
-    android:outlineProvider="background"
-    app:cardCornerRadius="20dp"
+    app:cardCornerRadius="24dp"
     app:cardElevation="0dp"
-    app:cardPreventCornerOverlap="true"
-    app:strokeWidth="0dp">
-
+        app:cardPreventCornerOverlap="false"
+        app:cardUseCompatPadding="false"
+        app:contentPadding="0dp"
+        android:clipToOutline="true"
+    app:strokeWidth="0dp"
+    app:cardBackgroundColor="@color/dashboard_surface"
+    android:foreground="?attr/selectableItemBackground"
+    android:focusable="true">
     <FrameLayout
         android:id="@+id/fl_slide_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToOutline="true"
-        android:background="@drawable/bg_carousel_gradient">
-
-        <!-- Remote Image Loaded from Internet -->
+        android:background="@drawable/bg_dashboard_hero">
         <ImageView
             android:id="@+id/iv_carousel_bg"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:contentDescription="Sponsored Visual" />
-
-        <!-- Dark Gradient Scrim Overlay for Readability -->
+            android:importantForAccessibility="no" />
         <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/bg_carousel_gradient"
-            android:alpha="0.82" />
-
+            android:background="@drawable/bg_sponsor_scrim" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
             android:orientation="vertical"
-            android:paddingStart="20dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="24dp"
-            android:paddingEnd="110dp">
-
+            android:layout_gravity="bottom"
+            android:padding="22dp">
+            <TextView
+                android:id="@+id/tv_advertiser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="11sp"
+                android:textColor="@color/dashboard_on_navy_secondary"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:ellipsize="end" />
             <TextView
                 android:id="@+id/tv_headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_title"
-                android:fontFamily="sans-serif-medium"
+                android:textSize="27sp"
+                android:textColor="@color/dashboard_on_navy"
+                android:fontFamily="sans-serif-condensed"
+                android:textStyle="bold"
                 android:maxLines="2"
                 android:ellipsize="end"
-                tools:text="Welcome to Hoode Connect" />
-
+                android:layout_marginTop="8dp" />
             <TextView
                 android:id="@+id/tv_subheadline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_xs"
-                android:textColor="#CCFFFFFF"
-                android:textSize="@dimen/text_sm"
+                android:textSize="13sp"
+                android:textColor="@color/dashboard_on_navy_secondary"
+                android:fontFamily="sans-serif"
                 android:maxLines="2"
                 android:ellipsize="end"
-                tools:text="Your community, connected" />
-
-            <TextView
-                android:id="@+id/tv_advertiser"
+                android:layout_marginTop="6dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_cta"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_sm"
-                android:textColor="#99FFFFFF"
-                android:textSize="@dimen/text_xs"
-                android:fontFamily="sans-serif-medium"
-                tools:text="Hoode Community Services" />
+                android:text="@string/dashboard_view_details"
+                android:textColor="@color/dashboard_ink"
+                app:backgroundTint="@color/dashboard_amber"
+                app:cornerRadius="14dp"
+                android:minHeight="48dp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_marginTop="12dp" />
         </LinearLayout>
-
-        <!-- CTA button in bottom right -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_cta"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginEnd="@dimen/spacing_lg"
-            android:layout_marginBottom="@dimen/spacing_lg"
-            android:visibility="visible"
-            style="@style/Widget.Hoode.Button.Accent"
-            android:textSize="@dimen/text_xs"
-            android:minHeight="@dimen/button_height_sm"
-            android:paddingHorizontal="12dp"
-            android:text="Know More"
-            tools:text="Know More" />
-
     </FrameLayout>
-
 </com.google.android.material.card.MaterialCardView>

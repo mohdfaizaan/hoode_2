@@ -1,211 +1,33 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/bg_card_bordered"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <!-- Top Bar with Back/Close -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:fontFamily="sans-serif-bold"
-            android:text="Community News Desk"
-            android:textColor="@color/text_primary"
-            android:textSize="17sp" />
-
-        <FrameLayout
-            android:id="@+id/btn_close_article"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless">
-
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_close"
-                app:tint="@color/text_secondary" />
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_bordered" android:orientation="vertical" android:padding="16dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="sans-serif-bold" android:text="Community News Desk" android:textColor="@color/text_primary" android:textSize="17sp" />
+        <FrameLayout android:id="@+id/btn_close_article" android:layout_width="36dp" android:layout_height="48dp" android:background="?attr/selectableItemBackgroundBorderless" android:minHeight="48dp" android:minWidth="48dp" android:focusable="true" android:clickable="true" android:foreground="?attr/selectableItemBackground">
+            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:layout_gravity="center" android:src="@drawable/ic_close" app:tint="@color/text_secondary" />
         </FrameLayout>
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginVertical="10dp"
-        android:background="@color/border_faint" />
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxHeight="520dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- Hero News Image -->
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/iv_article_image"
-                android:layout_width="match_parent"
-                android:layout_height="190dp"
-                android:background="@drawable/bg_gallery_luxury_gradient"
-                android:scaleType="centerCrop"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent" />
-
-            <!-- Category Pill & Date -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tv_article_type"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_pill_accent"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="4dp"
-                    android:textColor="@color/accent_ink"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    tools:text="OFFICIAL UPDATE" />
-
-                <TextView
-                    android:id="@+id/tv_article_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:textColor="@color/text_muted"
-                    android:textSize="12sp"
-                    tools:text="09 Sep 2026 • Hoode" />
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginVertical="10dp" android:background="@color/border_faint" />
+    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:maxHeight="520dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+            <com.google.android.material.imageview.ShapeableImageView android:id="@+id/iv_article_image" android:layout_width="match_parent" android:layout_height="190dp" android:background="@drawable/bg_gallery_luxury_gradient" android:scaleType="centerCrop" app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <TextView android:id="@+id/tv_article_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_pill_accent" android:paddingHorizontal="10dp" android:paddingVertical="4dp" android:textColor="@color/accent_ink" android:textSize="11sp" android:textStyle="bold" tools:text="OFFICIAL UPDATE" />
+                <TextView android:id="@+id/tv_article_date" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:textColor="@color/text_muted" android:textSize="12sp" tools:text="09 Sep 2026 • Hoode" />
             </LinearLayout>
-
-            <!-- Headline -->
-            <TextView
-                android:id="@+id/tv_article_headline"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:fontFamily="sans-serif-black"
-                android:lineSpacingExtra="3dp"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp"
-                tools:text="New Bengre–Hoode Coastal Seawall Project Approved" />
-
-            <!-- Verifier Badge Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:cardBackgroundColor="@color/surface_dim"
-                app:cardCornerRadius="10dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/border_green_soft"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="10dp">
-
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@drawable/ic_check"
-                        app:tint="@color/accent" />
-
-                    <TextView
-                        android:id="@+id/tv_article_verifier"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
-                        android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/accent_dark"
-                        android:textSize="12sp"
-                        tools:text="Verified by: District Info Center" />
+            <TextView android:id="@+id/tv_article_headline" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:fontFamily="sans-serif-black" android:lineSpacingExtra="3dp" android:textColor="@color/text_primary" android:textSize="18sp" tools:text="New Bengre–Hoode Coastal Seawall Project Approved" />
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" app:cardBackgroundColor="@color/surface_dim" app:cardCornerRadius="10dp" app:cardElevation="0dp" app:strokeColor="@color/border_green_soft" app:strokeWidth="1dp" app:contentPadding="0dp" app:cardPreventCornerOverlap="false">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:padding="10dp">
+                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_check" app:tint="@color/accent" />
+                    <TextView android:id="@+id/tv_article_verifier" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:fontFamily="sans-serif-medium" android:textColor="@color/accent_dark" android:textSize="12sp" tools:text="Verified by: District Info Center" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-
-            <!-- Article Body -->
-            <TextView
-                android:id="@+id/tv_article_body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:lineSpacingExtra="5dp"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                tools:text="State fisheries and ports department sanctions ₹4.2 crore for sea erosion prevention works. Works slated to commence post-monsoon in October 2026." />
-
-            <!-- Sources List -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="OFFICIAL SOURCES"
-                android:textColor="@color/text_muted"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_article_sources"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:lineSpacingExtra="3dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                tools:text="• Udupi District Information Dept\n• Coastal Development Authority" />
-
+            <TextView android:id="@+id/tv_article_body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:lineSpacingExtra="5dp" android:textColor="@color/text_primary" android:textSize="14sp" tools:text="State fisheries and ports department sanctions ₹4.2 crore for sea erosion prevention works. Works slated to commence post-monsoon in October 2026." />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="OFFICIAL SOURCES" android:textColor="@color/text_muted" android:textSize="11sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tv_article_sources" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:lineSpacingExtra="3dp" android:textColor="@color/text_secondary" android:textSize="12sp" tools:text="• Udupi District Information Dept\n• Coastal Development Authority" />
         </LinearLayout>
     </ScrollView>
-
-    <!-- Bottom Actions -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_share_article"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_weight="1"
-            android:text="Share News"
-            android:textColor="@color/accent"
-            app:cornerRadius="12dp"
-            app:strokeColor="@color/accent" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_done_article"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_marginStart="10dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/accent"
-            android:text="Done"
-            android:textColor="@color/white"
-            app:cornerRadius="12dp" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center_vertical" android:orientation="horizontal">
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_share_article" style="@style/Widget.Hoode.Button.Secondary" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Share News" android:textColor="@color/accent" app:cornerRadius="12dp" app:strokeColor="@color/accent" android:minHeight="48dp" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_done_article" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_weight="1" android:backgroundTint="@color/accent" android:text="Done" android:textColor="@color/white" app:cornerRadius="12dp" android:minHeight="48dp" />
     </LinearLayout>
-
 </LinearLayout>

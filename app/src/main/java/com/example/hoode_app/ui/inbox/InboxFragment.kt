@@ -1,238 +1,101 @@
 package com.example.hoode_app.ui.inbox
 
-import android.app.AlertDialog
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
-import androidx.core.content.ContextCompat
+import android.view.*
+import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.hoode_app.R
 import com.example.hoode_app.databinding.FragmentInboxBinding
 import com.example.hoode_app.databinding.ItemConversationCardBinding
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.hoodeconnect.backend.BackendSession
+import com.hoodeconnect.backend.CommunityApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import org.json.JSONArray
+import org.json.JSONObject
+import java.util.UUID
 
-class InboxFragment : Fragment() {
-
-    private var _binding: FragmentInboxBinding? = null
-    private val binding get() = _binding!!
-
-    data class CommunityChat(
-        val id: String,
-        val senderName: String,
-        val itemTitle: String,
-        var lastMessage: String,
-        val timestamp: String,
-        val category: String, // "Marketplace", "Blood Network", "Jobs", "Support"
-        var isUnread: Boolean,
-        val messages: MutableList<Pair<String, String>> // (sender, text)
-    )
-
-    private val conversations = mutableListOf(
-        CommunityChat(
-            id = "chat_01",
-            senderName = "Ahmed K.",
-            itemTitle = "Teakwood Study Table",
-            lastMessage = "Is the price negotiable? Can I inspect it near Hoode Beach road?",
-            timestamp = "10:45 AM",
-            category = "Marketplace",
-            isUnread = true,
-            messages = mutableListOf(
-                "Ahmed K." to "Assalamu Alaikum, is this study table still available?",
-                "You" to "Wa Alaikum Assalam, yes it is in excellent condition.",
-                "Ahmed K." to "Is the price negotiable? Can I inspect it near Hoode Beach road?"
-            )
-        ),
-        CommunityChat(
-            id = "chat_02",
-            senderName = "Dr. Farhan",
-            itemTitle = "Manipal Hospital Blood Need",
-            lastMessage = "Two B+ volunteer donors confirmed. Thank you for coordinating!",
-            timestamp = "Yesterday",
-            category = "Blood Network",
-            isUnread = true,
-            messages = mutableListOf(
-                "You" to "Sent broadcast alert to 14 verified B+ donors in Hoode.",
-                "Dr. Farhan" to "Two B+ volunteer donors confirmed. Thank you for coordinating!"
-            )
-        ),
-        CommunityChat(
-            id = "chat_03",
-            senderName = "Coastal Fisheries",
-            itemTitle = "Fresh Catch Order #HF-209",
-            lastMessage = "Your seafood parcel is dispatched. Estimated arrival in 20 minutes.",
-            timestamp = "Sep 09",
-            category = "Marketplace",
-            isUnread = false,
-            messages = mutableListOf(
-                "Coastal Fisheries" to "Order #HF-209 received: 2kg Kingfish & 1kg Prawns.",
-                "Coastal Fisheries" to "Your seafood parcel is dispatched. Estimated arrival in 20 minutes."
-            )
-        ),
-        CommunityChat(
-            id = "chat_04",
-            senderName = "Tournament Desk",
-            itemTitle = "Bengre Strikers Roster",
-            lastMessage = "Team registration accepted for Group B fixtures.",
-            timestamp = "Sep 07",
-            category = "Jobs",
-            isUnread = false,
-            messages = mutableListOf(
-                "You" to "Submitted team roster for 11 players + 3 reserves.",
-                "Tournament Desk" to "Team registration accepted for Group B fixtures."
-            )
-        ),
-        CommunityChat(
-            id = "chat_05",
-            senderName = "Civic Help Desk",
-            itemTitle = "Bengre Jetty Streetlights",
-            lastMessage = "MESCOM engineer assigned. Replacement lamps installed.",
-            timestamp = "Sep 04",
-            category = "Support",
-            isUnread = false,
-            messages = mutableListOf(
-                "You" to "Reported 3 non-functioning sodium vapor streetlights on Jetty Road.",
-                "Civic Help Desk" to "MESCOM engineer assigned. Replacement lamps installed."
-            )
-        )
-    )
-
-    private var activeCategoryFilter = "All"
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentInboxBinding.inflate(inflater, container, false)
-        return binding.root
+class InboxFragment:Fragment() {
+    private var _binding:FragmentInboxBinding?=null
+    private val binding get()=_binding!!
+    private val threads=mutableListOf<JSONObject>()
+    private var job:Job?=null
+    private var more=false
+    private var activeDialog:androidx.appcompat.app.AlertDialog?=null
+    override fun onCreateView(inflater:LayoutInflater,container:ViewGroup?,state:Bundle?):View {
+        _binding=FragmentInboxBinding.inflate(inflater,container,false);return binding.root
     }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        setupFilterChips()
-        renderConversations()
-    }
-
-    private fun setupFilterChips() {
-        binding.chipGroupInbox.setOnCheckedStateChangeListener { _, checkedIds ->
-            activeCategoryFilter = when {
-                checkedIds.contains(R.id.chip_marketplace) -> "Marketplace"
-                checkedIds.contains(R.id.chip_blood) -> "Blood Network"
-                checkedIds.contains(R.id.chip_jobs) -> "Jobs"
-                checkedIds.contains(R.id.chip_support) -> "Support"
-                else -> "All"
-            }
-            renderConversations()
-        }
-    }
-
-    private fun renderConversations() {
-        binding.llConversations.removeAllViews()
-
-        val filtered = if (activeCategoryFilter == "All") {
-            conversations
-        } else {
-            conversations.filter { it.category.equals(activeCategoryFilter, ignoreCase = true) }
-        }
-
-        // Update unread counter badge
-        val unreadCount = conversations.count { it.isUnread }
-        binding.tvUnreadCounter.text = if (unreadCount > 0) "$unreadCount Unread" else "All Caught Up"
-
-        if (filtered.isEmpty()) {
-            binding.emptyState.visibility = View.VISIBLE
-        } else {
-            binding.emptyState.visibility = View.GONE
-            for (chat in filtered) {
-                val cardBinding = ItemConversationCardBinding.inflate(layoutInflater, binding.llConversations, false)
-
-                cardBinding.tvSenderName.text = "${chat.senderName} • ${chat.itemTitle}"
-                cardBinding.tvMessagePreview.text = chat.lastMessage
-                cardBinding.tvMessageTime.text = chat.timestamp
-                cardBinding.tvContextTag.text = chat.category
-                cardBinding.indicatorUnread.visibility = if (chat.isUnread) View.VISIBLE else View.GONE
-
-                // Icon selection based on category
-                when (chat.category) {
-                    "Marketplace" -> {
-                        cardBinding.ivSenderIcon.setImageResource(R.drawable.ic_classified)
-                    }
-                    "Blood Network" -> {
-                        cardBinding.ivSenderIcon.setImageResource(R.drawable.ic_blood)
-                        cardBinding.flIconContainer.setBackgroundResource(R.drawable.bg_pill_danger)
-                    }
-                    "Jobs" -> {
-                        cardBinding.ivSenderIcon.setImageResource(R.drawable.ic_jobs)
-                    }
-                    else -> {
-                        cardBinding.ivSenderIcon.setImageResource(R.drawable.ic_poll)
-                    }
-                }
-
-                cardBinding.root.setOnClickListener {
-                    openChatDialog(chat)
-                }
-
-                binding.llConversations.addView(cardBinding.root)
+    override fun onViewCreated(view:View,state:Bundle?) { binding.chipGroupInbox.visibility=View.GONE }
+    override fun onResume(){super.onResume();load(false)}
+    private fun button(title:String,action:()->Unit)=MaterialButton(requireContext()).apply{text=title;setOnClickListener{action()}}
+    private fun load(append:Boolean) {
+        job?.cancel();binding.tvUnreadCounter.text="Loading…"
+        job=viewLifecycleOwner.lifecycleScope.launch {
+            CommunityApi.rpc("hoode_inbox",JSONObject().put("page_offset",if(append)threads.size else 0)).onSuccess { raw->
+                val rows=JSONArray(raw);if(!append)threads.clear();repeat(rows.length()){threads.add(rows.getJSONObject(it))};more=rows.length()==30
+                render();binding.tvUnreadCounter.text="${threads.size} conversations${if(more)" +" else ""}"
+            }.onFailure {
+                render();binding.tvUnreadCounter.text="Could not refresh"
+                binding.llConversations.addView(TextView(requireContext()).apply{text=it.message ?: "Unable to load messages";setTextColor(requireContext().getColor(R.color.text_primary))})
             }
         }
     }
-
-    private fun openChatDialog(chat: CommunityChat) {
-        chat.isUnread = false
-        renderConversations()
-
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.fragment_inbox, null)
-        val container = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(48, 36, 48, 24)
+    private fun render() {
+        binding.llConversations.removeAllViews();binding.emptyState.visibility=if(threads.isEmpty())View.VISIBLE else View.GONE
+        binding.llConversations.addView(button("Refresh messages"){load(false)})
+        threads.forEach { thread->
+            val card=ItemConversationCardBinding.inflate(layoutInflater,binding.llConversations,false)
+            card.tvSenderName.text=thread.optString("peer_name");card.tvMessagePreview.text=thread.optString("body")
+            card.tvMessageTime.text=thread.optString("created_at").take(10);card.tvContextTag.text=thread.optString("title")
+            card.indicatorUnread.visibility=View.GONE;card.ivSenderIcon.setImageResource(R.drawable.ic_classified)
+            card.root.setOnClickListener{openThread(thread)};binding.llConversations.addView(card.root)
         }
-
-        // Messages transcript
-        val tvTranscript = TextView(requireContext()).apply {
-            val sb = StringBuilder()
-            chat.messages.forEach { (sender, text) ->
-                sb.append("• $sender:\n  $text\n\n")
-            }
-            text = sb.toString()
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-            textSize = 14f
-            setLineSpacing(4f, 1f)
-        }
-        container.addView(tvTranscript)
-
-        // Reply input
-        val etReply = EditText(requireContext()).apply {
-            hint = "Write a reply to ${chat.senderName}..."
-            setBackgroundResource(R.drawable.bg_search_bar)
-            setPadding(36, 28, 36, 28)
-            textSize = 14f
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-        }
-        container.addView(etReply)
-
-        AlertDialog.Builder(requireContext())
-            .setTitle("${chat.senderName} (${chat.itemTitle})")
-            .setView(container)
-            .setPositiveButton("Send Reply") { _, _ ->
-                val replyText = etReply.text.toString().trim()
-                if (replyText.isNotBlank()) {
-                    chat.messages.add("You" to replyText)
-                    chat.lastMessage = replyText
-                    renderConversations()
-                    Toast.makeText(requireContext(), "Reply sent to ${chat.senderName}", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .setNegativeButton("Close", null)
-            .show()
+        if(more)binding.llConversations.addView(button("Load more conversations"){load(true)})
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun openThread(thread:JSONObject) {
+        val box=LinearLayout(requireContext()).apply{orientation=LinearLayout.VERTICAL;setPadding(32,16,32,16)}
+        val status=TextView(requireContext()).apply{setTextColor(requireContext().getColor(R.color.text_secondary));accessibilityLiveRegion=View.ACCESSIBILITY_LIVE_REGION_POLITE}
+        val transcript=LinearLayout(requireContext()).apply{orientation=LinearLayout.VERTICAL}
+        val scroll=ScrollView(requireContext()).apply{addView(transcript)}
+        box.addView(status);box.addView(scroll,LinearLayout.LayoutParams(-1,0,1f))
+        val messages=mutableListOf<JSONObject>();var offset=0;var loading=false
+        val older=button("Load earlier messages"){};box.addView(older)
+        val input=EditText(requireContext()).apply{hint="Write a reply";maxLines=4;filters=arrayOf(android.text.InputFilter.LengthFilter(2000));inputType=android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE}
+        box.addView(input)
+        val send=button("Send reply"){};box.addView(send)
+        var messageId=UUID.randomUUID().toString()
+        fun loadMessages(append:Boolean) {
+            if(loading)return
+            loading=true;older.isEnabled=false;status.text="Loading messages…"
+            viewLifecycleOwner.lifecycleScope.launch {
+                CommunityApi.rpc("hoode_message_thread",JSONObject().put("listing_id",thread.getString("item_id")).put("peer_id",thread.getString("peer_id")).put("page_offset",if(append)offset else 0))
+                    .onSuccess { raw->val rows=JSONArray(raw);if(!append){messages.clear();offset=0};repeat(rows.length()){messages.add(rows.getJSONObject(it))};offset+=rows.length()
+                        transcript.removeAllViews();messages.asReversed().forEach { m->transcript.addView(TextView(requireContext()).apply {
+                            text="${if(m.optBoolean("is_mine"))"You" else thread.optString("peer_name")} · ${m.optString("created_at").take(16).replace('T',' ')}\n${m.optString("body")}\n"
+                            textSize=15f;setTextColor(requireContext().getColor(R.color.text_primary));setPadding(0,12,0,12)
+                        }) };older.visibility=if(rows.length()==50)View.VISIBLE else View.GONE;status.text="Private conversation"
+                    }.onFailure {status.text=it.message ?: "Could not load messages. Retry.";older.visibility=View.VISIBLE;older.text="Retry loading"}
+                loading=false;older.isEnabled=true
+            }
+        }
+        older.setOnClickListener {loadMessages(messages.isNotEmpty())}
+        send.setOnClickListener {
+            val body=input.text.toString().trim();if(body.isBlank()){input.error="Enter a message";return@setOnClickListener}
+            send.isEnabled=false;input.isEnabled=false;status.text="Sending…"
+            viewLifecycleOwner.lifecycleScope.launch {
+                CommunityApi.safely {CommunityApi.request("marketplace_messages?on_conflict=id","POST",JSONObject().put("id",messageId)
+                    .put("item_id",thread.getString("item_id")).put("sender_id",BackendSession.userId).put("recipient_id",thread.getString("peer_id")).put("body",body),"resolution=ignore-duplicates,return=representation")}
+                    .onSuccess {input.text.clear();messageId=UUID.randomUUID().toString();loadMessages(false);load(false)}
+                    .onFailure {status.text=it.message ?: "Could not send. Your reply is still here."}
+                send.isEnabled=true;input.isEnabled=true
+            }
+        }
+        activeDialog=MaterialAlertDialogBuilder(requireContext()).setTitle(thread.optString("title")).setView(box).setNegativeButton("Close",null).create()
+        activeDialog?.show();activeDialog?.window?.setLayout((resources.displayMetrics.widthPixels*0.94).toInt(),(resources.displayMetrics.heightPixels*0.85).toInt())
+        loadMessages(false)
     }
+    override fun onDestroyView(){job?.cancel();activeDialog?.dismiss();activeDialog=null;super.onDestroyView();_binding=null}
 }

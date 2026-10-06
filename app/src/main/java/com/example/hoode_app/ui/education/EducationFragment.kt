@@ -1,5 +1,6 @@
 package com.example.hoode_app.ui.education
 
+import com.example.hoode_app.ui.common.showEmptyContent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -37,6 +38,7 @@ class EducationFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             HoodeRepository.educationOfferings.collectLatest { list ->
                 binding.llEducationContainer.removeAllViews()
+                if (list.isEmpty()) binding.llEducationContainer.showEmptyContent("No learning opportunities to show")
                 for (item in list) {
                     val cardBinding = ItemEducationCardBinding.inflate(layoutInflater, binding.llEducationContainer, false)
                     cardBinding.tvEduCategory.text = item.category

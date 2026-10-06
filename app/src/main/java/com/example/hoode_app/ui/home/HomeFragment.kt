@@ -1,238 +1,303 @@
 package com.example.hoode_app.ui.home
 
+import android.animation.ValueAnimator
+import android.app.Dialog
+import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
+import android.view.Window
+import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
-import com.example.hoode_app.R
-import com.example.hoode_app.MainActivity
-import android.app.Dialog
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.view.Window
 import coil.load
+import com.example.hoode_app.MainActivity
+import com.example.hoode_app.R
 import com.example.hoode_app.data.repository.HoodeRepository
 import com.example.hoode_app.databinding.DialogSponsoredDetailBinding
 import com.example.hoode_app.databinding.FragmentHomeBinding
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
 class HomeFragment : Fragment() {
-
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private var currentSlides: List<CarouselSlide> = emptyList()
+    private var noticeboard: List<HomeUpdateItem> = emptyList()
+    private var selectedFilter = R.id.chip_all
+    private var refreshJob: Job? = null
+    private var activeDialog: Dialog? = null
 
-    // Carousel auto-advance
-    private val autoAdvanceHandler = Handler(Looper.getMainLooper())
-    private val autoAdvanceRunnable = object : Runnable {
-        override fun run() {
-            val currentItem = binding.carouselPager.currentItem
-            val count = binding.carouselPager.adapter?.itemCount ?: CAROUSEL_SLIDE_COUNT
-            val nextItem = if (currentItem >= count - 1) 0 else currentItem + 1
-            binding.carouselPager.setCurrentItem(nextItem, true)
-            autoAdvanceHandler.postDelayed(this, CAROUSEL_INTERVAL_MS)
-        }
-    }
-
-    companion object {
-        private const val CAROUSEL_SLIDE_COUNT = 5
-        private const val CAROUSEL_INTERVAL_MS = 3000L
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupGreeting()
-        setupDate()
-        setupAirtelNavigation()
-        setupActivitiesBoxes()
-        setupCarousel()
-        setupPrayerHero()
-        setupQuickActions()
-        setupTodayHighlights()
+        selectedFilter = savedInstanceState?.getInt("home_filter", R.id.chip_all) ?: R.id.chip_all
+        setupNavigation()
+        setupHeader()
+        setupPrayer()
+        setupSponsors()
+        setupNoticeboard()
+        setupHighlights()
         setupPersonality()
-        setupUpdatesSection()
-        setupGallerySection()
-
-        binding.btnNotification.setOnClickListener {
-            findNavController().navigate(R.id.notificationCenterFragment)
-        }
-
-        binding.btnCarouselSeeAll.setOnClickListener {
-            findNavController().navigate(R.id.exploreFragment)
-        }
-
-        binding.btnCarouselMenu.setOnClickListener {
-            Toast.makeText(requireContext(), "Featured community announcements & sponsorships", Toast.LENGTH_SHORT).show()
-        }
-
-        binding.communitySelector.setOnClickListener {
-            val communities = arrayOf(
-                "🌊 Hoode Community (Coastal & Beach Ward • 6 Masjids • 4,200 Residents)"
-            )
-            AlertDialog.Builder(requireContext())
-                .setTitle("Active Community")
-                .setItems(communities) { _, _ ->
-                    binding.tvCommunityName.text = "Hoode"
-                    Toast.makeText(requireContext(), "Community: Hoode active", Toast.LENGTH_SHORT).show()
-                }
-                .setPositiveButton("OK", null)
-                .show()
+        setupGallery()
+        binding.dashboardRefresh.setColorSchemeResources(R.color.dashboard_primary)
+        binding.dashboardRefresh.setProgressBackgroundColorSchemeResource(R.color.dashboard_surface)
+        binding.dashboardRefresh.setOnRefreshListener { refreshDashboard() }
+        refreshDashboard()
+        val accessibility = requireContext().getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+        if (savedInstanceState == null && ValueAnimator.areAnimatorsEnabled() && !accessibility.isTouchExplorationEnabled) {
+            binding.dashboardContent.alpha = 0f
+            binding.dashboardContent.translationY = 8 * resources.displayMetrics.density
+            binding.dashboardContent.animate().alpha(1f).translationY(0f).setDuration(280).start()
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        startCarouselAutoAdvance()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        stopCarouselAutoAdvance()
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt("home_filter", selectedFilter)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onDestroyView() {
+        refreshJob?.cancel()
+        activeDialog?.dismiss()
+        activeDialog = null
+        binding.dashboardContent.animate().cancel()
         super.onDestroyView()
-        stopCarouselAutoAdvance()
         _binding = null
     }
 
-    // ── Greeting ──────────────────────────────────────────────
-
-    private fun setupGreeting() {
-        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-        val greeting = when {
-            hour < 12 -> getString(R.string.home_greeting_morning)
-            hour < 17 -> getString(R.string.home_greeting_afternoon)
-            else -> getString(R.string.home_greeting_evening)
-        }
-        val user = HoodeRepository.currentUser.value
-        val name = user?.displayName ?: "Resident"
-        binding.tvGreeting.text = "$greeting, $name"
-    }
-
-    private fun setupDate() {
-        val dateFormat = SimpleDateFormat("d MMMM yyyy", Locale.getDefault())
-        binding.tvDate.text = dateFormat.format(Date())
-    }
-
-    // ── Carousel ──────────────────────────────────────────────
-
-    private fun setupCarousel() {
+    private fun <T> observe(flow: Flow<T>, render: (T) -> Unit) {
         viewLifecycleOwner.lifecycleScope.launch {
-            HoodeRepository.adSlides.collectLatest { slides ->
-                val carouselSlides = slides.map {
-                    CarouselSlide(
-                        headline = it.headline,
-                        subheadline = it.subheadline,
-                        advertiser = it.advertiser,
-                        ctaLabel = it.ctaLabel,
-                        ctaUrl = it.ctaUrl,
-                        imageUrl = it.imageUrl
-                    )
-                }
-
-                currentSlides = carouselSlides
-                binding.cardCarousel.visibility = if (carouselSlides.isEmpty()) View.GONE else View.VISIBLE
-                val adapter = CarouselAdapter(carouselSlides) { slide ->
-                    showSponsoredDetailDialog(slide)
-                }
-                binding.carouselPager.adapter = adapter
-                binding.carouselPager.offscreenPageLimit = 1
-                binding.cardCarousel.outlineProvider = android.view.ViewOutlineProvider.BACKGROUND
-                binding.cardCarousel.clipToOutline = true
-                binding.carouselPager.outlineProvider = android.view.ViewOutlineProvider.BACKGROUND
-                binding.carouselPager.clipToOutline = true
-                binding.carouselPager.clipChildren = true
-                (binding.carouselPager.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView)?.apply {
-                    clipToPadding = false
-                    clipChildren = true
-                }
-
-                setupCarouselIndicators(carouselSlides.size)
-                updateCarouselIndicators(0)
-            }
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) { flow.collect { render(it) } }
         }
-
-        binding.carouselPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                updateCarouselIndicators(position)
-            }
-
-            override fun onPageScrollStateChanged(state: Int) {
-                if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
-                    stopCarouselAutoAdvance()
-                } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
-                    startCarouselAutoAdvance()
-                }
-            }
-        })
     }
 
-    private fun setupCarouselIndicators(count: Int) {
-        binding.carouselIndicators.removeAllViews()
-        for (i in 0 until count) {
-            val dot = ImageView(requireContext())
-            val params = LinearLayout.LayoutParams(
-                resources.getDimensionPixelSize(R.dimen.indicator_dot),
-                resources.getDimensionPixelSize(R.dimen.indicator_dot)
+    private fun navigate(destination: Int) {
+        findNavController().navigate(destination)
+    }
+
+    private fun setupNavigation() {
+        binding.btnMenuDrawer.setOnClickListener { (activity as? MainActivity)?.openDrawer() }
+        binding.ivHomeAvatar.setOnClickListener { navigate(R.id.profileFragment) }
+        binding.btnNotification.setOnClickListener { navigate(R.id.notificationCenterFragment) }
+        binding.prayerHeroCard.setOnClickListener { navigate(R.id.prayerDetailFragment) }
+        binding.personalityCard.setOnClickListener { navigate(R.id.personalityDetailFragment) }
+        binding.btnGallerySeeAll.setOnClickListener { navigate(R.id.galleryFragment) }
+        val destinations = listOf(
+            binding.actionServices to R.id.providersFragment,
+            binding.actionMarket to R.id.marketplaceFragment,
+            binding.actionEmergency to R.id.emergencyFragment,
+            binding.actionBlood to R.id.bloodNetworkFragment,
+            binding.actionEvents to R.id.eventsFragment,
+            binding.actionJobs to R.id.jobsFragment,
+            binding.actionLostFound to R.id.lostFoundFragment,
+            binding.actionHuffaz to R.id.huffazFragment,
+            binding.actionLocalNews to R.id.newsFragment
+        )
+        destinations.forEach { (control, destination) -> control.setOnClickListener { navigate(destination) } }
+        binding.actionActivities.setOnClickListener {
+            HoodeRepository.initialActivityCategory = "All"
+            navigate(R.id.activitiesFragment)
+        }
+    }
+
+    private fun setupHeader() {
+        binding.tvDate.text = SimpleDateFormat("EEEE, d MMMM", Locale.getDefault()).format(Date())
+        observe(HoodeRepository.currentUser) { user ->
+            val greeting = when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
+                in 0..11 -> R.string.home_greeting_morning
+                in 12..16 -> R.string.home_greeting_afternoon
+                else -> R.string.home_greeting_evening
+            }
+            binding.tvGreeting.text = getString(R.string.dashboard_greeting, getString(greeting), user?.displayName ?: "Resident")
+            binding.ivHomeAvatar.load(user?.profilePicUri) {
+                placeholder(R.drawable.profile_placeholder)
+                fallback(R.drawable.profile_placeholder)
+                error(R.drawable.profile_placeholder)
+            }
+        }
+        observe(HoodeRepository.notifications) { rows ->
+            val unread = rows.count { !it.isRead }
+            binding.tvNotificationBadge.isVisible = unread > 0
+            binding.btnNotification.contentDescription = if (unread == 0) getString(R.string.cd_notification_bell)
+                else resources.getQuantityString(R.plurals.dashboard_unread_notifications, unread, unread)
+        }
+    }
+
+    private fun setupPrayer() {
+        observe(HoodeRepository.prayerTimings) { timings ->
+            val next = timings.find { it.isNext }
+            binding.tvPrayerName.text = next?.name ?: getString(R.string.dashboard_prayer_unavailable)
+            binding.tvPrayerTime.text = next?.adhanTime ?: "—"
+            val hasIqamah = next?.iqamahTime?.contains(":") == true
+            binding.tvPrayerSub.text = next?.iqamahTime?.takeIf { hasIqamah }
+                ?.let { getString(R.string.dashboard_iqamah, it) } ?: getString(R.string.dashboard_prayer_hint)
+            val parts = next?.timeRemaining?.split(":")?.mapNotNull { it.toIntOrNull() }.orEmpty()
+            val remaining = if (parts.size == 3) {
+                when {
+                    parts[0] > 0 -> getString(R.string.dashboard_hours_minutes, parts[0], parts[1])
+                    parts[1] > 0 -> getString(R.string.dashboard_minutes, parts[1])
+                    else -> getString(R.string.dashboard_seconds, parts[2])
+                }
+            } else ""
+            binding.tvCountdown.isVisible = remaining.isNotBlank()
+            binding.tvCountdown.text = getString(
+                if (hasIqamah) R.string.dashboard_iqamah_countdown else R.string.dashboard_countdown, remaining
             )
-            params.marginStart = if (i == 0) 0 else resources.getDimensionPixelSize(R.dimen.spacing_xs)
-            params.marginEnd = if (i == count - 1) 0 else resources.getDimensionPixelSize(R.dimen.spacing_xs)
-            dot.layoutParams = params
-            dot.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.indicator_dot_inactive))
-            binding.carouselIndicators.addView(dot)
         }
+        observe(HoodeRepository.activeMosque) { binding.tvMosqueName.text = it.name }
     }
 
-    private fun updateCarouselIndicators(activePosition: Int) {
-        for (i in 0 until binding.carouselIndicators.childCount) {
-            val dot = binding.carouselIndicators.getChildAt(i) as ImageView
-            val drawableRes = if (i == activePosition) {
-                R.drawable.indicator_dot_active
-            } else {
-                R.drawable.indicator_dot_inactive
+    private fun setupSponsors() {
+        binding.cardCarousel.layoutParams = binding.cardCarousel.layoutParams.apply {
+            height = ((270 + 160 * (resources.configuration.fontScale - 1).coerceAtLeast(0f)) * resources.displayMetrics.density).toInt()
+        }
+        observe(HoodeRepository.adSlides) { slides ->
+            val items = slides.filter { it.isEnabled }.map {
+                CarouselSlide(it.headline, it.subheadline, it.advertiser, it.ctaLabel, it.ctaUrl, it.imageUrl, it.description)
             }
-            dot.setImageDrawable(ContextCompat.getDrawable(requireContext(), drawableRes))
+            binding.partnersSection.isVisible = items.isNotEmpty()
+            if (items != currentSlides || binding.carouselPager.adapter == null) {
+                val position = binding.carouselPager.currentItem
+                currentSlides = items
+                binding.carouselPager.adapter = CarouselAdapter(items, ::showSponsoredDetailDialog)
+                if (items.isNotEmpty()) binding.carouselPager.setCurrentItem(position.coerceAtMost(items.lastIndex), false)
+            }
+            updatePartnerPosition()
+        }
+        binding.carouselPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) { updatePartnerPosition() }
+        })
+        binding.btnCarouselNext.setOnClickListener {
+            if (currentSlides.size > 1) binding.carouselPager.setCurrentItem((binding.carouselPager.currentItem + 1) % currentSlides.size, ValueAnimator.areAnimatorsEnabled())
         }
     }
 
-    private fun startCarouselAutoAdvance() {
-        autoAdvanceHandler.removeCallbacks(autoAdvanceRunnable)
-        autoAdvanceHandler.postDelayed(autoAdvanceRunnable, CAROUSEL_INTERVAL_MS)
+    private fun updatePartnerPosition() {
+        if (_binding == null) return
+        binding.tvPartnerCount.text = if (currentSlides.isEmpty()) "" else
+            getString(R.string.dashboard_partner_count, binding.carouselPager.currentItem + 1, currentSlides.size)
+        binding.btnCarouselNext.isVisible = currentSlides.size > 1
     }
 
-    private fun stopCarouselAutoAdvance() {
-        autoAdvanceHandler.removeCallbacks(autoAdvanceRunnable)
+    private fun setupNoticeboard() {
+        binding.rvUpdates.layoutManager = LinearLayoutManager(requireContext())
+        binding.chipGroupUpdates.check(selectedFilter)
+        binding.chipGroupUpdates.setOnCheckedStateChangeListener { _, ids ->
+            selectedFilter = ids.firstOrNull() ?: R.id.chip_all
+            renderNoticeboard()
+        }
+        binding.btnUpdatesSeeAll.setOnClickListener {
+            navigate(when (selectedFilter) {
+                R.id.chip_events -> R.id.eventsFragment
+                R.id.chip_polls -> R.id.pollsFragment
+                R.id.chip_community -> R.id.activitiesFragment
+                else -> R.id.newsFragment
+            })
+        }
+        // Repository feeds contain the published records fetched by the existing backend client.
+        observe(combine(HoodeRepository.newsArticles, HoodeRepository.events, HoodeRepository.polls, HoodeRepository.activities) { news, events, polls, activities ->
+            val groups = listOf(
+                news.map { HomeUpdateItem(getString(R.string.dashboard_news), it.title, it.summary, it.verifiedDate, R.id.newsFragment) },
+                events.map { HomeUpdateItem(getString(R.string.dashboard_events), it.title, listOf(it.venue, it.time).filter(String::isNotBlank).joinToString(" · "), it.date, R.id.eventsFragment) },
+                polls.map { HomeUpdateItem(getString(R.string.dashboard_polls), it.question, it.description, "", R.id.pollsFragment) },
+                activities.map { HomeUpdateItem(getString(R.string.dashboard_activities), it.title, it.description, it.schedule, R.id.activitiesFragment) }
+            )
+            // Interleave categories so the overview does not bury a poll under a long news feed.
+            buildList { for (index in 0 until (groups.maxOfOrNull { it.size } ?: 0)) groups.forEach { it.getOrNull(index)?.let(::add) } }
+        }) {
+            noticeboard = it
+            renderNoticeboard()
+        }
+    }
+
+    private fun renderNoticeboard() {
+        val destination = when (selectedFilter) {
+            R.id.chip_news -> R.id.newsFragment
+            R.id.chip_events -> R.id.eventsFragment
+            R.id.chip_polls -> R.id.pollsFragment
+            R.id.chip_community -> R.id.activitiesFragment
+            else -> null
+        }
+        val entries = noticeboard.filter { destination == null || it.destinationId == destination }.take(4)
+        binding.rvUpdates.isVisible = entries.isNotEmpty()
+        binding.emptyUpdates.isVisible = entries.isEmpty()
+        binding.rvUpdates.adapter = UpdatesAdapter(entries) { navigate(it.destinationId) }
+    }
+
+    private fun setupHighlights() {
+        binding.rvTodayHighlights.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        observe(HoodeRepository.highlights) { rows ->
+            binding.highlightsSection.isVisible = rows.isNotEmpty()
+            binding.rvTodayHighlights.adapter = HighlightsAdapter(rows.take(6).map {
+                HighlightItem(it.title, it.text("subtitle"), it.text("category"), it.imageUrl, it.text("description"))
+            }) { item ->
+                activeDialog = AlertDialog.Builder(requireContext()).setTitle(item.title)
+                    .setMessage(item.description.ifBlank { item.subtitle }).setPositiveButton(R.string.close, null).show()
+            }
+        }
+    }
+
+    private fun setupPersonality() {
+        observe(HoodeRepository.dailyPersonality) { profile ->
+            binding.personalityCard.isVisible = profile.name.isNotBlank()
+            binding.tvPersonalityName.text = profile.name
+            binding.tvPersonalityIntro.text = profile.intro
+            binding.ivPersonalityPhoto.load(profile.imageUrl.takeIf(String::isNotBlank)) {
+                placeholder(R.drawable.profile_placeholder)
+                fallback(R.drawable.profile_placeholder)
+                error(R.drawable.profile_placeholder)
+            }
+        }
+    }
+
+    private fun setupGallery() {
+        binding.rvGalleryPreview.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        observe(HoodeRepository.galleryItems) { photos ->
+            binding.rvGalleryPreview.isVisible = photos.isNotEmpty()
+            binding.emptyGallery.isVisible = photos.isEmpty()
+            binding.rvGalleryPreview.adapter = GalleryPreviewAdapter(photos.take(6)) { navigate(R.id.galleryFragment) }
+        }
+    }
+
+    private fun refreshDashboard() {
+        if (refreshJob?.isActive == true) return
+        refreshJob = viewLifecycleOwner.lifecycleScope.launch {
+            binding.dashboardRefresh.isRefreshing = true
+            binding.tvRefreshMessage.isVisible = false
+            try {
+                val finished = withTimeoutOrNull(60_000) { HoodeRepository.syncWithCloud().join(); true } ?: false
+                _binding?.let {
+                    it.tvRefreshMessage.isVisible = !finished
+                    it.tvRefreshMessage.setText(R.string.dashboard_refresh_timeout)
+                }
+            } finally { _binding?.dashboardRefresh?.isRefreshing = false }
+        }
     }
 
     private fun showSponsoredDetailDialog(slide: CarouselSlide) {
-        stopCarouselAutoAdvance()
 
         val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -247,6 +312,8 @@ class HomeFragment : Fragment() {
 
         dialogBinding.tvModalHeadline.text = slide.headline
         dialogBinding.tvModalSubheadline.text = slide.subheadline
+        dialogBinding.tvModalDescription.text = slide.description
+        dialogBinding.tvModalDescription.visibility = if(slide.description.isBlank())View.GONE else View.VISIBLE
         dialogBinding.tvModalAdvertiser.text = slide.advertiser
         if (!slide.imageUrl.isNullOrBlank()) {
             dialogBinding.ivModalBanner.load(slide.imageUrl) {
@@ -276,302 +343,14 @@ class HomeFragment : Fragment() {
             }
         }
 
-        dialog.setOnDismissListener {
-            startCarouselAutoAdvance()
-        }
+        activeDialog = dialog
+        dialog.setOnDismissListener { activeDialog = null }
 
         dialog.show()
+        dialog.window?.setLayout((resources.displayMetrics.widthPixels*0.92).toInt(), (resources.displayMetrics.heightPixels*0.85).toInt())
     }
 
-    // ── Airtel-Style Navigation & Actions ─────────────────────
-
-    private fun setupAirtelNavigation() {
-        // Drawer Menu Button (Top Bar) -> Opens animated side page from the left
-        binding.btnMenuDrawer.setOnClickListener {
-            (activity as? MainActivity)?.openDrawer()
-        }
-    }
-
-    private fun showSideDrawerDialog() {
-        (activity as? MainActivity)?.openDrawer()
-    }
-
-    // ── Prayer Hero ───────────────────────────────────────────
-
-    private fun setupPrayerHero() {
-        binding.prayerHeroCard.setOnClickListener {
-            findNavController().navigate(R.id.prayerDetailFragment)
-        }
-
-        binding.btnManageReminders.setOnClickListener {
-            showQuickPrayerRemindersDialog()
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            HoodeRepository.prayerTimings.collectLatest { timings ->
-                val next = timings.find { it.isNext } ?: timings.firstOrNull()
-                if (next != null) {
-                    binding.tvPrayerName.text = "Next: ${next.name}"
-                    binding.tvPrayerTime.text = "• ${next.adhanTime}"
-                    binding.tvPrayerSub.text = "Iqamah ${next.iqamahTime}"
-
-                    if (next.timeRemaining.isNotBlank()) {
-                        val parts = next.timeRemaining.split(":")
-                        if (parts.size == 3) {
-                            val h = parts[0].toIntOrNull() ?: 0
-                            val m = parts[1].toIntOrNull() ?: 0
-                            val s = parts[2].toIntOrNull() ?: 0
-                            val totalSecs = h * 3600 + m * 60 + s
-
-                            binding.tvCountdown.text = when {
-                                h > 0 -> "${h}h ${m}m"
-                                m > 0 -> "${m}m ${s}s"
-                                s > 0 -> "${s}s"
-                                else -> "Now"
-                            }
-
-                            // Dynamic prayer countdown ring (progress reflects remaining window)
-                            val windowSecs = 12600f
-                            val progressPct = ((totalSecs.toFloat() / windowSecs).coerceIn(0f, 1f) * 100).toInt().coerceIn(5, 100)
-                            binding.prayerCountdownRing.setProgressCompat(progressPct, true)
-                        } else {
-                            binding.tvCountdown.text = next.timeRemaining
-                        }
-                    } else {
-                        binding.tvCountdown.text = "—"
-                    }
-                }
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            HoodeRepository.activeMosque.collectLatest { mosque ->
-                binding.tvMosqueName.text = mosque.name
-            }
-        }
-    }
-
-    // ── Activities (3x3 Grid of 9 Cards) ─────────────────────
-
-    private fun setupActivitiesBoxes() {
-        binding.boxActReligious.setOnClickListener {
-            HoodeRepository.initialActivityCategory = "Religious"
-            findNavController().navigate(R.id.activitiesFragment)
-        }
-        binding.boxActCommunity.setOnClickListener {
-            HoodeRepository.initialActivityCategory = "Community"
-            findNavController().navigate(R.id.activitiesFragment)
-        }
-        binding.boxActSocial.setOnClickListener {
-            HoodeRepository.initialActivityCategory = "Social"
-            findNavController().navigate(R.id.activitiesFragment)
-        }
-        binding.boxActSports.setOnClickListener {
-            HoodeRepository.initialActivityCategory = "Sports"
-            findNavController().navigate(R.id.activitiesFragment)
-        }
-        binding.boxActCondolences.setOnClickListener {
-            HoodeRepository.initialActivityCategory = "Condolences"
-            findNavController().navigate(R.id.activitiesFragment)
-        }
-        binding.boxActDua.setOnClickListener {
-            HoodeRepository.initialActivityCategory = "Dua Request"
-            findNavController().navigate(R.id.activitiesFragment)
-        }
-        binding.boxActBlood.setOnClickListener {
-            findNavController().navigate(R.id.bloodNetworkFragment)
-        }
-        binding.boxActNews.setOnClickListener {
-            findNavController().navigate(R.id.newsFragment)
-        }
-        binding.boxActEmergency.setOnClickListener {
-            findNavController().navigate(R.id.emergencyFragment)
-        }
-        binding.btnActivitiesSeeAll.setOnClickListener {
-            HoodeRepository.initialActivityCategory = "All"
-            findNavController().navigate(R.id.activitiesFragment)
-        }
-    }
-
-    // ── Quick Actions ─────────────────────────────────────────
-
-    private fun setupQuickActions() {
-        binding.actionEmergency.setOnClickListener {
-            findNavController().navigate(R.id.emergencyFragment)
-        }
-        binding.actionBlood.setOnClickListener {
-            findNavController().navigate(R.id.bloodNetworkFragment)
-        }
-        binding.actionPrayer.setOnClickListener {
-            findNavController().navigate(R.id.prayerDetailFragment)
-        }
-        binding.actionJobs.setOnClickListener {
-            findNavController().navigate(R.id.jobsFragment)
-        }
-        binding.actionTournaments.setOnClickListener {
-            findNavController().navigate(R.id.tournamentsFragment)
-        }
-        binding.actionEvents.setOnClickListener {
-            findNavController().navigate(R.id.eventsFragment)
-        }
-        binding.actionServices.setOnClickListener {
-            findNavController().navigate(R.id.providersFragment)
-        }
-        binding.actionNews.setOnClickListener {
-            findNavController().navigate(R.id.newsFragment)
-        }
-        binding.actionPolls.setOnClickListener {
-            findNavController().navigate(R.id.pollsFragment)
-        }
-        binding.actionHuffaz.setOnClickListener {
-            findNavController().navigate(R.id.huffazFragment)
-        }
-    }
-
-    // ── Today's Highlights ────────────────────────────────────
-
-    private fun setupTodayHighlights() {
-        val highlights = listOf(
-            HighlightItem(
-                "Community Iftar & Dua",
-                "Today, 6:15 PM",
-                "Religious",
-                "https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&auto=format&fit=crop&q=80"
-            ),
-            HighlightItem(
-                "Cricket Tournament",
-                "18–21 Sep 2026",
-                "Sports",
-                "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=500&auto=format&fit=crop&q=80"
-            ),
-            HighlightItem(
-                "Qur'an Study Circle",
-                "Friday post-Maghrib",
-                "Religious",
-                "https://images.unsplash.com/photo-1609599006353-e629aaabfeae?w=500&auto=format&fit=crop&q=80"
-            ),
-            HighlightItem(
-                "Free Health Checkup Camp",
-                "Sunday, 9:00 AM",
-                "Community",
-                "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500&auto=format&fit=crop&q=80"
-            )
-        )
-
-        binding.rvTodayHighlights.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.rvTodayHighlights.adapter = HighlightsAdapter(highlights) { item ->
-            when (item.category) {
-                "Sports" -> findNavController().navigate(R.id.tournamentsFragment)
-                "Religious" -> findNavController().navigate(R.id.prayerDetailFragment)
-                else -> findNavController().navigate(R.id.eventsFragment)
-            }
-        }
-    }
-
-    // ── Personality ───────────────────────────────────────────
-
-    private fun setupPersonality() {
-        binding.personalityCard.setOnClickListener {
-            findNavController().navigate(R.id.personalityDetailFragment)
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            HoodeRepository.dailyPersonality.collectLatest { profile ->
-                binding.tvPersonalityName.text = profile.name
-                binding.tvPersonalityIntro.text = profile.intro
-                if (profile.imageUrl.isNotBlank()) {
-                    binding.ivPersonalityPhoto.load(profile.imageUrl) {
-                        crossfade(true)
-                        placeholder(R.drawable.bg_circle_lavender)
-                        error(R.drawable.bg_circle_lavender)
-                    }
-                }
-            }
-        }
-    }
-
-    // ── Updates Section ───────────────────────────────────────
-
-    private fun setupUpdatesSection() {
-        val allUpdates = listOf(
-            HomeUpdateItem("News", "New Bengre–Hoode Coastal Seawall Approved", "State fisheries department sanctions ₹4.2 crore for sea erosion prevention.", "Today", R.id.newsFragment),
-            HomeUpdateItem("Poll", "Community Poll: Cleanliness Drive Sunday", "Should Hoode Beach Cleanliness drive commence at 6:30 AM or 7:30 AM?", "Live", R.id.pollsFragment),
-            HomeUpdateItem("Activity", "Inter-Madrasa Qur'an & Tajweed Competition", "Annual recitation competition at Hoode Juma Masjid hall on Sep 20.", "Upcoming", R.id.activitiesFragment),
-            HomeUpdateItem("News", "Baitul Mal Scholarship 2026 Phase 2", "Applications open for deserving youth pursuing higher education in Udupi.", "Sep 08", R.id.newsFragment)
-        )
-
-        fun updateList(categoryFilter: String) {
-            val filtered = if (categoryFilter == "All") {
-                allUpdates
-            } else {
-                allUpdates.filter { it.category.equals(categoryFilter, ignoreCase = true) }
-            }
-            binding.rvUpdates.adapter = UpdatesAdapter(filtered) { update ->
-                findNavController().navigate(update.destinationId)
-            }
-        }
-
-        binding.rvUpdates.layoutManager = LinearLayoutManager(requireContext())
-        updateList("All")
-
-        binding.chipGroupUpdates.setOnCheckedStateChangeListener { _, checkedIds ->
-            when {
-                checkedIds.contains(R.id.chip_news) -> updateList("News")
-                checkedIds.contains(R.id.chip_polls) -> updateList("Poll")
-                checkedIds.contains(R.id.chip_community) -> updateList("Activity")
-                else -> updateList("All")
-            }
-        }
-
-        binding.btnUpdatesSeeAll.setOnClickListener {
-            findNavController().navigate(R.id.newsFragment)
-        }
-    }
-
-    // ── Gallery Preview ───────────────────────────────────────
-
-    private fun setupGallerySection() {
-        binding.rvGalleryPreview.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            HoodeRepository.galleryItems.collectLatest { photos ->
-                val previewPhotos = photos.take(6)
-                binding.rvGalleryPreview.adapter = GalleryPreviewAdapter(previewPhotos) {
-                    findNavController().navigate(R.id.galleryFragment)
-                }
-            }
-        }
-
-        binding.btnGallerySeeAll.setOnClickListener {
-            findNavController().navigate(R.id.galleryFragment)
-        }
-    }
-
-    private fun showQuickPrayerRemindersDialog() {
-        val options = arrayOf(
-            "🔔 Enable Adhan Audio (All 5 Prayers)",
-            "⏱️ 10-Minute Iqamah Warning Alert",
-            "🕌 Switch Primary Mosque"
-        )
-        AlertDialog.Builder(requireContext())
-            .setTitle("Manage Prayer Reminders")
-            .setItems(options) { _, which ->
-                when (which) {
-                    0, 1 -> Toast.makeText(requireContext(), "Prayer reminder settings saved.", Toast.LENGTH_SHORT).show()
-                    2 -> findNavController().navigate(R.id.prayerDetailFragment)
-                }
-            }
-            .setPositiveButton("Full Timetable") { _, _ ->
-                findNavController().navigate(R.id.prayerDetailFragment)
-            }
-            .setNegativeButton("Dismiss", null)
-            .show()
-    }
 }
-
-// ── Data Classes ──────────────────────────────────────────────
 
 data class CarouselSlide(
     val headline: String,
@@ -579,12 +358,14 @@ data class CarouselSlide(
     val advertiser: String,
     val ctaLabel: String? = null,
     val ctaUrl: String? = null,
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
+    val description: String = ""
 )
 
 data class HighlightItem(
     val title: String,
     val subtitle: String,
     val category: String,
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
+    val description: String = ""
 )

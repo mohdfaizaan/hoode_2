@@ -47,6 +47,7 @@ class SignUpFragment : Fragment() {
         }
 
         binding.btnSignUp.setOnClickListener {
+            binding.tvAuthError.visibility = View.GONE
             val email = binding.etEmail.text.toString().trim()
             val name = binding.etName.text.toString().trim()
             val password = binding.etPassword.text.toString()
@@ -87,8 +88,9 @@ class SignUpFragment : Fragment() {
 
             viewLifecycleOwner.lifecycleScope.launch {
                 val result = HoodeRepository.registerUser(name, email, password)
+                if (_binding == null) return@launch
                 binding.btnSignUp.isEnabled = true
-                binding.btnSignUp.text = "Sign up"
+                binding.btnSignUp.text = "Create account"
 
                 if (result.isSuccess) {
                     Toast.makeText(
@@ -98,11 +100,8 @@ class SignUpFragment : Fragment() {
                     ).show()
                     findNavController().navigate(R.id.action_signUp_to_home)
                 } else {
-                    Toast.makeText(
-                        requireContext(),
-                        result.exceptionOrNull()?.message ?: "Registration failed",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    binding.tvAuthError.text = result.exceptionOrNull()?.message ?: "Could not create your account. Please try again."
+                    binding.tvAuthError.visibility = View.VISIBLE
                 }
             }
         }

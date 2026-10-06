@@ -4,7 +4,10 @@ import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
+import com.example.hoode_app.ui.common.submitForReview
+import com.example.hoode_app.ui.common.attachClearAction
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,7 +31,7 @@ import com.example.hoode_app.data.repository.HoodeRepository
 import com.example.hoode_app.databinding.DialogBookProductSpinnyBinding
 import com.example.hoode_app.databinding.DialogMarketplaceDetailBinding
 import com.example.hoode_app.databinding.FragmentMarketplaceBinding
-import com.example.hoode_app.databinding.ItemClassifiedCardBinding
+import com.example.hoode_app.databinding.ItemClassifiedGridBinding
 import com.example.hoode_app.databinding.ItemDetailImageSlideBinding
 import com.example.hoode_app.databinding.ItemImageFormationChipBinding
 import kotlinx.coroutines.flow.collectLatest
@@ -62,6 +65,7 @@ class MarketplaceFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.etSearchMarketplace.attachClearAction()
 
         binding.btnBack.setOnClickListener {
             findNavController().navigateUp()
@@ -100,8 +104,8 @@ class MarketplaceFragment : Fragment() {
                 selectedCategory = category
                 for ((v, c) in chips) {
                     if (c == selectedCategory) {
-                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
-                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                        v.setBackgroundResource(R.drawable.bg_chip_accent_filled)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                     } else {
                         v.setBackgroundResource(R.drawable.bg_chip_unselected)
                         v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
@@ -145,143 +149,48 @@ class MarketplaceFragment : Fragment() {
             return
         }
 
-        val currentUser = HoodeRepository.currentUser.value
-        val currentUserId = currentUser?.id ?: ""
-
         for (item in filtered) {
-            val itemBinding = ItemClassifiedCardBinding.inflate(layoutInflater, binding.llMarketplaceContainer, false)
-            itemBinding.tvClassifiedType.text = item.type.uppercase()
-            itemBinding.tvClassifiedCategory.text = item.category
-            itemBinding.tvClassifiedPrice.text = item.price
-            itemBinding.tvClassifiedTitle.text = item.title
-            itemBinding.tvClassifiedAreaDate.text = "${item.area} • ${item.date}"
-            itemBinding.tvClassifiedSeller.text = "👤 Sold by ${item.sellerName}"
+            val card = ItemClassifiedGridBinding.inflate(layoutInflater, binding.llMarketplaceContainer, false)
 
-            // 1. Multiple Slidable Images on Card (ViewPager2)
-            val images = if (item.images.isNotEmpty()) item.images else listOf("https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=800")
-            val sliderAdapter = DetailImageSliderAdapter(images)
-            itemBinding.vpItemImages.adapter = sliderAdapter
+            card.ivGridImage.load(item.images.firstOrNull()) {
+                crossfade(true)
+                placeholder(R.drawable.bg_gallery_luxury_gradient)
+                error(R.drawable.bg_gallery_luxury_gradient)
+            }
 
-            if (images.size > 1) {
-                itemBinding.tvImageCountBadge.visibility = View.VISIBLE
-                itemBinding.tvImageCountBadge.text = "📷 1 / ${images.size}"
-                itemBinding.vpItemImages.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                    override fun onPageSelected(position: Int) {
-                        itemBinding.tvImageCountBadge.text = "📷 ${position + 1} / ${images.size}"
-                    }
-                })
+            when {
+                item.isSold -> {
+                    card.tvGridStatus.text = "SOLD"
+                    card.tvGridStatus.setBackgroundResource(R.drawable.bg_pill_neutral)
+                    card.tvGridStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+                }
+                HoodeRepository.isBookingActive(item) -> {
+                    card.tvGridStatus.text = "RESERVED"
+                    card.tvGridStatus.setBackgroundColor(requireContext().getColor(R.color.warning))
+                    card.tvGridStatus.setTextColor(Color.WHITE)
+                }
+                else -> {
+                    card.tvGridStatus.text = "AVAILABLE"
+                    card.tvGridStatus.setBackgroundResource(R.drawable.bg_pill_accent)
+                    card.tvGridStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.accent_ink))
+                }
+            }
+
+            card.tvGridType.text = item.type.uppercase()
+            card.tvGridPrice.text = item.price
+            card.tvGridTitle.text = item.title.uppercase()
+            card.tvGridLocation.text = "${item.area} • ${item.date}"
+
+            if (item.images.size > 1) {
+                card.tvGridImageCount.visibility = View.VISIBLE
+                card.tvGridImageCount.text = "1 / ${item.images.size}"
             } else {
-                itemBinding.tvImageCountBadge.visibility = View.GONE
+                card.tvGridImageCount.visibility = View.GONE
             }
 
-            // 2. Spinny-Style 24-Hour Booking State & Seller Controls
-            val isBookingActive = HoodeRepository.isBookingActive(item)
-            val isSeller = (item.sellerUserId != null && item.sellerUserId == currentUserId) ||
-                    item.sellerName.equals(currentUser?.displayName, ignoreCase = true)
+            card.root.setOnClickListener { showMarketplaceDetailDialog(item) }
 
-            if (item.isSold) {
-                itemBinding.tvClassifiedStatusBadge.text = "🔴 SOLD OUT"
-                itemBinding.tvClassifiedStatusBadge.setBackgroundResource(R.drawable.bg_pill_neutral)
-                itemBinding.cardBookingInfo.visibility = View.GONE
-                itemBinding.btnBookProduct.visibility = View.GONE
-                itemBinding.btnCancelBooking.visibility = View.GONE
-            } else if (isBookingActive) {
-                itemBinding.tvClassifiedStatusBadge.text = "🔒 RESERVED (24h HOLD)"
-                itemBinding.tvClassifiedStatusBadge.setBackgroundColor(Color.parseColor("#F59E0B"))
-                itemBinding.tvClassifiedStatusBadge.setTextColor(Color.WHITE)
-                itemBinding.cardBookingInfo.visibility = View.VISIBLE
-
-                val remainingMillis = (item.bookedAtTimestamp + 24 * 60 * 60 * 1000L) - System.currentTimeMillis()
-                val hours = (remainingMillis / (1000 * 60 * 60)).coerceAtLeast(0)
-                val mins = ((remainingMillis / (1000 * 60)) % 60).coerceAtLeast(0)
-
-                itemBinding.tvBookingStatusText.text = "🔒 Spinny 24h Hold: ${hours}h ${mins}m remaining"
-
-                if (item.bookedByUserId == currentUserId) {
-                    itemBinding.tvBookingBuyerText.text = "You reserved this product exclusively! Contact seller to inspect & buy."
-                    itemBinding.btnBookProduct.visibility = View.GONE
-                    itemBinding.btnCancelBooking.visibility = View.VISIBLE
-                    itemBinding.btnCancelBooking.setOnClickListener {
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            HoodeRepository.cancelBooking(item.id, currentUserId)
-                            Toast.makeText(requireContext(), "Reservation cancelled. Product is now live again.", Toast.LENGTH_SHORT).show()
-                            renderListings()
-                        }
-                    }
-                } else {
-                    itemBinding.tvBookingBuyerText.text = "Held by ${item.bookedByName ?: "resident"}. Auto-releases after 24h if not completed."
-                    itemBinding.btnBookProduct.visibility = View.VISIBLE
-                    itemBinding.btnBookProduct.isEnabled = false
-                    itemBinding.btnBookProduct.text = "🔒 Currently Reserved"
-                    itemBinding.btnBookProduct.setBackgroundColor(Color.parseColor("#9CA3AF"))
-                    itemBinding.btnCancelBooking.visibility = View.GONE
-                }
-            } else {
-                itemBinding.tvClassifiedStatusBadge.text = "🟢 AVAILABLE"
-                itemBinding.tvClassifiedStatusBadge.setBackgroundResource(R.drawable.bg_pill_accent)
-                itemBinding.tvClassifiedStatusBadge.setTextColor(ContextCompat.getColor(requireContext(), R.color.accent_ink))
-                itemBinding.cardBookingInfo.visibility = View.GONE
-                itemBinding.btnCancelBooking.visibility = View.GONE
-                itemBinding.btnBookProduct.visibility = View.VISIBLE
-                itemBinding.btnBookProduct.isEnabled = true
-                itemBinding.btnBookProduct.text = "⚡ Reserve for 24h (Spinny)"
-                itemBinding.btnBookProduct.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.accent))
-
-                itemBinding.btnBookProduct.setOnClickListener {
-                    showSpinnyBookingDialog(item)
-                }
-            }
-
-            // 3. Seller Controls (Mark as Sold or Delete from Marketplace)
-            if (isSeller) {
-                itemBinding.btnMarkSold.visibility = if (!item.isSold) View.VISIBLE else View.GONE
-                itemBinding.btnDeleteListing.visibility = View.VISIBLE
-
-                itemBinding.btnMarkSold.setOnClickListener {
-                    AlertDialog.Builder(requireContext())
-                        .setTitle("Mark as Sold")
-                        .setMessage("Has this product been sold? It will be marked as Sold Out for all residents.")
-                        .setPositiveButton("Yes, Mark Sold") { _, _ ->
-                            viewLifecycleOwner.lifecycleScope.launch {
-                                HoodeRepository.markClassifiedSold(item.id, currentUserId)
-                                Toast.makeText(requireContext(), "Listing marked as Sold! Great job.", Toast.LENGTH_SHORT).show()
-                                renderListings()
-                            }
-                        }
-                        .setNegativeButton("Cancel", null)
-                        .show()
-                }
-
-                itemBinding.btnDeleteListing.setOnClickListener {
-                    AlertDialog.Builder(requireContext())
-                        .setTitle("Remove Product Listing")
-                        .setMessage("Are you sure you want to remove '${item.title}' permanently from the marketplace?")
-                        .setPositiveButton("Remove") { _, _ ->
-                            viewLifecycleOwner.lifecycleScope.launch {
-                                HoodeRepository.removeClassified(item.id)
-                                Toast.makeText(requireContext(), "Listing removed from marketplace.", Toast.LENGTH_SHORT).show()
-                                renderListings()
-                            }
-                        }
-                        .setNegativeButton("Cancel", null)
-                        .show()
-                }
-            } else {
-                itemBinding.btnMarkSold.visibility = View.GONE
-                itemBinding.btnDeleteListing.visibility = View.GONE
-            }
-
-            // Quick Call
-            itemBinding.btnQuickContact.setOnClickListener {
-                Toast.makeText(requireContext(), "Connecting call to ${item.sellerName} (${item.phone})...", Toast.LENGTH_SHORT).show()
-            }
-
-            // Tapping card opens full details dialog
-            itemBinding.root.setOnClickListener {
-                showMarketplaceDetailDialog(item)
-            }
-
-            binding.llMarketplaceContainer.addView(itemBinding.root)
+            binding.llMarketplaceContainer.addView(card.root)
         }
     }
 
@@ -297,7 +206,7 @@ class MarketplaceFragment : Fragment() {
         if (activeBooking != null && activeBooking.id != item.id) {
             AlertDialog.Builder(requireContext())
                 .setTitle("Active Reservation Exists 📌")
-                .setMessage("Per Spinny guidelines, you can only hold 1 product at a time.\n\nYou currently have a 24-hour hold on:\n'${activeBooking.title}'\n\nPlease finalize or cancel that reservation first before holding another product.")
+                .setMessage("To keep reservations fair, you can only hold 1 product at a time.\n\nYou currently have a 24-hour hold on:\n'${activeBooking.title}'\n\nPlease finalize or cancel that reservation first before holding another product.")
                 .setPositiveButton("I Understand", null)
                 .show()
             return
@@ -319,7 +228,7 @@ class MarketplaceFragment : Fragment() {
         b.tvBookingItemSeller.text = "• Seller: ${item.sellerName} (${item.area})"
 
         b.etBookerName.setText(user.displayName)
-        b.etBookerPhone.setText(user.phone ?: "9876543210")
+        b.etBookerPhone.setText(user.phone.orEmpty())
 
         b.btnCloseBookingDialog.setOnClickListener {
             dialog.dismiss()
@@ -394,8 +303,7 @@ class MarketplaceFragment : Fragment() {
         }
 
         val isBookingActive = HoodeRepository.isBookingActive(item)
-        val isSeller = (item.sellerUserId != null && item.sellerUserId == currentUserId) ||
-                item.sellerName.equals(currentUser?.displayName, ignoreCase = true)
+        val isSeller = item.sellerUserId == currentUserId && currentUserId.isNotBlank()
 
         if (item.isSold) {
             dialogBinding.cardDetailBookingInfo.visibility = View.GONE
@@ -406,7 +314,7 @@ class MarketplaceFragment : Fragment() {
             val remainingMillis = (item.bookedAtTimestamp + 24 * 60 * 60 * 1000L) - System.currentTimeMillis()
             val hours = (remainingMillis / (1000 * 60 * 60)).coerceAtLeast(0)
             val mins = ((remainingMillis / (1000 * 60)) % 60).coerceAtLeast(0)
-            dialogBinding.tvDetailBookingStatus.text = "🔒 Spinny 24h Hold: ${hours}h ${mins}m left"
+            dialogBinding.tvDetailBookingStatus.text = "🔒 Reserved: ${hours}h ${mins}m left"
 
             if (item.bookedByUserId == currentUserId) {
                 dialogBinding.tvDetailBookingSubtext.text = "You reserved this product. Tap below to cancel or release."
@@ -414,7 +322,11 @@ class MarketplaceFragment : Fragment() {
                 dialogBinding.btnDetailCancelBooking.visibility = View.VISIBLE
                 dialogBinding.btnDetailCancelBooking.setOnClickListener {
                     viewLifecycleOwner.lifecycleScope.launch {
-                        HoodeRepository.cancelBooking(item.id, currentUserId)
+                        val actionResult = HoodeRepository.cancelBooking(item.id, currentUserId)
+                        if (actionResult.isFailure) {
+                            Toast.makeText(requireContext(), actionResult.exceptionOrNull()?.message ?: "Could not save. Retry.", Toast.LENGTH_LONG).show()
+                            return@launch
+                        }
                         Toast.makeText(requireContext(), "Reservation cancelled.", Toast.LENGTH_SHORT).show()
                         dialog.dismiss()
                         renderListings()
@@ -425,7 +337,7 @@ class MarketplaceFragment : Fragment() {
                 dialogBinding.btnDetailBook.visibility = View.VISIBLE
                 dialogBinding.btnDetailBook.isEnabled = false
                 dialogBinding.btnDetailBook.text = "🔒 Currently Reserved"
-                dialogBinding.btnDetailBook.setBackgroundColor(Color.parseColor("#9CA3AF"))
+                dialogBinding.btnDetailBook.setBackgroundColor(requireContext().getColor(R.color.text_secondary))
                 dialogBinding.btnDetailCancelBooking.visibility = View.GONE
             }
         } else {
@@ -433,7 +345,7 @@ class MarketplaceFragment : Fragment() {
             dialogBinding.btnDetailCancelBooking.visibility = View.GONE
             dialogBinding.btnDetailBook.visibility = View.VISIBLE
             dialogBinding.btnDetailBook.isEnabled = true
-            dialogBinding.btnDetailBook.text = "⚡ Book & Hold for 24 Hours (Spinny-style)"
+            dialogBinding.btnDetailBook.text = "⚡ Reserve for 24 hours"
             dialogBinding.btnDetailBook.setOnClickListener {
                 dialog.dismiss()
                 showSpinnyBookingDialog(item)
@@ -446,19 +358,29 @@ class MarketplaceFragment : Fragment() {
             dialogBinding.btnDetailMarkSold.visibility = if (!item.isSold) View.VISIBLE else View.GONE
             dialogBinding.btnDetailMarkSold.setOnClickListener {
                 viewLifecycleOwner.lifecycleScope.launch {
-                    HoodeRepository.markClassifiedSold(item.id, currentUserId)
+                    val actionResult = HoodeRepository.markClassifiedSold(item.id, currentUserId)
+                    if (actionResult.isFailure) {
+                        Toast.makeText(requireContext(), actionResult.exceptionOrNull()?.message ?: "Could not save. Retry.", Toast.LENGTH_LONG).show()
+                        return@launch
+                    }
                     Toast.makeText(requireContext(), "Item marked as sold!", Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
                     renderListings()
                 }
             }
             dialogBinding.btnDetailDelete.setOnClickListener {
+                androidx.appcompat.app.AlertDialog.Builder(requireContext()).setTitle("Withdraw ${item.title}?").setMessage("The listing will leave the marketplace and its reservation will be cancelled.").setNegativeButton("Keep listing",null).setPositiveButton("Withdraw") { _,_->
                 viewLifecycleOwner.lifecycleScope.launch {
-                    HoodeRepository.removeClassified(item.id)
+                    val actionResult = HoodeRepository.removeClassified(item.id)
+                    if (actionResult.isFailure) {
+                        Toast.makeText(requireContext(), actionResult.exceptionOrNull()?.message ?: "Could not save. Retry.", Toast.LENGTH_LONG).show()
+                        return@launch
+                    }
                     Toast.makeText(requireContext(), "Listing removed.", Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
                     renderListings()
                 }
+                }.show()
             }
         } else {
             dialogBinding.llDetailSellerControls.visibility = View.GONE
@@ -469,7 +391,7 @@ class MarketplaceFragment : Fragment() {
         }
 
         dialogBinding.btnCallSeller.setOnClickListener {
-            Toast.makeText(requireContext(), "Connecting phone call to ${item.sellerName} (${item.phone})...", Toast.LENGTH_SHORT).show()
+            try { startActivity(android.content.Intent(android.content.Intent.ACTION_DIAL, Uri.parse("tel:${item.phone}"))) } catch (_: Exception) { Toast.makeText(requireContext(), "No phone app is available.", Toast.LENGTH_SHORT).show() }
         }
 
         dialogBinding.btnChatSeller.setOnClickListener {
@@ -505,8 +427,17 @@ class MarketplaceFragment : Fragment() {
             }
             formBinding.tilInquireMessage.error = null
 
-            Toast.makeText(requireContext(), "Inquiry sent to ${item.sellerName}. Check your Inbox for replies.", Toast.LENGTH_LONG).show()
-            dialog.dismiss()
+            formBinding.btnSendInquiry.isEnabled=false
+            viewLifecycleOwner.lifecycleScope.launch {
+                val result=com.hoodeconnect.backend.CommunityApi.safely {
+                    check(!item.sellerUserId.isNullOrBlank()) { "Seller contact is unavailable." }
+                    com.hoodeconnect.backend.CommunityApi.request("marketplace_messages","POST",org.json.JSONObject()
+                        .put("item_id",item.id).put("sender_id",com.hoodeconnect.backend.BackendSession.userId)
+                        .put("recipient_id",item.sellerUserId).put("body",msg))
+                }
+                result.onSuccess { Toast.makeText(requireContext(),"Inquiry sent. Replies appear in Inbox.",Toast.LENGTH_LONG).show();dialog.dismiss() }
+                    .onFailure { formBinding.tilInquireMessage.error=it.message;formBinding.btnSendInquiry.isEnabled=true }
+            }
         }
 
         dialog.show()
@@ -515,12 +446,15 @@ class MarketplaceFragment : Fragment() {
     private fun showPostListingDialog() {
         val dialog = Dialog(requireContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar)
         val formBinding = com.example.hoode_app.databinding.DialogFormPostMarketplaceBinding.inflate(layoutInflater)
+        formBinding.etItemPhone.setText(HoodeRepository.currentUser.value?.phone.orEmpty())
         dialog.setContentView(formBinding.root)
 
+        // OLX-style: sheet anchored to the bottom of the screen
         dialog.window?.setLayout(
-            (resources.displayMetrics.widthPixels * 0.94).toInt(),
+            ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
+        dialog.window?.setGravity(Gravity.BOTTOM)
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         var selectedFormCategory = "Vehicles"
@@ -538,8 +472,8 @@ class MarketplaceFragment : Fragment() {
                 selectedFormCategory = cat
                 for ((v, c) in catChips) {
                     if (c == selectedFormCategory) {
-                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
-                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
+                        v.setBackgroundResource(R.drawable.bg_chip_accent_filled)
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                     } else {
                         v.setBackgroundResource(R.drawable.bg_chip_unselected)
                         v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
@@ -657,6 +591,9 @@ class MarketplaceFragment : Fragment() {
 
         formBinding.btnSubmitListing.setOnClickListener {
             val title = formBinding.etItemTitle.text.toString().trim()
+            val sellerPhone=formBinding.etItemPhone.text.toString().trim()
+            if(sellerPhone.isBlank()){formBinding.tilItemPhone.error="Enter your contact number";return@setOnClickListener}
+            formBinding.tilItemPhone.error=null
             val rawPrice = formBinding.etItemPrice.text.toString().trim()
             val type = formBinding.etItemType.text.toString().trim().ifBlank { "Sell" }
             val desc = formBinding.etItemDescription.text.toString().trim()
@@ -680,12 +617,13 @@ class MarketplaceFragment : Fragment() {
             } else {
                 val typed = formBinding.etItemImages.text.toString().trim()
                 if (typed.isNotBlank()) typed.split(",").map { it.trim() }.filter { it.isNotBlank() }
-                else listOf("https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=800")
+                else emptyList()
             }
 
             val user = HoodeRepository.currentUser.value
             val newItem = ClassifiedItem(
                 title = title,
+                phone = sellerPhone,
                 price = priceFormatted,
                 type = type,
                 category = selectedFormCategory,
@@ -697,14 +635,7 @@ class MarketplaceFragment : Fragment() {
                 images = finalImages
             )
 
-            viewLifecycleOwner.lifecycleScope.launch {
-                val current = HoodeRepository.classifieds.value.toMutableList()
-                current.add(0, newItem)
-                HoodeRepository.postClassified(newItem)
-                Toast.makeText(requireContext(), "Listing posted successfully to Marketplace!", Toast.LENGTH_SHORT).show()
-                renderListings()
-                dialog.dismiss()
-            }
+            submitForReview(formBinding.btnSubmitListing,dialog) { HoodeRepository.postClassified(newItem) }
         }
 
         dialog.show()

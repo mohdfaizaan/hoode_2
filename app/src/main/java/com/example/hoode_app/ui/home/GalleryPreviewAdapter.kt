@@ -18,35 +18,26 @@ class GalleryPreviewAdapter(
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val ivImage: ImageView = itemView.findViewById(R.id.iv_gallery_image)
         val tvTitle: TextView = itemView.findViewById(R.id.tv_gallery_item_title)
-        val tvOrder: TextView = itemView.findViewById(R.id.tv_gallery_item_order)
         val tvPhotographer: TextView? = itemView.findViewById(R.id.tv_gallery_item_photographer)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_gallery_thumbnail, parent, false)
-        val density = parent.context.resources.displayMetrics.density
-        view.layoutParams = ViewGroup.MarginLayoutParams(
-            (160 * density).toInt(),
-            (148 * density).toInt()
-        ).apply {
-            marginEnd = (12 * density).toInt()
-        }
+            .inflate(R.layout.item_home_gallery, parent, false)
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         holder.tvTitle.text = item.title
-        holder.tvOrder.visibility = View.GONE
-        holder.tvPhotographer?.text = "📸 ${item.photographer}"
+        holder.tvPhotographer?.text = item.photographer
+        holder.tvPhotographer?.visibility = if (item.photographer.isBlank()) View.GONE else View.VISIBLE
 
-        if (item.imageUrl.isNotBlank()) {
-            holder.ivImage.load(item.imageUrl) {
-                crossfade(true)
-                placeholder(R.drawable.bg_gallery_luxury_gradient)
-                error(R.drawable.bg_gallery_luxury_gradient)
-            }
+        holder.ivImage.load(item.imageUrl.takeIf { it.isNotBlank() }) {
+            crossfade(true)
+            placeholder(R.drawable.bg_dashboard_icon)
+            fallback(R.drawable.ic_gallery)
+            error(R.drawable.ic_gallery)
         }
 
         holder.itemView.setOnClickListener {

@@ -2,6 +2,9 @@ package com.example.hoode_app.ui.emergency
 
 import android.content.Intent
 import android.net.Uri
+import com.example.hoode_app.ui.common.submitForReview
+import com.example.hoode_app.ui.common.showEmptyContent
+import com.example.hoode_app.ui.common.attachClearAction
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -37,6 +40,7 @@ class EmergencyFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.etSearchContacts.attachClearAction()
 
         binding.btnBack.setOnClickListener {
             findNavController().navigateUp()
@@ -74,8 +78,9 @@ class EmergencyFragment : Fragment() {
                 }
                 formBinding.tilCorrectionPhone.error = null
 
-                Toast.makeText(requireContext(), "Thank you! Correction for '$service' submitted for verification.", Toast.LENGTH_LONG).show()
-                dialog.dismiss()
+                submitForReview(formBinding.btnSubmitCorrection,dialog,privateRequest=true) {
+                    com.hoodeconnect.backend.CommunityApi.submit("correction","Correction: $service",org.json.JSONObject().put("description",details.ifBlank{"Please review the contact number"}).put("phone",phone).put("service",service))
+                }
             }
 
             dialog.show()
@@ -99,6 +104,7 @@ class EmergencyFragment : Fragment() {
 
     private fun displayContacts(contacts: List<EmergencyContact>) {
         binding.llContactsContainer.removeAllViews()
+        if (contacts.isEmpty()) binding.llContactsContainer.showEmptyContent("No contacts to show")
         for (contact in contacts) {
             val itemBinding = ItemEmergencyContactBinding.inflate(layoutInflater, binding.llContactsContainer, false)
             itemBinding.tvContactCategory.text = contact.category

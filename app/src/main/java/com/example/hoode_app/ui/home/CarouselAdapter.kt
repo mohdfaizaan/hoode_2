@@ -33,7 +33,7 @@ class CarouselAdapter(
         val slide = slides[position]
         holder.tvHeadline.text = slide.headline
         holder.tvSubheadline.text = slide.subheadline
-        holder.tvAdvertiser.text = slide.advertiser
+        holder.tvAdvertiser.text = holder.itemView.context.getString(R.string.dashboard_sponsored_by, slide.advertiser)
 
         if (!slide.imageUrl.isNullOrBlank()) {
             holder.ivCarouselBg.visibility = View.VISIBLE
@@ -44,26 +44,13 @@ class CarouselAdapter(
             holder.ivCarouselBg.visibility = View.GONE
         }
 
-        if (slide.ctaLabel != null) {
-            holder.btnCta.visibility = View.VISIBLE
-            (holder.btnCta as? TextView)?.text = slide.ctaLabel
-        } else {
-            holder.btnCta.visibility = View.GONE
-        }
+        holder.btnCta.visibility = View.VISIBLE
+        (holder.btnCta as? TextView)?.text = slide.ctaLabel?.takeIf { it.isNotBlank() }
+            ?: holder.itemView.context.getString(R.string.dashboard_view_details)
 
-        // Vary gradient colors per slide for visual variety
-        val gradients = intArrayOf(
-            R.drawable.bg_carousel_gradient,
-            R.drawable.bg_carousel_slide_2,
-            R.drawable.bg_carousel_slide_3,
-            R.drawable.bg_carousel_slide_4,
-            R.drawable.bg_carousel_slide_5
-        )
-        val gradientRes = gradients.getOrElse(position) { R.drawable.bg_carousel_gradient }
-        // Apply background to inner container, NOT to itemView (which is MaterialCardView)
-        holder.flSlideBg.setBackgroundResource(gradientRes)
-        holder.itemView.clipToOutline = true
-
+        holder.flSlideBg.setBackgroundResource(R.drawable.bg_dashboard_hero)
+        holder.itemView.contentDescription="Sponsored by ${slide.advertiser}: ${slide.headline}"
+        holder.itemView.isFocusable=true
         // Slide click listener
         holder.itemView.setOnClickListener {
             onSlideClick?.invoke(slide)

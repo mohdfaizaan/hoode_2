@@ -50,6 +50,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     // Core AndroidX
     implementation(libs.androidx.core.ktx)

@@ -1,5 +1,7 @@
 package com.example.hoode_app.ui.jobs
 
+import com.example.hoode_app.ui.common.submitForReview
+import com.example.hoode_app.ui.common.showEmptyContent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -70,7 +72,7 @@ class JobsFragment : Fragment() {
                 for ((v, f) in filters) {
                     if (f == selectedFilter) {
                         v.setBackgroundResource(R.drawable.bg_chip_selected)
-                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.border_primary))
+                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.accent))
                     } else {
                         v.setBackgroundResource(R.drawable.bg_chip_unselected)
                         v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
@@ -84,6 +86,7 @@ class JobsFragment : Fragment() {
     private fun filterAndDisplayJobs(allJobs: List<JobPosting>) {
         val filtered = if (selectedFilter == "All") allJobs else allJobs.filter { it.type == selectedFilter }
         binding.llJobsContainer.removeAllViews()
+        if (filtered.isEmpty()) binding.llJobsContainer.showEmptyContent("No jobs to show")
 
         for (job in filtered) {
             val itemBinding = ItemJobCardBinding.inflate(layoutInflater, binding.llJobsContainer, false)
@@ -147,9 +150,7 @@ class JobsFragment : Fragment() {
             }
             formBinding.tilApplicantPhone.error = null
 
-            HoodeRepository.applyJob(job.id, name, phone, msg)
-            Toast.makeText(requireContext(), "Application submitted directly to ${job.employer}!", Toast.LENGTH_LONG).show()
-            dialog.dismiss()
+            submitForReview(formBinding.btnSubmitApplication,dialog,privateRequest=true) { HoodeRepository.applyJob(job.id,name,phone,msg) }
         }
 
         dialog.show()
@@ -226,11 +227,9 @@ class JobsFragment : Fragment() {
                 pay = if (pay.isNotBlank()) pay else "Competitive",
                 location = if (loc.isNotBlank()) loc else "Hoode",
                 description = if (desc.isNotBlank()) desc else "Contact $phone for full details and schedule.",
-                deadline = "30 Sep 2026"
+                deadline = "Contact employer"
             )
-            HoodeRepository.postJob(newJob)
-            Toast.makeText(requireContext(), "Job '$title' published to Hoode Community!", Toast.LENGTH_SHORT).show()
-            dialog.dismiss()
+            submitForReview(formBinding.btnSubmitJob,dialog) { HoodeRepository.postJob(newJob,phone) }
         }
 
         dialog.show()

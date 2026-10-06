@@ -43,7 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:textColor="#62E8CF"
+            android:textColor="@color/amber"
             android:textSize="14sp"
             android:textStyle="bold"
             android:text="Uploaded by: Person" />

@@ -52,11 +52,14 @@
     <string name="section_see_all">See all</string>
 
     <!-- Explore Categories -->
+    <string name="explore_essentials">Essentials</string>
     <string name="explore_faith_time">Faith &amp; Time</string>
     <string name="explore_help_services">Help &amp; Services</string>
     <string name="explore_community">Community</string>
     <string name="explore_learning_people">Learning &amp; People</string>
     <string name="explore_opportunities">Opportunities</string>
+    <string name="explore_work_services">Work &amp; Services</string>
+    <string name="explore_civic_rewards">Civic Voice &amp; Rewards</string>
     <string name="explore_search_hint">Search Hoode Connect…</string>
 
     <!-- Feature Names -->
@@ -122,6 +125,10 @@
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="submit">Submit</string>
+    <string name="submitting">Submitting…</string>
+    <string name="submission_pending">Pending</string>
+    <string name="submission_pending_explanation">We’ll review your submission and make it live once it’s approved. You can track its status in Profile → Activity.</string>
+    <string name="submission_private_explanation">Your request is pending. We’ll review it and update its status in Profile → Activity.</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
     <string name="share">Share</string>

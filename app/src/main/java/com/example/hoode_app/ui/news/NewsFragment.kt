@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import com.example.hoode_app.ui.common.showEmptyContent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -48,6 +49,7 @@ class NewsFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             HoodeRepository.newsArticles.collectLatest { articles ->
                 binding.llNewsContainer.removeAllViews()
+                if (articles.isEmpty()) binding.llNewsContainer.showEmptyContent("No news to show")
                 for (article in articles) {
                     val cardBinding = ItemNewsCardBinding.inflate(layoutInflater, binding.llNewsContainer, false)
                     if (article.isRumorClarification) {

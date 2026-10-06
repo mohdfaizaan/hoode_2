@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="160dp" app:cardCornerRadius="22dp" app:cardElevation="3dp" app:strokeWidth="0dp" app:cardBackgroundColor="@color/navy" app:cardPreventCornerOverlap="false" android:clickable="true" android:focusable="true">
+    <LinearLayout android:id="@+id/ll_hero_content" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="18dp" android:background="@drawable/bg_hero_prayer">
+        <FrameLayout android:layout_width="44dp" android:layout_height="44dp" android:background="@drawable/bg_hero_icon_disc">
+            <ImageView android:id="@+id/iv_hero_icon" android:layout_width="@dimen/icon_md" android:layout_height="@dimen/icon_md" android:layout_gravity="center" tools:src="@drawable/ic_prayer" tools:tint="@color/white" />
+        </FrameLayout>
+        <Space android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+        <TextView android:id="@+id/tv_hero_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/white" android:textSize="17sp" android:fontFamily="sans-serif-medium" android:maxLines="1" android:ellipsize="end" tools:text="Prayer Times" />
+        <TextView android:id="@+id/tv_hero_subtitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:textColor="@color/on_hero_secondary" android:textSize="12sp" android:maxLines="2" android:ellipsize="end" tools:text="Adhan and Iqamah at your mosque" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

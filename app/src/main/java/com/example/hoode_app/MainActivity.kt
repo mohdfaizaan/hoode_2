@@ -18,12 +18,15 @@ import com.example.hoode_app.data.repository.HoodeRepository
 import com.example.hoode_app.databinding.ActivityMainBinding
 import com.example.hoode_app.ui.common.CommunityFeaturesHelper
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
+import coil.load
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navItems: List<LinearLayout>
     private lateinit var navController: NavController
+    private var launchIntro: com.example.hoode_app.ui.common.LaunchIntro? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,21 +41,40 @@ class MainActivity : AppCompatActivity() {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        // Dynamic start destination: if user is logged in, immediately open Home; otherwise Sign In
-        val graph = navController.navInflater.inflate(R.navigation.nav_graph)
-        graph.setStartDestination(if (HoodeRepository.isLoggedIn()) R.id.homeFragment else R.id.signInFragment)
-        navController.graph = graph
-
-        setupNavigation()
-        setupSideDrawer()
+        binding.root.visibility=View.INVISIBLE
+        launchIntro = com.example.hoode_app.ui.common.LaunchIntro(this, savedInstanceState == null)
+        lifecycleScope.launch {
+            HoodeRepository.sessionReady.first{it}
+            if(savedInstanceState==null) {
+                val graph=navController.navInflater.inflate(R.navigation.nav_graph)
+                graph.setStartDestination(if(HoodeRepository.isLoggedIn())R.id.homeFragment else R.id.signInFragment)
+                navController.graph=graph
+                val requested = intent.getStringExtra("resident_destination")
+                val destination = if (HoodeRepository.isLoggedIn()) when (requested) {
+                    "editProfileFragment" -> R.id.editProfileFragment
+                    "settingsFragment" -> R.id.settingsFragment
+                    else -> null
+                } else if (requested == "signUpFragment") R.id.signUpFragment else null
+                destination?.let { navController.navigate(it) }
+            }
+            setupNavigation();setupSideDrawer()
+            launchIntro?.reveal(binding.root)
+        }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
+                HoodeRepository.sessionReady.first { it }
                 while (true) {
-                    HoodeRepository.syncWithCloud()
+                    HoodeRepository.syncWithCloud().join()
                     kotlinx.coroutines.delay(30_000)
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        launchIntro?.remove()
+        launchIntro = null
+        super.onDestroy()
     }
 
     /**
@@ -113,7 +135,13 @@ class MainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 HoodeRepository.currentUser.collect { user ->
                     sideMenu.tvMenuProfileName.text = user?.displayName ?: "Hoode Resident"
-                    sideMenu.tvMenuProfileStatus.text = "Verified Resident • Ward 04"
+                    sideMenu.tvMenuProfileStatus.text = user?.locality?.takeIf { it.isNotBlank() } ?: "Hoode community"
+                    sideMenu.itemMenuAdmin.visibility = View.GONE
+                    sideMenu.ivMenuProfileAvatar.load(user?.profilePicUri) {
+                        placeholder(R.drawable.profile_placeholder)
+                        error(R.drawable.profile_placeholder)
+                        fallback(R.drawable.profile_placeholder)
+                    }
                 }
             }
         }
@@ -188,6 +216,15 @@ class MainActivity : AppCompatActivity() {
     private fun setupNavigation() {
         val bottomNav = binding.customBottomNav
 
+        fun openTab(destination: Int) {
+            if (navController.currentDestination?.id == destination) return
+            navController.navigate(destination, null, androidx.navigation.NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .setRestoreState(destination != R.id.homeFragment)
+                .setPopUpTo(R.id.homeFragment, false, true)
+                .build())
+        }
+
         navItems = listOf(
             bottomNav.navHome,
             bottomNav.navExplore,
@@ -197,27 +234,30 @@ class MainActivity : AppCompatActivity() {
         )
 
         bottomNav.navHome.setOnClickListener {
-            navController.navigate(R.id.homeFragment)
+            openTab(R.id.homeFragment)
         }
 
         bottomNav.navExplore.setOnClickListener {
-            navController.navigate(R.id.exploreFragment)
+            openTab(R.id.exploreFragment)
         }
 
         bottomNav.navCreate.setOnClickListener {
-            navController.navigate(R.id.createFragment)
+            openTab(R.id.createFragment)
         }
 
         bottomNav.navInbox.setOnClickListener {
-            navController.navigate(R.id.inboxFragment)
+            openTab(R.id.inboxFragment)
         }
 
         bottomNav.navProfile.setOnClickListener {
-            navController.navigate(R.id.profileFragment)
+            openTab(R.id.profileFragment)
         }
 
         // Show/hide bottom nav and sync selection based on destination
         navController.addOnDestinationChangedListener { _, destination, _ ->
+            title = "${destination.label ?: "Hoode"} · Hoode"
+            WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars =
+                destination.id !in setOf(R.id.signInFragment, R.id.signUpFragment, R.id.welcomeFragment)
             when (destination.id) {
                 R.id.homeFragment -> {
                     bottomNav.root.visibility = View.VISIBLE

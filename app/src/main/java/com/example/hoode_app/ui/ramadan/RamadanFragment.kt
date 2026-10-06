@@ -1,5 +1,6 @@
 package com.example.hoode_app.ui.ramadan
 
+import com.example.hoode_app.ui.common.showEmptyContent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -37,6 +38,7 @@ class RamadanFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             HoodeRepository.ramadanTimetable.collectLatest { list ->
                 binding.llRamadanTableContainer.removeAllViews()
+        if (list.isEmpty()) binding.llRamadanTableContainer.showEmptyContent("No Ramadan timetable to show")
                 for (item in list) {
                     val rowBinding = ItemRamadanRowBinding.inflate(layoutInflater, binding.llRamadanTableContainer, false)
                     rowBinding.tvRamadanDay.text = "Day ${item.day}"

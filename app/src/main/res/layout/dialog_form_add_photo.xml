@@ -1,320 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/bg_card_bordered"
-    android:orientation="vertical"
-    android:padding="20dp">
-
-    <!-- Top Bar -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-bold"
-                android:text="Publish Community Photo"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="Showcase Hoode's beauty, sports &amp; culture"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_bordered" android:orientation="vertical" android:padding="20dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-bold" android:text="Share a photo" android:textColor="@color/text_primary" android:textSize="18sp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Showcase Hoode's beauty, sports &amp; culture" android:textColor="@color/text_secondary" android:textSize="12sp" />
         </LinearLayout>
-
-        <FrameLayout
-            android:id="@+id/btn_close_photo"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless">
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_close"
-                app:tint="@color/text_secondary"
-                android:contentDescription="Close" />
+        <FrameLayout android:id="@+id/btn_close_photo" android:layout_width="36dp" android:layout_height="48dp" android:background="?attr/selectableItemBackgroundBorderless" android:minHeight="48dp" android:minWidth="48dp" android:focusable="true" android:clickable="true" android:foreground="?attr/selectableItemBackground">
+            <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/ic_close" app:tint="@color/text_secondary" android:contentDescription="Close" />
         </FrameLayout>
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginVertical="12dp"
-        android:background="@color/border_faint" />
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxHeight="520dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- Choose / Upload Photo from Gallery Button -->
-            <LinearLayout
-                android:id="@+id/btn_upload_photo"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_primary_grey_button"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_camera_fab"
-                    app:tint="@color/text_primary" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Choose / Upload Photo from Gallery"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13.5sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textStyle="bold" />
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginVertical="12dp" android:background="@color/border_faint" />
+    <com.example.hoode_app.ui.common.FormScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+            <LinearLayout android:id="@+id/btn_upload_photo" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/bg_primary_grey_button" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" android:gravity="center" android:orientation="horizontal" android:minHeight="48dp" android:minWidth="48dp">
+                <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_camera_fab" app:tint="@color/text_primary" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Choose a photo" android:textColor="@color/text_primary" android:textSize="13.5sp" android:fontFamily="sans-serif-medium" android:textStyle="bold" />
             </LinearLayout>
-
-            <!-- Photo URL Input (Alternative) -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_photo_url"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="Or paste Photo Web URL (optional)"
-                app:boxCornerRadiusBottomEnd="14dp"
-                app:boxCornerRadiusBottomStart="14dp"
-                app:boxCornerRadiusTopEnd="14dp"
-                app:boxCornerRadiusTopStart="14dp"
-                app:boxStrokeColor="@color/border_green"
-                app:startIconDrawable="@drawable/ic_gallery"
-                app:startIconTint="@color/accent">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_photo_url"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textUri"
-                    android:text="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800"
-                    android:textColor="@color/text_primary" />
+            <com.google.android.material.textfield.TextInputLayout android:id="@+id/til_photo_url" style="@style/Widget.Hoode.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:hint="Or paste Photo Web URL (optional)" app:boxCornerRadiusBottomEnd="14dp" app:boxCornerRadiusBottomStart="14dp" app:boxCornerRadiusTopEnd="14dp" app:boxCornerRadiusTopStart="14dp" app:boxStrokeColor="@color/border_green" app:startIconDrawable="@drawable/ic_gallery" app:startIconTint="@color/accent">
+                <com.google.android.material.textfield.TextInputEditText android:id="@+id/et_photo_url" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textUri" android:text="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" android:textColor="@color/text_primary" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Live Photo Preview Card -->
-            <FrameLayout
-                android:id="@+id/fl_photo_preview_container"
-                android:layout_width="match_parent"
-                android:layout_height="140dp"
-                android:layout_marginTop="10dp"
-                android:clickable="true"
-                android:focusable="true">
-
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/iv_photo_preview"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:background="@drawable/bg_gallery_luxury_gradient"
-                    app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|end"
-                    android:layout_margin="8dp"
-                    android:background="@drawable/bg_gallery_pill"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="3dp"
-                    android:text="Tap to change photo"
-                    android:textColor="@color/white"
-                    android:textSize="10.5sp"
-                    android:fontFamily="sans-serif-medium" />
+            <FrameLayout android:id="@+id/fl_photo_preview_container" android:layout_width="match_parent" android:layout_height="140dp" android:layout_marginTop="10dp" android:clickable="true" android:focusable="true">
+                <com.google.android.material.imageview.ShapeableImageView android:id="@+id/iv_photo_preview" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:background="@drawable/bg_gallery_luxury_gradient" app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="bottom|end" android:layout_margin="8dp" android:background="@drawable/bg_gallery_pill" android:paddingHorizontal="8dp" android:paddingVertical="3dp" android:text="Tap to change photo" android:textColor="@color/white" android:textSize="10.5sp" android:fontFamily="sans-serif-medium" />
             </FrameLayout>
-
-            <!-- Photo Title -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_photo_title"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:hint="Photo Title *"
-                app:boxCornerRadiusBottomEnd="14dp"
-                app:boxCornerRadiusBottomStart="14dp"
-                app:boxCornerRadiusTopEnd="14dp"
-                app:boxCornerRadiusTopStart="14dp"
-                app:boxStrokeColor="@color/border_green">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_photo_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textCapSentences"
-                    android:textColor="@color/text_primary" />
+            <com.google.android.material.textfield.TextInputLayout android:id="@+id/til_photo_title" style="@style/Widget.Hoode.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:hint="Photo Title *" app:boxCornerRadiusBottomEnd="14dp" app:boxCornerRadiusBottomStart="14dp" app:boxCornerRadiusTopEnd="14dp" app:boxCornerRadiusTopStart="14dp" app:boxStrokeColor="@color/border_green">
+                <com.google.android.material.textfield.TextInputEditText android:id="@+id/et_photo_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textCapSentences" android:textColor="@color/text_primary" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Photographer Name -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_photographer"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="Photographer / Contributor Name"
-                app:boxCornerRadiusBottomEnd="14dp"
-                app:boxCornerRadiusBottomStart="14dp"
-                app:boxCornerRadiusTopEnd="14dp"
-                app:boxCornerRadiusTopStart="14dp"
-                app:boxStrokeColor="@color/border_green"
-                app:startIconDrawable="@drawable/ic_person"
-                app:startIconTint="@color/accent">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_photographer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPersonName"
-                    android:textColor="@color/text_primary" />
+            <com.google.android.material.textfield.TextInputLayout android:id="@+id/til_photographer" style="@style/Widget.Hoode.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="Photographer / Contributor Name" app:boxCornerRadiusBottomEnd="14dp" app:boxCornerRadiusBottomStart="14dp" app:boxCornerRadiusTopEnd="14dp" app:boxCornerRadiusTopStart="14dp" app:boxStrokeColor="@color/border_green" app:startIconDrawable="@drawable/ic_person" app:startIconTint="@color/accent">
+                <com.google.android.material.textfield.TextInputEditText android:id="@+id/et_photographer" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textPersonName" android:textColor="@color/text_primary" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Category / Tag Chips -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="Collection Tag"
-                android:textColor="@color/text_primary"
-                android:textSize="13sp" />
-
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:scrollbars="none">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/chip_gal_nature"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:background="@drawable/bg_chip_black_border"
-                        android:gravity="center"
-                        android:paddingHorizontal="14dp"
-                        android:text="🌊 Beach &amp; Nature"
-                        android:textColor="@color/text_primary"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-medium" />
-
-                    <TextView
-                        android:id="@+id/chip_gal_sports"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:layout_marginStart="6dp"
-                        android:background="@drawable/bg_chip_unselected"
-                        android:gravity="center"
-                        android:paddingHorizontal="14dp"
-                        android:text="🏏 Sports"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-medium" />
-
-                    <TextView
-                        android:id="@+id/chip_gal_mosques"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:layout_marginStart="6dp"
-                        android:background="@drawable/bg_chip_unselected"
-                        android:gravity="center"
-                        android:paddingHorizontal="14dp"
-                        android:text="🕌 Mosques"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-medium" />
-
-                    <TextView
-                        android:id="@+id/chip_gal_community"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:layout_marginStart="6dp"
-                        android:background="@drawable/bg_chip_unselected"
-                        android:gravity="center"
-                        android:paddingHorizontal="14dp"
-                        android:text="🤝 Community"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-medium" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:fontFamily="sans-serif-medium" android:text="Collection Tag" android:textColor="@color/text_primary" android:textSize="13sp" />
+            <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp">
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <TextView android:id="@+id/chip_gal_nature" android:layout_width="wrap_content" android:layout_height="48dp" android:background="@drawable/bg_chip_black_border" android:gravity="center" android:paddingHorizontal="14dp" android:text="🌊 Beach &amp; Nature" android:textColor="@color/text_primary" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:minHeight="48dp" android:minWidth="48dp" android:focusable="true" android:clickable="true" android:foreground="?attr/selectableItemBackground" />
+                    <TextView android:id="@+id/chip_gal_sports" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginStart="6dp" android:background="@drawable/bg_chip_unselected" android:gravity="center" android:paddingHorizontal="14dp" android:text="🏏 Sports" android:textColor="@color/text_secondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:minHeight="48dp" android:minWidth="48dp" android:focusable="true" android:clickable="true" android:foreground="?attr/selectableItemBackground" />
+                    <TextView android:id="@+id/chip_gal_mosques" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginStart="6dp" android:background="@drawable/bg_chip_unselected" android:gravity="center" android:paddingHorizontal="14dp" android:text="🕌 Mosques" android:textColor="@color/text_secondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:minHeight="48dp" android:minWidth="48dp" android:focusable="true" android:clickable="true" android:foreground="?attr/selectableItemBackground" />
+                    <TextView android:id="@+id/chip_gal_community" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginStart="6dp" android:background="@drawable/bg_chip_unselected" android:gravity="center" android:paddingHorizontal="14dp" android:text="🤝 Community" android:textColor="@color/text_secondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:minHeight="48dp" android:minWidth="48dp" android:focusable="true" android:clickable="true" android:foreground="?attr/selectableItemBackground" />
                 </LinearLayout>
             </HorizontalScrollView>
-
-            <!-- Caption / Story -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_photo_caption"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="Caption / Short Story"
-                app:boxCornerRadiusBottomEnd="14dp"
-                app:boxCornerRadiusBottomStart="14dp"
-                app:boxCornerRadiusTopEnd="14dp"
-                app:boxCornerRadiusTopStart="14dp"
-                app:boxStrokeColor="@color/border_green">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_photo_caption"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="top|start"
-                    android:inputType="textMultiLine"
-                    android:lines="2"
-                    android:textColor="@color/text_primary" />
+            <com.google.android.material.textfield.TextInputLayout android:id="@+id/til_photo_caption" style="@style/Widget.Hoode.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="Caption / Short Story" app:boxCornerRadiusBottomEnd="14dp" app:boxCornerRadiusBottomStart="14dp" app:boxCornerRadiusTopEnd="14dp" app:boxCornerRadiusTopStart="14dp" app:boxStrokeColor="@color/border_green">
+                <com.google.android.material.textfield.TextInputEditText android:id="@+id/et_photo_caption" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:inputType="textMultiLine" android:lines="2" android:textColor="@color/text_primary" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Submit Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_submit_photo"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="20dp"
-                android:backgroundTint="@color/accent_ink"
-                android:text="Publish to Community Gallery"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="15sp"
-                android:fontFamily="sans-serif-medium"
-                app:cornerRadius="14dp"
-                app:icon="@drawable/ic_gallery"
-                app:iconTint="@color/white" />
-
+            <com.google.android.material.button.MaterialButton android:id="@+id/btn_submit_photo" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:backgroundTint="@color/accent_ink" android:text="@string/submit" android:textAllCaps="false" android:textColor="@color/white" android:textSize="15sp" android:fontFamily="sans-serif-medium" app:cornerRadius="14dp" app:icon="@drawable/ic_gallery" app:iconTint="@color/white" android:minHeight="48dp" />
         </LinearLayout>
-    </ScrollView>
+    </com.example.hoode_app.ui.common.FormScrollView>
 </LinearLayout>

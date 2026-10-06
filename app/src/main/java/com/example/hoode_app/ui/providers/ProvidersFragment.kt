@@ -2,6 +2,7 @@ package com.example.hoode_app.ui.providers
 
 import android.content.Intent
 import android.net.Uri
+import com.example.hoode_app.ui.common.showEmptyContent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -40,6 +41,7 @@ class ProvidersFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             HoodeRepository.providers.collectLatest { list ->
                 binding.llProvidersContainer.removeAllViews()
+                if (list.isEmpty()) binding.llProvidersContainer.showEmptyContent("No service providers to show")
                 for (provider in list) {
                     val itemBinding = ItemProviderCardBinding.inflate(layoutInflater, binding.llProvidersContainer, false)
                     itemBinding.tvProviderCategory.text = provider.category

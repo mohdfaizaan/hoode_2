@@ -1,145 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- Hoode Connect — Minimalist Clean White Theme              -->
-    <!-- Pure White Surfaces, Crisp Charcoal Text, Neutral Greys   -->
-    <!-- ═══════════════════════════════════════════════════════ -->
-
-    <!-- Backgrounds & Canvas (Ultra-clean, luminous light canvas) -->
-    <color name="background">#F8F9FB</color>
+    <!-- Hoode coastal palette. Compatibility aliases below keep every resident flow aligned. -->
+    <color name="background">#F3F6FA</color>
     <color name="surface">#FFFFFF</color>
-    <color name="surface_raised">#FFFFFF</color>
-    <color name="surface_dim">#F1F3F5</color>
-
-    <!-- Header Gradient -->
-    <color name="header_gradient_start">#F8F9FB</color>
-    <color name="header_gradient_mid">#F8F9FB</color>
-    <color name="header_gradient_end">#F8F9FB</color>
-
-    <!-- Borders (Ultra-fine neutral borders) -->
-    <color name="border_green">#E5E7EB</color>
-    <color name="border_green_dark">#D1D5DB</color>
-    <color name="border_green_soft">#F3F4F6</color>
-    <color name="border_primary">#E5E7EB</color>
-    <color name="border_soft">#E5E7EB</color>
-    <color name="border_faint">#F9FAFB</color>
-    <color name="border_subtle">#F3F4F6</color>
-
-    <!-- Text (True neutral charcoal & pure grey — NO dark blue) -->
-    <color name="text_primary">#20202A</color>
-    <color name="text_secondary">#777781</color>
-    <color name="text_muted">#9CA3AF</color>
-    <color name="text_tertiary">#9CA3AF</color>
-    <color name="text_on_accent">#FFFFFF</color>
-    <color name="text_on_dark">#FFFFFF</color>
-    <color name="text_link">#3438E8</color>
-
-    <!-- Hoode Connect Auth Specification Palette -->
-    <color name="auth_blue">#3438E8</color>
-    <color name="auth_purple">#7557E8</color>
-    <color name="auth_pink">#E780F4</color>
-    <color name="auth_background">#F8F9FF</color>
-    <color name="auth_card">#FFFFFF</color>
-    <color name="input_border">#E7E7ED</color>
-    <color name="divider_color">#E6E6EB</color>
-
-    <!-- Hoode Connect Profile, Edit Profile & Settings Theme (Light Grey Neutral) -->
-    <color name="profile_bg">#F7F7F7</color>
-    <color name="profile_card">#FFFFFF</color>
-    <color name="profile_accent_primary">#D9D9D9</color>
-    <color name="profile_accent_secondary">#ECECEC</color>
-    <color name="profile_accent_dark">#6B6B6B</color>
-    <color name="profile_text_main">#171717</color>
-    <color name="profile_text_secondary">#777777</color>
-    <color name="profile_divider">#EAEAEA</color>
-    <color name="profile_input_bg">#F2F2F2</color>
-    <color name="profile_border">#E3E3E3</color>
-    <color name="profile_icon_bg">#F0F0F0</color>
-    <color name="profile_btn_text">#242424</color>
-
-    <!-- Accent — Minimalist Charcoal / Black & Soft Mist Grey -->
-    <color name="accent">#111827</color>
-    <color name="accent_dark">#000000</color>
-    <color name="accent_soft">#F3F4F6</color>
-    <color name="accent_ink">#111827</color>
-    <color name="accent_surface">#FFFFFF</color>
-
-    <!-- Inside Floating Icons Color (Green matching the overall theme) -->
-    <color name="icon_green">#059669</color>
-
-    <!-- Category & Story Ring Colors (Monochrome / Neutral White Theme) -->
-    <color name="canva_circle_coral">#111827</color>
-    <color name="canva_circle_orange">#374151</color>
-    <color name="canva_circle_purple">#1F2937</color>
-    <color name="canva_circle_lavender">#4B5563</color>
-    <color name="canva_circle_blue">#111827</color>
-    <color name="canva_circle_pink">#374151</color>
-    <color name="canva_circle_teal">#1F2937</color>
-    <color name="canva_circle_green">#111827</color>
-    <color name="canva_circle_indigo">#1F2937</color>
-    <color name="canva_circle_gold">#374151</color>
-
-    <!-- UI Elements -->
-    <color name="canva_fab_purple">#111827</color>
-    <color name="canva_crown_gold">#111827</color>
-    <color name="canva_crown_bg">#FFFFFF</color>
-    <color name="canva_badge_new">#111827</color>
-    <color name="canva_pill_border">#E5E7EB</color>
-
-    <!-- Semantic -->
-    <color name="warning">#F59E0B</color>
-    <color name="warning_soft">#FEF3C7</color>
-    <color name="danger">#EF4444</color>
-    <color name="danger_soft">#FEE2E2</color>
-    <color name="success">#10B981</color>
-    <color name="success_soft">#D1FAE5</color>
-    <color name="info">#6B7280</color>
-    <color name="info_soft">#F3F4F6</color>
-
-    <!-- Emergency -->
-    <color name="emergency">#EF4444</color>
-    <color name="emergency_soft">#FEE2E2</color>
-
-    <!-- Legacy/Tab Colors -->
-    <color name="nav_active">#111827</color>
-    <color name="nav_inactive">#9CA3AF</color>
-    <color name="nav_indicator">#F3F4F6</color>
-
-    <!-- Bottom Navigation (Clean Floating Pill) -->
-    <color name="nav_selected_red">#111827</color>
-    <color name="nav_unselected">#9CA3AF</color>
-    <color name="nav_outer_stroke">#E5E7EB</color>
-    <color name="nav_selected_background">#F3F4F6</color>
-    <color name="nav_selected_stroke">#E5E7EB</color>
-
-    <!-- Shimmer/Skeleton -->
-    <color name="shimmer_base">#F3F4F6</color>
-    <color name="shimmer_highlight">#FFFFFF</color>
-
-    <!-- Overlay -->
-    <color name="overlay_dark">#66000000</color>
+    <color name="surface_dim">#E6EDF5</color>
+    <color name="text_primary">#172D43</color>
+    <color name="text_secondary">#586A7D</color>
+    <color name="accent">#235FA4</color>
+    <color name="border_soft">#DBE3ED</color>
+    <color name="navy">#183650</color>
+    <color name="on_navy_secondary">#CAD9E8</color>
+    <color name="amber">#F4C879</color>
+    <color name="danger">#A13F50</color>
+    <color name="danger_soft">#F8E9ED</color>
+    <color name="success">#28664F</color>
+    <color name="success_soft">#E5F1EB</color>
+    <color name="warning">#825619</color>
+    <color name="warning_soft">#FCF0D9</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="overlay_dark">#66172D43</color>
     <color name="overlay_light">#40FFFFFF</color>
+    <color name="surface_raised">@color/surface</color>
+    <color name="header_gradient_start">@color/background</color>
+    <color name="header_gradient_mid">@color/background</color>
+    <color name="header_gradient_end">@color/background</color>
+    <color name="border_green">@color/border_soft</color>
+    <color name="border_green_dark">@color/border_soft</color>
+    <color name="border_green_soft">@color/surface_dim</color>
+    <color name="border_primary">@color/border_soft</color>
+    <color name="border_faint">@color/background</color>
+    <color name="border_subtle">@color/surface_dim</color>
+    <color name="text_muted">@color/text_secondary</color>
+    <color name="text_tertiary">@color/text_secondary</color>
+    <color name="text_on_accent">@color/white</color>
+    <color name="text_on_dark">@color/white</color>
+    <color name="text_link">@color/accent</color>
+    <color name="auth_blue">@color/accent</color>
+    <color name="auth_purple">@color/navy</color>
+    <color name="auth_pink">@color/navy</color>
+    <color name="auth_background">@color/background</color>
+    <color name="auth_card">@color/surface</color>
+    <color name="input_border">@color/border_soft</color>
+    <color name="divider_color">@color/border_soft</color>
+    <color name="profile_bg">@color/background</color>
+    <color name="profile_card">@color/surface</color>
+    <color name="profile_accent_primary">@color/surface_dim</color>
+    <color name="profile_accent_secondary">@color/background</color>
+    <color name="profile_accent_dark">@color/accent</color>
+    <color name="profile_text_main">@color/text_primary</color>
+    <color name="profile_text_secondary">@color/text_secondary</color>
+    <color name="profile_divider">@color/border_soft</color>
+    <color name="profile_input_bg">@color/surface</color>
+    <color name="profile_border">@color/border_soft</color>
+    <color name="profile_icon_bg">@color/surface_dim</color>
+    <color name="profile_btn_text">@color/accent</color>
+    <color name="accent_dark">@color/navy</color>
+    <color name="accent_soft">@color/surface_dim</color>
+    <color name="accent_ink">@color/text_primary</color>
+    <color name="accent_surface">@color/surface</color>
+    <color name="icon_green">@color/accent</color>
+    <color name="canva_fab_purple">@color/accent</color>
+    <color name="canva_crown_gold">@color/warning</color>
+    <color name="canva_crown_bg">@color/warning_soft</color>
+    <color name="canva_badge_new">@color/accent</color>
+    <color name="canva_pill_border">@color/border_soft</color>
+    <color name="info">@color/accent</color>
+    <color name="info_soft">@color/surface_dim</color>
+    <color name="emergency">@color/danger</color>
+    <color name="emergency_soft">@color/danger_soft</color>
+    <color name="nav_active">@color/accent</color>
+    <color name="nav_inactive">@color/text_secondary</color>
+    <color name="nav_indicator">@color/surface_dim</color>
+    <color name="nav_selected_red">@color/accent</color>
+    <color name="nav_unselected">@color/text_secondary</color>
+    <color name="nav_outer_stroke">@color/border_soft</color>
+    <color name="nav_selected_background">@color/surface_dim</color>
+    <color name="nav_selected_stroke">@color/surface_dim</color>
+    <color name="shimmer_base">@color/surface_dim</color>
+    <color name="shimmer_highlight">@color/surface</color>
+    <color name="indicator_active">@color/accent</color>
+    <color name="indicator_inactive">@color/border_soft</color>
+    <color name="prayer_ring_track">@color/surface_dim</color>
+    <color name="prayer_ring_progress">@color/accent</color>
+    <color name="prayer_ring_urgent">@color/danger</color>
+    <color name="sponsored_bg">@color/surface_dim</color>
+    <color name="sponsored_text">@color/text_primary</color>
+    <color name="status_open">@color/success</color>
+    <color name="status_pending">@color/warning</color>
+    <color name="status_closed">@color/text_secondary</color>
+    <color name="status_urgent">@color/danger</color>
+    <color name="canva_circle_coral">@color/accent</color>
+    <color name="canva_circle_orange">@color/accent</color>
+    <color name="canva_circle_purple">@color/accent</color>
+    <color name="canva_circle_lavender">@color/accent</color>
+    <color name="canva_circle_blue">@color/accent</color>
+    <color name="canva_circle_pink">@color/accent</color>
+    <color name="canva_circle_teal">@color/accent</color>
+    <color name="canva_circle_green">@color/accent</color>
+    <color name="canva_circle_indigo">@color/accent</color>
+    <color name="canva_circle_gold">@color/accent</color>
 
-    <!-- Carousel Indicator -->
-    <color name="indicator_active">#111827</color>
-    <color name="indicator_inactive">#E5E7EB</color>
-
-    <!-- Prayer Countdown Ring -->
-    <color name="prayer_ring_track">#F3F4F6</color>
-    <color name="prayer_ring_progress">#111827</color>
-    <color name="prayer_ring_urgent">#EF4444</color>
-
-    <!-- Sponsored Badge -->
-    <color name="sponsored_bg">#F3F4F6</color>
-    <color name="sponsored_text">#111827</color>
-
-    <!-- Status Colors -->
-    <color name="status_open">#10B981</color>
-    <color name="status_pending">#F59E0B</color>
-    <color name="status_closed">#94A3B8</color>
-    <color name="status_urgent">#EF4444</color>
-
-    <!-- Standard Colors -->
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Explore premium section -->
+    <color name="hero_navy_start">@color/navy</color>
+    <color name="hero_navy_end">#2B6CB0</color>
+    <color name="hero_danger_start">#B04A5C</color>
+    <color name="hero_danger_end">#7C2D3C</color>
+    <color name="navy_soft">#E7EDF4</color>
+    <color name="on_hero_secondary">#C3D5E7</color>
 </resources>

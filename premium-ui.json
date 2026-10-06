@@ -1,0 +1,14 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": [
+    "app/src/main"
+  ],
+  "canonicalMap": "md files/UX-CONTRACT.md",
+  "requiredCapabilities": [
+    "Form",
+    "Toast",
+    "CRUD",
+    "Scrollbar",
+    "Select/Listbox"
+  ]
+}

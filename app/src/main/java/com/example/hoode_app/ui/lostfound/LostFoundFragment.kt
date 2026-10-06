@@ -3,6 +3,8 @@ package com.example.hoode_app.ui.lostfound
 import android.app.Dialog
 import android.content.Intent
 import android.net.Uri
+import com.example.hoode_app.ui.common.submitForReview
+import com.example.hoode_app.ui.common.showEmptyContent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -95,6 +97,7 @@ class LostFoundFragment : Fragment() {
         }
 
         binding.llLostFoundContainer.removeAllViews()
+        if (filtered.isEmpty()) binding.llLostFoundContainer.showEmptyContent("No lost or found items to show")
         for (item in filtered) {
             val itemBinding = ItemLostFoundCardBinding.inflate(layoutInflater, binding.llLostFoundContainer, false)
 
@@ -250,9 +253,7 @@ class LostFoundFragment : Fragment() {
             }
             formBinding.tilClaimProof.error = null
 
-            HoodeRepository.claimLostFound(item.id)
-            Toast.makeText(requireContext(), "Private claim submitted. You will be notified once verified.", Toast.LENGTH_LONG).show()
-            dialog.dismiss()
+            submitForReview(formBinding.btnSubmitClaim,dialog,privateRequest=true) { HoodeRepository.claimLostFound(item.id,proof) }
         }
 
         dialog.show()
@@ -387,6 +388,7 @@ class LostFoundFragment : Fragment() {
             formBinding.tilLfDescription.error = null
 
             val imagesList = if (img.isNotBlank()) listOf(img) else emptyList()
+            if(phone.isBlank()) { formBinding.tilLfPhone.error="Enter a contact phone number";return@setOnClickListener }
             val newItem = LostFoundItem(
                 title = title,
                 isLost = isLostSelection,
@@ -395,12 +397,10 @@ class LostFoundFragment : Fragment() {
                 date = "Today",
                 description = desc,
                 images = imagesList,
-                contactPhone = phone.ifBlank { "+91 820 252 0100" }
+                contactPhone = phone
             )
 
-            HoodeRepository.postLostFound(newItem)
-            Toast.makeText(requireContext(), "Community report submitted successfully!", Toast.LENGTH_SHORT).show()
-            dialog.dismiss()
+            submitForReview(formBinding.btnSubmitReport,dialog) { HoodeRepository.postLostFound(newItem) }
         }
 
         dialog.show()

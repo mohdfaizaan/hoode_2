@@ -211,8 +211,8 @@ class EditProfileFragment : Fragment() {
                     profession = selectedProfession,
                     fatherName = fatherName,
                     profilePicUri = selectedAvatarUri,
-                    username = username.ifBlank { null },
-                    bio = bio.ifBlank { null },
+                    username = username,
+                    bio = bio,
                     coverPicUri = selectedCoverUri
                 )
 

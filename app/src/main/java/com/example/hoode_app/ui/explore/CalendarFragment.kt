@@ -204,17 +204,17 @@ class CalendarFragment : Fragment() {
                 }
                 isToday -> {
                     holder.flDayBackground.setBackgroundResource(R.drawable.bg_calendar_today)
-                    holder.tvDayNumber.setTextColor(Color.parseColor("#171717"))
+                    holder.tvDayNumber.setTextColor(holder.itemView.context.getColor(com.example.hoode_app.R.color.text_primary))
                     holder.viewEventDot.setBackgroundResource(R.drawable.bg_bottom_nav_item_selected)
                 }
                 hasEvent -> {
                     holder.flDayBackground.setBackgroundResource(R.drawable.bg_calendar_event)
-                    holder.tvDayNumber.setTextColor(Color.parseColor("#171717"))
+                    holder.tvDayNumber.setTextColor(holder.itemView.context.getColor(com.example.hoode_app.R.color.text_primary))
                     holder.viewEventDot.setBackgroundResource(R.drawable.bg_bottom_nav_item_selected)
                 }
                 else -> {
                     holder.flDayBackground.background = null
-                    holder.tvDayNumber.setTextColor(Color.parseColor("#171717"))
+                    holder.tvDayNumber.setTextColor(holder.itemView.context.getColor(com.example.hoode_app.R.color.text_primary))
                 }
             }
 

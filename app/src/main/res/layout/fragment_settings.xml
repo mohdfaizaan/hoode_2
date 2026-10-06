@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/profile_bg" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingStart="16dp" android:paddingTop="36dp" android:paddingEnd="16dp" android:paddingBottom="40dp">
+        <FrameLayout android:layout_width="match_parent" android:layout_height="52dp">
+            <ImageButton android:id="@+id/btnBack" android:layout_width="48dp" android:layout_height="48dp" android:layout_gravity="start|center_vertical" android:background="@drawable/bg_circle_light" android:contentDescription="Back" android:src="@drawable/ic_arrow_back" app:tint="@color/text_primary" android:padding="12dp" android:focusable="true" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:text="My Settings" android:textColor="@color/profile_text_main" android:textSize="22sp" android:textStyle="bold" />
+        </FrameLayout>
+        <LinearLayout android:id="@+id/profileSettingsCard" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:background="@drawable/bg_settings_card" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="14dp" android:paddingEnd="14dp" android:minHeight="76dp" android:paddingVertical="16dp">
+            <com.google.android.material.imageview.ShapeableImageView android:id="@+id/ivSettingsAvatar" android:layout_width="48dp" android:layout_height="48dp" android:scaleType="centerCrop" android:src="@drawable/profile_placeholder" app:shapeAppearanceOverlay="@style/CircleImageStyle" />
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical">
+                <TextView android:id="@+id/tvSettingsName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Your account" android:textColor="@color/profile_text_main" android:textSize="16sp" android:textStyle="bold" />
+                <TextView android:id="@+id/tvSettingsEmail" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="" android:textColor="@color/profile_text_secondary" android:textSize="13sp" />
+            </LinearLayout>
+            <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/bg_community_banner" android:gravity="center_vertical" android:orientation="horizontal" android:padding="16dp" android:minHeight="92dp" android:paddingVertical="16dp">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hoode Connect" android:textColor="@color/text_primary" android:textSize="18sp" android:textStyle="bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Stay connected with your community." android:textColor="@color/text_secondary" android:textSize="12sp" />
+            </LinearLayout>
+            <ImageView android:layout_width="56dp" android:layout_height="56dp" android:contentDescription="Hoode Community" android:src="@drawable/ic_community" />
+        </LinearLayout>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:text="General Settings" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
+        <LinearLayout android:id="@+id/generalSettingsContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:background="@drawable/bg_settings_card" android:orientation="vertical" android:showDividers="middle" android:divider="@drawable/bg_divider" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="Support &amp; Others" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
+        <LinearLayout android:id="@+id/supportSettingsContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:background="@drawable/bg_settings_card" android:orientation="vertical" android:showDividers="middle" android:divider="@drawable/bg_divider" />
+    </LinearLayout>
+</ScrollView>

@@ -33,12 +33,13 @@ class HighlightsAdapter(
         holder.tvSubtitle.text = item.subtitle
         holder.tvCategory.text = item.category
 
-        if (!item.imageUrl.isNullOrBlank()) {
-            holder.ivImage.load(item.imageUrl) {
-                crossfade(true)
-                placeholder(R.drawable.bg_gallery_luxury_gradient)
-                error(R.drawable.bg_gallery_luxury_gradient)
-            }
+        holder.tvCategory.visibility = if (item.category.isBlank()) View.GONE else View.VISIBLE
+        holder.tvSubtitle.visibility = if (item.subtitle.isBlank()) View.GONE else View.VISIBLE
+        holder.ivImage.load(item.imageUrl?.takeIf { it.isNotBlank() }) {
+            crossfade(true)
+            placeholder(R.drawable.bg_dashboard_icon)
+            fallback(R.drawable.ic_category_events)
+            error(R.drawable.ic_category_events)
         }
 
         holder.itemView.setOnClickListener {

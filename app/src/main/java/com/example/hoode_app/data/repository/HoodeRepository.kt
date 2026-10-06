@@ -30,6 +30,8 @@ object HoodeRepository {
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
+    private val _sessionReady=MutableStateFlow(false)
+    val sessionReady=_sessionReady.asStateFlow()
     private var appContext: Context? = null
     private const val PREFS_NAME = "hoode_user_session"
     private const val KEY_CACHED_USER = "cached_user_json"
@@ -75,7 +77,10 @@ object HoodeRepository {
                                 dob = dob,
                                 fatherName = fatherName,
                                 bloodGroup = bloodGroup,
-                                profession = profession
+                                profession = profession,
+                                username = profile.optString("username").takeUnless { it == "null" },
+                                bio = profile.optString("bio").takeUnless { it == "null" },
+                                coverPicUri = profile.optString("cover_url").takeUnless { it == "null" }
                             )
                             _currentUser.value = updated
                             saveUserToCache(updated)
@@ -84,15 +89,28 @@ object HoodeRepository {
                 }
             } catch (e: Exception) {
                 Log.w("HoodeRepository", "BackendSession background restore failed", e)
-            }
+            } finally { _sessionReady.value=true }
         }
     }
 
-    fun isLoggedIn(): Boolean {
-        if (_currentUser.value != null) return true
-        val ctx = appContext ?: return false
-        val prefs = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.contains(KEY_CACHED_USER)
+    fun isLoggedIn(): Boolean = _currentUser.value != null
+
+    fun loginAsGuest() {
+        val guestUser = User(
+            id = "guest_resident_001",
+            email = "guest@hoodeconnect.org",
+            displayName = "Mohammed Suhail",
+            phone = "+91 98450 12345",
+            bloodGroup = "O+",
+            profession = "Resident",
+            locality = "Hoode Main",
+            bio = "Hoode Resident - Community Member",
+            roles = listOf("approved_resident")
+        )
+        _currentUser.value = guestUser
+        com.hoodeconnect.backend.BackendSession.accessToken = "guest_access_token_active"
+        com.hoodeconnect.backend.BackendSession.userId = guestUser.id
+        saveUserToCache(guestUser)
     }
 
     private fun saveUserToCache(user: User) {
@@ -113,6 +131,10 @@ object HoodeRepository {
             val user = userFromJson(jsonStr)
             if (user != null) {
                 _currentUser.value = user
+                if (com.hoodeconnect.backend.BackendSession.accessToken.isNullOrBlank()) {
+                    com.hoodeconnect.backend.BackendSession.accessToken = "guest_access_token_active"
+                    com.hoodeconnect.backend.BackendSession.userId = user.id
+                }
             }
         } catch (e: Exception) {
             Log.e("HoodeRepository", "Error loading user from cache", e)
@@ -257,6 +279,10 @@ object HoodeRepository {
 
     fun signOut() {
         _currentUser.value = null
+        syncJob?.cancel()
+        _classifieds.value=emptyList();_notifications.value=emptyList();_contributions.value=emptyList()
+        _polls.value=emptyList();_events.value=emptyList();_civicIssues.value=emptyList();_registeredDonors.value=emptyList()
+        _badges.value=emptyList();_totalPoints.value=0
         clearUserCache()
         com.hoodeconnect.backend.BackendSession.clear()
     }
@@ -265,14 +291,7 @@ object HoodeRepository {
     private val _adSlides = MutableStateFlow<List<AdCarouselSlide>>(emptyList())
     val adSlides: StateFlow<List<AdCarouselSlide>> = _adSlides.asStateFlow()
 
-    fun updateAdSlide(slotIndex: Int, headline: String, subheadline: String, advertiser: String) {
-        val updated = _adSlides.value.map { slide ->
-            if (slide.slotIndex == slotIndex) {
-                slide.copy(headline = headline, subheadline = subheadline, advertiser = advertiser)
-            } else slide
-        }
-        _adSlides.value = updated
-    }
+
 
     // ── F01: Prayer Timings ──────────────────────────────────
     private val _activeMosque = MutableStateFlow(
@@ -411,11 +430,7 @@ object HoodeRepository {
         }
     }
 
-    fun updatePrayerTimings(updated: List<PrayerTiming>) {
-        if (updated.isNotEmpty()) {
-            _prayerTimings.value = updated
-        }
-    }
+
 
     fun updatePrayerTimingsFromCloud(livePrayers: List<Pair<String, Pair<String, String>>>) {
         if (livePrayers.isEmpty()) return
@@ -443,195 +458,52 @@ object HoodeRepository {
     }
 
     // ── F02: Emergency Directory ─────────────────────────────
-    private val _emergencyContacts = MutableStateFlow(
-        listOf(
-            EmergencyContact(name = "Kasturba Hospital Manipal (Emergency)", category = "Hospital", phone = "+91 820 292 2761", area = "Manipal (9km)"),
-            EmergencyContact(name = "Malpe Police Station", category = "Police", phone = "+91 820 253 8333", area = "Malpe / Hoode"),
-            EmergencyContact(name = "Hoode Community Ambulance", category = "Ambulance", phone = "+91 94481 23456", area = "Hoode Local"),
-            EmergencyContact(name = "Udupi Fire & Rescue", category = "Fire", phone = "101", area = "Udupi Taluk"),
-            EmergencyContact(name = "Mescom Electricity Helpline", category = "Electricity", phone = "1912", area = "Kemmannu Section"),
-            EmergencyContact(name = "Santhekatte 24x7 Pharmacy", category = "Pharmacy", phone = "+91 820 258 0123", area = "Santhekatte"),
-            EmergencyContact(name = "Hoode Water Supply Helpdesk", category = "Water", phone = "+91 820 258 9988", area = "Hoode Panchayat")
-        )
-    )
+    private val _emergencyContacts = MutableStateFlow<List<EmergencyContact>>(emptyList())
     val emergencyContacts: StateFlow<List<EmergencyContact>> = _emergencyContacts.asStateFlow()
 
     // ── F03: Jobs & Gigs ─────────────────────────────────────
-    private val _jobs = MutableStateFlow(
-        listOf(
-            JobPosting(
-                title = "Assistant Accountant",
-                employer = "Hoode Fisheries Co-Op",
-                type = "Full-time",
-                pay = "₹18,000 – ₹22,000 / month",
-                location = "Hoode Port Road",
-                description = "Looking for B.Com graduate with Tally ERP 9 experience for daily ledger maintenance and invoicing.",
-                deadline = "25 Sep 2026",
-                isSponsored = true,
-                applicantsCount = 4
-            ),
-            JobPosting(
-                title = "Delivery Partner & Driver",
-                employer = "Al-Madina Groceries",
-                type = "Part-time",
-                pay = "₹400 / day + Fuel",
-                location = "Kemmannu – Hoode",
-                description = "Two-wheeler delivery rider for evening deliveries between 4 PM to 9 PM.",
-                deadline = "18 Sep 2026",
-                isSponsored = false,
-                applicantsCount = 7
-            ),
-            JobPosting(
-                title = "Electrician & Solar Installer",
-                employer = "GreenPower Systems Udupi",
-                type = "Gig",
-                pay = "₹800 / day",
-                location = "Hoode & Malpe",
-                description = "Experienced electrician required for residential rooftop solar panel cabling and inverter setup.",
-                deadline = "30 Sep 2026",
-                isSponsored = false,
-                applicantsCount = 2
-            ),
-            JobPosting(
-                title = "Youth Robotics Workshop Mentor",
-                employer = "Hoode Islamic Academy",
-                type = "Volunteer",
-                pay = "Certificate & Honorarium",
-                location = "Academy Campus",
-                description = "College STEM students invited to guide 8th–10th standard students in Arduino fundamentals.",
-                deadline = "20 Sep 2026",
-                isSponsored = false,
-                applicantsCount = 5
-            )
-        )
-    )
+    private val _jobs = MutableStateFlow<List<JobPosting>>(emptyList())
     val jobs: StateFlow<List<JobPosting>> = _jobs.asStateFlow()
 
-    fun applyJob(jobId: String, name: String, phone: String, message: String) {
-        val updated = _jobs.value.map { job ->
-            if (job.id == jobId) job.copy(applicantsCount = job.applicantsCount + 1) else job
-        }
-        _jobs.value = updated
-        addContributionPoints("Job Application Submitted", 10)
-    }
+    suspend fun applyJob(jobId:String,name:String,phone:String,message:String) =
+        com.hoodeconnect.backend.CommunityApi.submit("job_application",name,JSONObject().put("job_id",jobId).put("phone",phone).put("message",message))
 
-    fun postJob(job: JobPosting) {
-        _jobs.value = listOf(job) + _jobs.value
-        addContributionPoints("Posted Community Job", 25)
-    }
+    suspend fun postJob(job:JobPosting,phone:String) = com.hoodeconnect.backend.CommunityApi.submit("job",job.title,
+        JSONObject().put("employer",job.employer).put("type",job.type).put("pay",job.pay).put("location",job.location)
+            .put("description",job.description).put("deadline",job.deadline).put("phone",phone),id=job.id)
 
     // ── F04: Lost & Found ────────────────────────────────────
-    private val _lostFound = MutableStateFlow(
-        listOf(
-            LostFoundItem(
-                title = "Black Fastrack Backpack",
-                isLost = true,
-                category = "Bags",
-                area = "Hoode Beach Walkway",
-                date = "09 Sep 2026",
-                description = "Contains engineering textbooks and blue water bottle. Left near seating bench around 5:30 PM.",
-                status = "open",
-                images = listOf(
-                    "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&auto=format&fit=crop&q=80",
-                    "https://images.unsplash.com/photo-1546938576-6e6a64f317cc?w=600&auto=format&fit=crop&q=80"
-                )
-            ),
-            LostFoundItem(
-                title = "Hero Splendor Bike Key with Metal Ring",
-                isLost = false,
-                category = "Keys",
-                area = "Outside Hoode Juma Masjid",
-                date = "08 Sep 2026",
-                description = "Found after Asr prayer. Safely kept with mosque security office.",
-                status = "open",
-                images = listOf(
-                    "https://images.unsplash.com/photo-1582139329536-e7284fece509?w=600&auto=format&fit=crop&q=80"
-                )
-            ),
-            LostFoundItem(
-                title = "Redmi Note 12 (Sky Blue Case)",
-                isLost = true,
-                category = "Electronics",
-                area = "Auto Stand near Bengre Cross",
-                date = "06 Sep 2026",
-                description = "Phone is locked with pin. Lock screen wallpaper is a family picture.",
-                status = "resolved",
-                images = listOf(
-                    "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80",
-                    "https://images.unsplash.com/photo-1580910051074-3eb694886505?w=600&auto=format&fit=crop&q=80"
-                )
-            )
-        )
-    )
+    private val _lostFound = MutableStateFlow<List<LostFoundItem>>(emptyList())
     val lostFound: StateFlow<List<LostFoundItem>> = _lostFound.asStateFlow()
 
-    fun postLostFound(item: LostFoundItem) {
-        _lostFound.value = listOf(item) + _lostFound.value
-        addContributionPoints("Reported Lost/Found Item", 15)
-    }
+    suspend fun postLostFound(item:LostFoundItem) = com.hoodeconnect.backend.CommunityApi.submit("lost_found",item.title,
+        JSONObject().put("is_lost",item.isLost).put("category",item.category).put("area",item.area).put("date",item.date)
+            .put("description",item.description).put("phone",item.contactPhone),imageUrl=item.images.firstOrNull().orEmpty(),id=item.id)
 
-    fun claimLostFound(itemId: String) {
-        val updated = _lostFound.value.map { item ->
-            if (item.id == itemId) item.copy(status = "claim_pending") else item
-        }
-        _lostFound.value = updated
-    }
+    suspend fun claimLostFound(itemId:String,proof:String) = com.hoodeconnect.backend.CommunityApi.submit("correction","Lost & found claim",
+        JSONObject().put("target_id",itemId).put("description",proof))
 
     // ── F05: Tournaments & Matches ───────────────────────────
-    private val _tournaments = MutableStateFlow(
-        listOf(
-            Tournament(
-                id = "tourn_01",
-                title = "Hoode Premier Cricket Tournament 2026",
-                sport = "Cricket",
-                venue = "Kemmannu Higher Primary Ground",
-                dates = "18 Sep – 21 Sep 2026",
-                format = "Knockout & League",
-                teamsCount = 12,
-                status = "active"
-            )
-        )
-    )
+    private val _tournaments = MutableStateFlow<List<Tournament>>(emptyList())
     val tournaments: StateFlow<List<Tournament>> = _tournaments.asStateFlow()
 
-    private val _fixtures = MutableStateFlow(
-        listOf(
-            Fixture(tournamentId = "tourn_01", round = "Quarter Final 1", teamA = "Bengre Blasters", teamB = "Kemmannu Kings", time = "18 Sep, 8:00 AM", venue = "Ground 1", scoreA = "112/5 (10 ov)", scoreB = "115/3 (8.4 ov)", status = "completed"),
-            Fixture(tournamentId = "tourn_01", round = "Quarter Final 2", teamA = "Hoode Strikers", teamB = "Malpe Warriors", time = "18 Sep, 10:30 AM", venue = "Ground 1", scoreA = "—", scoreB = "—", status = "scheduled"),
-            Fixture(tournamentId = "tourn_01", round = "Semi Final 1", teamA = "Kemmannu Kings", teamB = "TBD", time = "20 Sep, 9:00 AM", venue = "Ground 1", status = "scheduled")
-        )
-    )
+    private val _fixtures = MutableStateFlow<List<Fixture>>(emptyList())
     val fixtures: StateFlow<List<Fixture>> = _fixtures.asStateFlow()
 
-    private val _standings = MutableStateFlow(
-        listOf(
-            Standing("Kemmannu Kings", 3, 3, 0, 6, "+1.42"),
-            Standing("Hoode Strikers", 3, 2, 1, 4, "+0.85"),
-            Standing("Bengre Blasters", 3, 1, 2, 2, "-0.24"),
-            Standing("Malpe Warriors", 3, 0, 3, 0, "-1.98")
-        )
-    )
+    private val _standings = MutableStateFlow<List<Standing>>(emptyList())
     val standings: StateFlow<List<Standing>> = _standings.asStateFlow()
 
-    fun registerTournamentTeam(teamName: String) {
-        val updated = _standings.value + Standing(teamName, 0, 0, 0, 0, "+0.00")
-        _standings.value = updated
-        addContributionPoints("Registered Team in Tournament", 20)
-    }
+    suspend fun registerTournamentTeam(teamName:String,captain:String,phone:String,tournament:String) =
+        com.hoodeconnect.backend.CommunityApi.submit("team_registration",teamName,JSONObject().put("tournament",tournament).put("captain",captain).put("phone",phone))
 
     // ── F06: Events & Weddings ───────────────────────────────
     private val _events = MutableStateFlow<List<CommunityEvent>>(emptyList())
     val events: StateFlow<List<CommunityEvent>> = _events.asStateFlow()
 
-    fun rsvpEvent(eventId: String, going: Boolean) {
-        val updated = _events.value.map { event ->
-            if (event.id == eventId) {
-                val newCount = if (going) event.rsvpGoing + 1 else if (event.userRsvp == true) event.rsvpGoing - 1 else event.rsvpGoing
-                event.copy(rsvpGoing = newCount, userRsvp = going)
-            } else event
-        }
-        _events.value = updated
-        addContributionPoints("RSVP to Community Event", 5)
+    suspend fun rsvpEvent(eventId:String,going:Boolean):Result<Boolean> {
+        val result=com.hoodeconnect.backend.CommunityApi.rpc("hoode_rsvp",JSONObject().put("event",eventId).put("attending",going)).map{true}
+        if(result.isSuccess)refreshEventAttendance()
+        return result
     }
 
     suspend fun postEvent(item: CommunityEvent): Result<Boolean> =
@@ -644,19 +516,11 @@ object HoodeRepository {
     private val _bloodRequests = MutableStateFlow<List<BloodRequest>>(emptyList())
     val bloodRequests: StateFlow<List<BloodRequest>> = _bloodRequests.asStateFlow()
 
-    private val _registeredDonors = MutableStateFlow(
-        listOf(
-            DonorRegistration(name = "Faizan Ahmed", bloodGroup = "O+", area = "Hoode Beach", phone = "+91 98440 11223"),
-            DonorRegistration(name = "Mohammed Imran", bloodGroup = "B+", area = "Bengre Cross", phone = "+91 98440 44556"),
-            DonorRegistration(name = "Zaid K.", bloodGroup = "A-", area = "Kemmannu", phone = "+91 98440 77889")
-        )
-    )
+    private val _registeredDonors = MutableStateFlow<List<DonorRegistration>>(emptyList())
     val registeredDonors: StateFlow<List<DonorRegistration>> = _registeredDonors.asStateFlow()
 
-    fun registerDonor(donor: DonorRegistration) {
-        _registeredDonors.value = listOf(donor) + _registeredDonors.value
-        addContributionPoints("Joined Blood Donor Registry", 50)
-    }
+    suspend fun registerDonor(donor:DonorRegistration) = com.hoodeconnect.backend.CommunityApi.submit("donor",donor.name,
+        JSONObject().put("blood_group",donor.bloodGroup).put("area",donor.area).put("phone",donor.phone),id=donor.id)
 
     suspend fun postBloodRequest(item: BloodRequest): Result<Boolean> =
         SupabaseClient.submitBloodRequest(item).onSuccess {
@@ -665,479 +529,79 @@ object HoodeRepository {
         }
 
     // ── F08: Polls & Civic Issues ────────────────────────────
-    private val _polls = MutableStateFlow(
-        listOf(
-            CommunityPoll(
-                id = "poll_01",
-                question = "Should the community install solar LED streetlights along Hoode Beach Road?",
-                description = "Gram Panchayat proposal with 50% community sponsorship matching.",
-                options = listOf(
-                    PollOption("opt_1", "Yes, strongly needed for safety", 142),
-                    PollOption("opt_2", "Yes, but focus on main junction first", 68),
-                    PollOption("opt_3", "No, other infrastructure takes priority", 14)
-                ),
-                closesAt = "15 Sep 2026",
-                totalVotes = 224
-            ),
-            CommunityPoll(
-                id = "poll_02",
-                question = "Preferred timing for weekly Career Counseling Sessions?",
-                description = "Organized by Hoode Education Circle for SSLC and PUC students.",
-                options = listOf(
-                    PollOption("opt_21", "Saturday evening (5 PM - 7 PM)", 45),
-                    PollOption("opt_22", "Sunday morning (10 AM - 12 PM)", 88),
-                    PollOption("opt_23", "Sunday post-Asr (4:30 PM - 6 PM)", 62)
-                ),
-                closesAt = "18 Sep 2026",
-                totalVotes = 195
-            )
-        )
-    )
+    private val _polls = MutableStateFlow<List<CommunityPoll>>(emptyList())
     val polls: StateFlow<List<CommunityPoll>> = _polls.asStateFlow()
 
-    fun castVote(pollId: String, optionId: String) {
-        val updated = _polls.value.map { poll ->
-            if (poll.id == pollId && poll.userVotedOptionId == null) {
-                val updatedOptions = poll.options.map { opt ->
-                    if (opt.id == optionId) opt.copy(votes = opt.votes + 1) else opt
-                }
-                poll.copy(
-                    options = updatedOptions,
-                    userVotedOptionId = optionId,
-                    totalVotes = poll.totalVotes + 1
-                )
-            } else poll
-        }
-        _polls.value = updated
-        addContributionPoints("Voted in Civic Poll", 15)
+    suspend fun castVote(pollId:String,optionId:String):Result<Boolean> {
+        val result=com.hoodeconnect.backend.CommunityApi.rpc("hoode_vote",JSONObject().put("poll",pollId).put("choice",optionId)).map{true}
+        if(result.isSuccess)refreshPolls()
+        return result
     }
 
-    private val _civicIssues = MutableStateFlow(
-        listOf(
-            CivicIssue(
-                title = "Broken street lamp near Bengre cross-bridge",
-                category = "Streetlights",
-                location = "Bengre Cross Bridge, Pole #B14",
-                status = "acknowledged",
-                endorsements = 27,
-                userEndorsed = false
-            ),
-            CivicIssue(
-                title = "Pothole expansion on Kemmannu–Hoode main road",
-                category = "Roads",
-                location = "Near Hoode Post Office",
-                status = "in_progress",
-                endorsements = 54,
-                userEndorsed = true
-            ),
-            CivicIssue(
-                title = "Plastic waste accumulation on beach walkway",
-                category = "Waste",
-                location = "Hoode Beach North end",
-                status = "resolved",
-                endorsements = 38,
-                userEndorsed = true
-            )
-        )
-    )
+    private val _civicIssues = MutableStateFlow<List<CivicIssue>>(emptyList())
     val civicIssues: StateFlow<List<CivicIssue>> = _civicIssues.asStateFlow()
 
-    fun endorseCivicIssue(issueId: String) {
-        val updated = _civicIssues.value.map { issue ->
-            if (issue.id == issueId && !issue.userEndorsed) {
-                issue.copy(endorsements = issue.endorsements + 1, userEndorsed = true)
-            } else issue
-        }
-        _civicIssues.value = updated
-        addContributionPoints("Endorsed Civic Issue", 5)
+    suspend fun endorseCivicIssue(issueId:String):Result<Boolean> {
+        val result=com.hoodeconnect.backend.CommunityApi.like("community_content",issueId,true)
+        if(result.isSuccess)refreshCivicSupport()
+        return result
     }
 
-    fun submitCivicIssue(title: String, category: String, location: String) {
-        val newIssue = CivicIssue(
-            title = title,
-            category = category,
-            location = location,
-            status = "submitted",
-            endorsements = 1,
-            userEndorsed = true
-        )
-        _civicIssues.value = listOf(newIssue) + _civicIssues.value
-        addContributionPoints("Reported Civic Issue", 20)
-    }
+    suspend fun submitCivicIssue(title:String,category:String,location:String,details:String="") =
+        com.hoodeconnect.backend.CommunityApi.submit("civic",title,JSONObject().put("category",category).put("location",location).put("description",details))
 
     // ── F09: Badges & Contribution Points ────────────────────
-    private val _totalPoints = MutableStateFlow(320)
+    private val _totalPoints = MutableStateFlow(0)
     val totalPoints: StateFlow<Int> = _totalPoints.asStateFlow()
 
-    private val _badges = MutableStateFlow(
-        listOf(
-            CommunityBadge("b_01", "Helpful Neighbor", "Participated in 5+ community events and actions", "ic_badge", isUnlocked = true, earnedDate = "01 Aug 2026"),
-            CommunityBadge("b_02", "Civic Champion", "Active in local polls and civic issue reporting", "ic_poll", isUnlocked = true, earnedDate = "15 Aug 2026"),
-            CommunityBadge("b_03", "Life Saver", "Registered as active blood donor", "ic_blood", isUnlocked = true, earnedDate = "28 Aug 2026"),
-            CommunityBadge("b_04", "Local Guide", "Contributed 10+ verified directory and place updates", "ic_services", isUnlocked = false)
-        )
-    )
+    private val _badges = MutableStateFlow<List<CommunityBadge>>(emptyList())
     val badges: StateFlow<List<CommunityBadge>> = _badges.asStateFlow()
 
-    private val _contributions = MutableStateFlow(
-        listOf(
-            ContributionRecord(action = "Joined Blood Donor Registry", points = 50, date = "08 Sep 2026"),
-            ContributionRecord(action = "Voted in Streetlight Proposal Poll", points = 15, date = "07 Sep 2026"),
-            ContributionRecord(action = "Reported Beach Cleanliness Issue", points = 20, date = "04 Sep 2026"),
-            ContributionRecord(action = "RSVP to Community Iftar", points = 5, date = "02 Sep 2026")
-        )
-    )
+    private val _contributions = MutableStateFlow<List<ContributionRecord>>(emptyList())
     val contributions: StateFlow<List<ContributionRecord>> = _contributions.asStateFlow()
 
-    fun addContributionPoints(action: String, points: Int) {
-        _totalPoints.value += points
-        _contributions.value = listOf(ContributionRecord(action = action, points = points, date = "Just now")) + _contributions.value
-    }
+    fun addContributionPoints(action:String,points:Int) { syncWithCloud() } // Awards are derived from approved database records.
 
     // ── F10: Classifieds & Marketplace ───────────────────────
-    private val defaultMockClassifieds = listOf(
-        ClassifiedItem(
-            id = "cl_01",
-            title = "Hercules Roadeo 26T 21-Speed Mountain Bicycle",
-            price = "₹4,200",
-            type = "Sell",
-            category = "Vehicles",
-            area = "Kemmannu Road, Hoode",
-            description = "Well-maintained mountain bicycle with front suspension, dual disc brakes, and Shimano 21 gears. Used only for 6 months. Minor cosmetic wear. Free bottle holder and helmet included.",
-            sellerName = "Arshad Hoode",
-            date = "Today",
-            phone = "9845112233",
-            sellerUserId = "seller_arshad",
-            images = listOf(
-                "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=800",
-                "https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=800",
-                "https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?w=800"
-            )
-        ),
-        ClassifiedItem(
-            id = "cl_02",
-            title = "Solid Teak Wood 4-Seater Dining Table with Chairs",
-            price = "₹8,500",
-            type = "Sell",
-            category = "Furniture",
-            area = "Bengre Beach Road",
-            description = "Pure Malaysian teak wood 4-seater dining set with matching cushioned chairs. Heavy, premium polish, highly durable. Relocating to Bangalore hence selling at genuine price.",
-            sellerName = "Farhan Bengre",
-            date = "Yesterday",
-            phone = "9880223344",
-            sellerUserId = "seller_farhan",
-            images = listOf(
-                "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=800",
-                "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800",
-                "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800"
-            )
-        ),
-        ClassifiedItem(
-            id = "cl_03",
-            title = "Sony Bravia 43-inch 4K UHD Smart Google TV",
-            price = "₹19,000",
-            type = "Sell",
-            category = "Electronics",
-            area = "Kodi Lighthouse View",
-            description = "Crystal clear 4K HDR screen with Dolby Audio, built-in Chromecast, and Google TV apps (YouTube, Netflix, Prime). Under warranty for another 5 months with original bill and box.",
-            sellerName = "Zaid Kodi",
-            date = "2 days ago",
-            phone = "9741556677",
-            sellerUserId = "seller_zaid",
-            images = listOf(
-                "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800",
-                "https://images.unsplash.com/photo-1461151304267-38535e780c79?w=800"
-            )
-        ),
-        ClassifiedItem(
-            id = "cl_04",
-            title = "Yamaha FZ-S 150cc BS6 (Single Owner, Pristine)",
-            price = "₹68,000",
-            type = "Sell",
-            category = "Vehicles",
-            area = "Hoode Fisheries Colony",
-            description = "2022 registration, single owner, driven only 14,200 kms. Brand new MRF tyres, timely showroom service records, insurance valid until Dec 2026. Non-accidental, mint condition.",
-            sellerName = "Riyaz Ahmed",
-            date = "3 days ago",
-            phone = "9663778899",
-            sellerUserId = "seller_riyaz",
-            images = listOf(
-                "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800",
-                "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800",
-                "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800"
-            )
-        ),
-        ClassifiedItem(
-            id = "cl_05",
-            title = "Apple iPad Air 5th Gen (64GB, Wi-Fi) + Apple Pencil",
-            price = "₹34,000",
-            type = "Sell",
-            category = "Electronics",
-            area = "Kemmannu Town",
-            description = "M1 chip beast performance with 10.9-inch Liquid Retina display. Includes Apple Pencil 2nd gen and ESR magnetic folio cover. Battery health 96%. Ideal for students & designers.",
-            sellerName = "Sohail K",
-            date = "4 days ago",
-            phone = "9844001122",
-            sellerUserId = "seller_sohail",
-            images = listOf(
-                "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800",
-                "https://images.unsplash.com/photo-1561154464-82e9adf32764?w=800"
-            )
-        )
-    )
-
-    private val _classifieds = MutableStateFlow<List<ClassifiedItem>>(defaultMockClassifieds)
+    private val _classifieds = MutableStateFlow<List<ClassifiedItem>>(emptyList())
     val classifieds: StateFlow<List<ClassifiedItem>> = _classifieds.asStateFlow()
 
-    fun checkAndExpireBookings() {
-        val now = System.currentTimeMillis()
-        val oneDayMillis = 24 * 60 * 60 * 1000L
-        var changed = false
-        val updated = _classifieds.value.map { item ->
-            if (item.isBooked && !item.isSold && (now - item.bookedAtTimestamp >= oneDayMillis)) {
-                changed = true
-                item.copy(
-                    isBooked = false,
-                    bookedByUserId = null,
-                    bookedByName = null,
-                    bookedByPhone = null,
-                    bookedAtTimestamp = 0L,
-                    bookingNote = null
-                )
-            } else {
-                item
-            }
-        }
-        if (changed) {
-            _classifieds.value = updated
-        }
+    fun checkAndExpireBookings() { /* Availability is returned by the server; the UI also checks its expiry. */ }
+    fun isBookingActive(item: ClassifiedItem): Boolean = item.isBooked && !item.isSold &&
+        System.currentTimeMillis() < item.bookedAtTimestamp + 24 * 60 * 60 * 1000L
+    fun getActiveBookingForUser(userId: String): ClassifiedItem? =
+        _classifieds.value.firstOrNull { isBookingActive(it) && it.bookedByUserId == userId }
+    suspend fun bookClassified(itemId: String, user: User, phone: String, note: String): Result<Boolean> {
+        val result = com.hoodeconnect.backend.CommunityApi.rpc("hoode_book_marketplace",
+            JSONObject().put("item",itemId).put("contact_phone",phone).put("booking_note",note)).map { true }
+        if(result.isSuccess) refreshMarketplace()
+        return result
     }
-
-    fun isBookingActive(item: ClassifiedItem): Boolean {
-        if (!item.isBooked || item.isSold) return false
-        val now = System.currentTimeMillis()
-        val oneDayMillis = 24 * 60 * 60 * 1000L
-        return (now - item.bookedAtTimestamp) < oneDayMillis
+    private suspend fun marketAction(itemId:String, action:String):Result<Boolean> {
+        val result=com.hoodeconnect.backend.CommunityApi.rpc("hoode_marketplace_action",JSONObject().put("item",itemId).put("action",action))
+            .mapCatching { check(it=="true") { "The listing or reservation changed. Refresh and try again." };true }
+        if(result.isSuccess) refreshMarketplace()
+        return result
     }
-
-    fun getActiveBookingForUser(userId: String): ClassifiedItem? {
-        checkAndExpireBookings()
-        return _classifieds.value.firstOrNull { item ->
-            isBookingActive(item) && item.bookedByUserId == userId
-        }
-    }
-
-    suspend fun bookClassified(
-        itemId: String,
-        user: User,
-        phone: String,
-        note: String
-    ): Result<Boolean> {
-        checkAndExpireBookings()
-        val existingBooking = getActiveBookingForUser(user.id)
-        if (existingBooking != null && existingBooking.id != itemId) {
-            return Result.failure(
-                IllegalStateException("You already have an active 24h booking for '${existingBooking.title}'. Per Spinny guidelines, you can only hold one product at a time. Please cancel your previous reservation or wait for it to expire.")
-            )
-        }
-
-        val target = _classifieds.value.firstOrNull { it.id == itemId }
-            ?: return Result.failure(IllegalArgumentException("Product not found."))
-
-        if (target.isSold) {
-            return Result.failure(IllegalStateException("This product has already been sold."))
-        }
-        if (isBookingActive(target) && target.bookedByUserId != user.id) {
-            return Result.failure(IllegalStateException("This product is already booked by another resident."))
-        }
-
-        val updated = _classifieds.value.map { item ->
-            if (item.id == itemId) {
-                item.copy(
-                    isBooked = true,
-                    bookedByUserId = user.id,
-                    bookedByName = user.displayName,
-                    bookedByPhone = phone,
-                    bookedAtTimestamp = System.currentTimeMillis(),
-                    bookingNote = note
-                )
-            } else item
-        }
-        _classifieds.value = updated
-        addContributionPoints("Reserved Marketplace Product", 5)
-        return Result.success(true)
-    }
-
-    suspend fun cancelBooking(itemId: String, userId: String): Result<Boolean> {
-        val target = _classifieds.value.firstOrNull { it.id == itemId }
-            ?: return Result.failure(IllegalArgumentException("Product not found."))
-
-        val updated = _classifieds.value.map { item ->
-            if (item.id == itemId) {
-                item.copy(
-                    isBooked = false,
-                    bookedByUserId = null,
-                    bookedByName = null,
-                    bookedByPhone = null,
-                    bookedAtTimestamp = 0L,
-                    bookingNote = null
-                )
-            } else item
-        }
-        _classifieds.value = updated
-        return Result.success(true)
-    }
-
-    suspend fun markClassifiedSold(itemId: String, sellerUserId: String?): Result<Boolean> {
-        val updated = _classifieds.value.map { item ->
-            if (item.id == itemId) {
-                item.copy(isSold = true)
-            } else item
-        }
-        _classifieds.value = updated
-        addContributionPoints("Sold Marketplace Item", 25)
-        return Result.success(true)
-    }
-
-    suspend fun removeClassified(itemId: String): Result<Boolean> {
-        _classifieds.value = _classifieds.value.filter { it.id != itemId }
-        return Result.success(true)
-    }
-
-    suspend fun postClassified(item: ClassifiedItem): Result<Boolean> {
-        val user = _currentUser.value
-        val enriched = if (item.sellerUserId.isNullOrBlank() && user != null) {
-            item.copy(sellerUserId = user.id)
-        } else item
-        _classifieds.value = listOf(enriched) + _classifieds.value
-        return SupabaseClient.submitMarketplace(enriched).onSuccess {
-            addContributionPoints("Submitted Marketplace Listing", 15)
-            syncWithCloud()
-        }
-    }
+    suspend fun cancelBooking(itemId:String,userId:String):Result<Boolean> = marketAction(itemId,"cancel")
+    suspend fun markClassifiedSold(itemId:String,sellerUserId:String?):Result<Boolean> = marketAction(itemId,"sold")
+    suspend fun removeClassified(itemId:String):Result<Boolean> = marketAction(itemId,"withdraw")
+    suspend fun refreshMarketplace() { SupabaseClient.fetchMarketplace().onSuccess { _classifieds.value=it } }
+    suspend fun postClassified(item:ClassifiedItem):Result<Boolean> = SupabaseClient.submitMarketplace(item).onSuccess { syncWithCloud() }
 
     // ── Genuine Profile Posts & Community Feed ───────────────
-    private val _userCommunityPosts = MutableStateFlow<List<UserPostItem>>(emptyList())
-    val userCommunityPosts: StateFlow<List<UserPostItem>> = _userCommunityPosts.asStateFlow()
-
-    fun addUserCommunityPost(post: UserPostItem) {
-        _userCommunityPosts.value = listOf(post) + _userCommunityPosts.value
-        addContributionPoints("Shared Community Post", 10)
-    }
-
-    fun getUserPosts(user: User?): List<UserPostItem> {
-        if (user == null) return emptyList()
-        val posts = mutableListOf<UserPostItem>()
-        val userName = user.displayName.trim().lowercase()
-        val userPhone = user.phone?.trim()
-
-        // 1. Direct community updates authored by user
-        posts.addAll(_userCommunityPosts.value)
-
-        // 2. Marketplace items created by user
-        _classifieds.value.filter {
-            it.sellerName.trim().lowercase() == userName ||
-            (!userPhone.isNullOrBlank() && it.phone.trim() == userPhone)
-        }.forEach { item ->
-            posts.add(
-                UserPostItem(
-                    id = item.id,
-                    title = item.title,
-                    type = "Marketplace • ${item.category}",
-                    content = "${item.price} • ${item.description}\nArea: ${item.area}",
-                    date = item.date,
-                    imageUrl = item.images.firstOrNull(),
-                    likes = 14,
-                    comments = 3
-                )
-            )
-        }
-
-        // 3. Lost & Found items reported by user
-        _lostFound.value.filter {
-            (!userPhone.isNullOrBlank() && it.contactPhone.trim() == userPhone)
-        }.forEach { item ->
-            posts.add(
-                UserPostItem(
-                    id = item.id,
-                    title = "${if (item.isLost) "Lost" else "Found"}: ${item.title}",
-                    type = "Lost & Found • ${item.category}",
-                    content = "${item.description}\nLocation: ${item.area}",
-                    date = item.date,
-                    imageUrl = item.images.firstOrNull(),
-                    likes = 8,
-                    comments = 1
-                )
-            )
-        }
-
-        // 4. Events organized by user
-        _events.value.filter {
-            it.organizer.trim().lowercase() == userName
-        }.forEach { item ->
-            posts.add(
-                UserPostItem(
-                    id = item.id,
-                    title = item.title,
-                    type = "Event • ${item.category}",
-                    content = "When: ${item.date} • Where: ${item.venue}",
-                    date = item.date,
-                    imageUrl = null,
-                    likes = item.rsvpGoing,
-                    comments = 2
-                )
-            )
-        }
-
-        // 5. Gallery photos by user
-        _galleryItems.value.filter {
-            it.photographer.trim().lowercase() == userName
-        }.forEach { item ->
-            posts.add(
-                UserPostItem(
-                    id = item.id,
-                    title = item.title,
-                    type = "Gallery Photo",
-                    content = item.caption.ifBlank { "Photo shared to Hoode Gallery" },
-                    date = "Community Photo",
-                    imageUrl = item.imageUrl,
-                    likes = 18,
-                    comments = 2
-                )
-            )
-        }
-
-        return posts
-    }
-
     // ── F12: Ramadan Timetable ────────────────────────────────
-    private val _ramadanTimetable = MutableStateFlow(
-        (1..30).map { day ->
-            RamadanTimetable(
-                day = day,
-                date = "Day $day",
-                suhoorEnd = "5:0${(8 - (day % 10)).coerceAtLeast(0)} AM",
-                iftarTime = "6:3${(5 + (day % 10)).coerceAtMost(9)} PM"
-            )
-        }
-    )
+    private val _ramadanTimetable = MutableStateFlow<List<RamadanTimetable>>(emptyList())
     val ramadanTimetable: StateFlow<List<RamadanTimetable>> = _ramadanTimetable.asStateFlow()
 
     // ── F13: Notifications ───────────────────────────────────
-    private val _notifications = MutableStateFlow(
-        listOf(
-            NotificationItem(title = "Maghrib Iqamah in 15 minutes", body = "Maghrib iqamah will commence at 6:42 PM at Hoode Juma Masjid.", timestamp = "10 min ago", category = "Prayer"),
-            NotificationItem(title = "New Blood Request: O+", body = "Urgent request for 2 units of O+ blood at Adarsh Hospital Udupi.", timestamp = "1 hour ago", category = "Emergency"),
-            NotificationItem(title = "Cricket Tournament Matches Announced", body = "Check out the tournament fixtures starting 18 September.", timestamp = "Yesterday", category = "Announcement", isRead = true),
-            NotificationItem(title = "Civic Issue Acknowledged", body = "Pothole repair on Kemmannu main road scheduled for inspection.", timestamp = "2 days ago", category = "Civic", isRead = true)
-        )
-    )
+    private val _notifications = MutableStateFlow<List<NotificationItem>>(emptyList())
     val notifications: StateFlow<List<NotificationItem>> = _notifications.asStateFlow()
 
-    fun markNotificationRead(id: String) {
-        _notifications.value = _notifications.value.map {
-            if (it.id == id) it.copy(isRead = true) else it
-        }
+    suspend fun markNotificationsRead(ids:List<String>):Result<Boolean> {
+        val result=com.hoodeconnect.backend.CommunityApi.rpc("hoode_mark_notifications_read",JSONObject().put("ids",JSONArray(ids))).map{true}
+        if(result.isSuccess)_notifications.value=_notifications.value.map{if(it.id in ids)it.copy(isRead=true)else it}
+        return result
     }
 
     // ── F14: Verified Local News ─────────────────────────────
@@ -1145,320 +609,45 @@ object HoodeRepository {
     val newsArticles: StateFlow<List<NewsArticle>> = _newsArticles.asStateFlow()
 
     // ── F15: Handyman & Service Providers ────────────────────
-    private val _providers = MutableStateFlow(
-        listOf(
-            ServiceProvider(name = "Zameer Electricals & Rewinding", category = "Electrician", rating = 4.9, reviewCount = 42, phone = "+91 98860 12345", area = "Hoode Bazar"),
-            ServiceProvider(name = "Salam Plumbing Solutions", category = "Plumber", rating = 4.8, reviewCount = 31, phone = "+91 94482 67890", area = "Bengre Cross"),
-            ServiceProvider(name = "Master Wood Crafts (Sadiq Bhai)", category = "Carpenter", rating = 4.9, reviewCount = 56, phone = "+91 98450 33445", area = "Kemmannu Road"),
-            ServiceProvider(name = "CoolTech AC & Refrigerator Repair", category = "Appliance Repair", rating = 4.7, reviewCount = 28, phone = "+91 97410 88990", area = "Santhekatte"),
-            ServiceProvider(name = "Excellence Home Tutoring (Math & Science)", category = "Tutor", rating = 5.0, reviewCount = 19, phone = "+91 99001 55667", area = "Hoode & Malpe")
-        )
-    )
+    private val _providers = MutableStateFlow<List<ServiceProvider>>(emptyList())
     val providers: StateFlow<List<ServiceProvider>> = _providers.asStateFlow()
 
     // ── F16: Daily Personality ───────────────────────────────
-    private val _dailyPersonality = MutableStateFlow(
-        PersonalityProfile(
-            name = "Janab Haji K. M. Abdul Khadar",
-            role = "Education Pioneer & Philanthropist",
-            featuredDate = "10 Sep 2026",
-            intro = "Founder trustee of Hoode Educational Trust, dedicating 40 years to rural literacy and higher education access.",
-            fullBiography = "Born in Hoode in 1948, Haji Abdul Khadar spearheaded the establishment of the first community high school in Kemmannu-Hoode region. Over four decades, his charitable trust has sponsored higher education scholarships for more than 1,200 village students.",
-            contributions = listOf(
-                "Founded Hoode Girls High School (1984)",
-                "Built Community Dialysis Support Fund",
-                "Patron of Kemmannu Ambulance Service"
-            ),
-            quote = "\"True wealth is what you leave in the minds and hearts of the next generation.\""
-        )
-    )
+    private val _dailyPersonality = MutableStateFlow(PersonalityProfile(name="",role="",featuredDate="",intro="",fullBiography="",contributions=emptyList(),quote="",imageUrl=""))
     val dailyPersonality: StateFlow<PersonalityProfile> = _dailyPersonality.asStateFlow()
 
-    fun updateDailyPersonality(profile: PersonalityProfile) {
-        _dailyPersonality.value = profile
-    }
+
 
     // ── F17: Hoode Photo Gallery (Max 25 images) ──────────────
-    private val _galleryItems = MutableStateFlow(
-        (1..25).map { index ->
-            GalleryItem(
-                title = when (index) {
-                    1 -> "Sunset at Hoode Beach"
-                    2 -> "Hoode Juma Masjid Minaret"
-                    3 -> "Bengre Estuary Fishing Boats"
-                    4 -> "Kemmannu Hanging Bridge"
-                    5 -> "Coconut Groves of Tonse"
-                    6 -> "Morning Fisherman Cast Net"
-                    7 -> "Kemmannu River Promenade"
-                    8 -> "Hoode Lighthouse View"
-                    9 -> "Coastal Highway at Dawn"
-                    10 -> "Delta Point Confluence"
-                    11 -> "Seagulls over Arabian Sea"
-                    12 -> "Traditional Wooden Dhow"
-                    13 -> "Palm Silhouette Sunset"
-                    14 -> "Golden Hour Coastal Waves"
-                    15 -> "Backwaters Mangrove Trail"
-                    16 -> "Village Fishermen at Shore"
-                    17 -> "Serene Beach Morning"
-                    18 -> "Coastal Flora & Greenery"
-                    19 -> "Suvarna River Reflection"
-                    20 -> "Harbor at Twilight"
-                    21 -> "Coastal Community Gathering"
-                    22 -> "Monsoon Greenery in Hoode"
-                    23 -> "Old Jetty Rocks"
-                    24 -> "Fishermen Trawler Fleet"
-                    else -> "Starry Night Over Sea"
-                },
-                caption = "Capturing the serene coastal life and community architecture of Hoode.",
-                photographer = if (index % 2 == 0) "Rashid Hoode" else "Ziyad Photography",
-                sortOrder = index,
-                colorHex = when (index % 5) {
-                    0 -> "#62E8CF"
-                    1 -> "#0F3D35"
-                    2 -> "#258A5B"
-                    3 -> "#D68B16"
-                    else -> "#4F545D"
-                },
-                imageUrl = when (index) {
-                    1 -> "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80"
-                    2 -> "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=600&auto=format&fit=crop&q=80"
-                    3 -> "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&auto=format&fit=crop&q=80"
-                    4 -> "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=600&auto=format&fit=crop&q=80"
-                    5 -> "https://images.unsplash.com/photo-1509233725247-49e657c54213?w=600&auto=format&fit=crop&q=80"
-                    6 -> "https://images.unsplash.com/photo-1516738901171-8eb4fc13bd20?w=600&auto=format&fit=crop&q=80"
-                    7 -> "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80"
-                    8 -> "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=600&auto=format&fit=crop&q=80"
-                    9 -> "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&auto=format&fit=crop&q=80"
-                    10 -> "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=600&auto=format&fit=crop&q=80"
-                    11 -> "https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&auto=format&fit=crop&q=80"
-                    12 -> "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&auto=format&fit=crop&q=80"
-                    13 -> "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=600&auto=format&fit=crop&q=80"
-                    14 -> "https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=600&auto=format&fit=crop&q=80"
-                    15 -> "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&auto=format&fit=crop&q=80"
-                    16 -> "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600&auto=format&fit=crop&q=80"
-                    17 -> "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=600&auto=format&fit=crop&q=80"
-                    18 -> "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&auto=format&fit=crop&q=80"
-                    19 -> "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=600&auto=format&fit=crop&q=80"
-                    20 -> "https://images.unsplash.com/photo-1498084393753-b411b2d26b34?w=600&auto=format&fit=crop&q=80"
-                    21 -> "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&auto=format&fit=crop&q=80"
-                    22 -> "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600&auto=format&fit=crop&q=80"
-                    23 -> "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80"
-                    24 -> "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&auto=format&fit=crop&q=80"
-                    else -> "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&auto=format&fit=crop&q=80"
-                }
-            )
-        }
-    )
+    private val _galleryItems = MutableStateFlow<List<GalleryItem>>(emptyList())
     val galleryItems: StateFlow<List<GalleryItem>> = _galleryItems.asStateFlow()
 
-    fun addGalleryItem(item: GalleryItem): Boolean {
-        _galleryItems.value = _galleryItems.value + item
-        return true
-    }
 
-    fun removeGalleryItem(id: String) {
-        _galleryItems.value = _galleryItems.value.filter { it.id != id }
-    }
+
+
 
     // ── F18: Activities ──────────────────────────────────────
     var initialActivityCategory: String = "All"
 
-    private val _activities = MutableStateFlow(
-        listOf(
-            CommunityActivity(
-                title = "Weekly Qur'an Study & Reflection Circle",
-                category = "Religious",
-                organizer = "Hoode Islamic Center",
-                schedule = "Every Friday after Maghrib",
-                venue = "Masjid Conference Hall",
-                description = "Structured Tafseer and thematic discussions open to high school students and elders alike."
-            ),
-            CommunityActivity(
-                title = "Fajr Hadith & Tajweed Recitation Class",
-                category = "Religious",
-                organizer = "Hoode Juma Masjid",
-                schedule = "Daily after Fajr (20 mins)",
-                venue = "Main Prayer Hall",
-                description = "Daily reflection on Sahih Hadith followed by practical Quranic tajweed correction."
-            ),
-            CommunityActivity(
-                title = "Beach Cleanliness & Mangrove Plantation Drive",
-                category = "Community",
-                organizer = "Clean Hoode Green Hoode Volunteer Wing",
-                schedule = "Second Sunday of every month, 7:00 AM",
-                venue = "Bengre River Mouth",
-                description = "Youth volunteers planting mangrove saplings to protect the estuary shoreline from monsoon erosion."
-            ),
-            CommunityActivity(
-                title = "Monsoon Welfare & Drainage Relief Action",
-                category = "Community",
-                organizer = "Hoode Resident Welfare Committee",
-                schedule = "Ongoing this season",
-                venue = "Coastal Wards 1 to 4",
-                description = "Emergency canal clearing and potable drinking water distribution for elderly residents."
-            ),
-            CommunityActivity(
-                title = "Youth Career, CV & Scholarship Guidance Meet",
-                category = "Social",
-                organizer = "Hoode Students & Professionals Forum",
-                schedule = "Upcoming Saturday, 4:30 PM",
-                venue = "Community Cultural Hall, Kemmannu",
-                description = "Mentorship session for engineering, medical, and degree students with guidance on Gulf & overseas jobs."
-            ),
-            CommunityActivity(
-                title = "Senior Citizens Evening Reminiscence Circle",
-                category = "Social",
-                organizer = "Baitul Hikmah Elders Club",
-                schedule = "Every Wednesday, 5:30 PM",
-                venue = "Coast View Garden Bench",
-                description = "Casual tea and storytelling gathering preserving local Hoode maritime and cultural history."
-            ),
-            CommunityActivity(
-                title = "Weekend Badminton Coaching for Juniors",
-                category = "Sports",
-                organizer = "Hoode Sports Club",
-                schedule = "Saturdays & Sundays, 6:30 AM – 8:30 AM",
-                venue = "Hoode Indoor Sports Shed",
-                description = "Professional coaching for boys and girls aged 10–16 years with certified NIS trainer."
-            ),
-            CommunityActivity(
-                title = "Open Cricket Selection Trials",
-                category = "Sports",
-                organizer = "Hoode Tournament Governing Council",
-                schedule = "Sunday morning, 6:00 AM",
-                venue = "Town Ground, Kemmannu",
-                description = "Open net trials for local youngsters to register for the upcoming tournament season."
-            ),
-            CommunityActivity(
-                title = "Janazah Announcement & Condolence: Marhooma Aisha Bi",
-                category = "Condolences",
-                organizer = "Hoode Janazah Welfare Committee",
-                schedule = "Janazah prayer held at 1:30 PM",
-                venue = "Hoode Juma Masjid Qabrastan",
-                description = "May Allah forgive her shortcomings, widen her grave, and grant Sabr-e-Jameel to the bereaved family."
-            ),
-            CommunityActivity(
-                title = "Condolence Gathering in Remembrance of Late Master Ismail",
-                category = "Condolences",
-                organizer = "Kemmannu Educational Society",
-                schedule = "Sunday post-Asr",
-                venue = "Memorial Hall",
-                description = "Commemoration of 40 years of dedicated teaching and community mentorship in Coastal Udupi."
-            ),
-            CommunityActivity(
-                title = "Special Dua Request: Brother Zameer (ICU Treatment)",
-                category = "Dua Request",
-                organizer = "Family & Friends of Zameer",
-                schedule = "Urgent Request",
-                venue = "City Hospital, Udupi",
-                description = "Requesting all community members to remember Brother Zameer in their Tahajjud and daily prayers for complete Shifa."
-            ),
-            CommunityActivity(
-                title = "Community Dua for Class 10 & 12 Board Exam Students",
-                category = "Dua Request",
-                organizer = "Hoode Juma Masjid Imam & Committee",
-                schedule = "Thursday after Isha",
-                venue = "Hoode Juma Masjid",
-                description = "Collective supplication seeking Allah's guidance, calm minds, and excellence for our youth sitting for exams."
-            )
-        )
-    )
+    private val _activities = MutableStateFlow<List<CommunityActivity>>(emptyList())
     val activities: StateFlow<List<CommunityActivity>> = _activities.asStateFlow()
 
-    fun addActivity(activity: CommunityActivity) {
-        _activities.value = listOf(activity) + _activities.value
-    }
+
 
     // ── F19: Educational Offerings ───────────────────────────
-    private val _educationOfferings = MutableStateFlow(
-        listOf(
-            EducationOffering(
-                title = "Tajweed & Qur'an Recitation Excellence Course",
-                provider = "Markaz-ut-Tarteel Hoode",
-                category = "Islamic Studies",
-                audience = "Children & Teens (8–16 yrs)",
-                schedule = "Mon to Thu, 5:00 PM – 6:30 PM",
-                contact = "+91 94812 00112",
-                description = "Individual pronunciation correction with certified Qaris from Deoband and Nadwa."
-            ),
-            EducationOffering(
-                title = "SSLC Board Exam Crash Course (Maths & Science)",
-                provider = "Hoode Youth Study Center",
-                category = "Tuition",
-                audience = "10th Standard Students",
-                schedule = "Every Saturday & Sunday, 9:00 AM – 1:00 PM",
-                contact = "+91 98450 77112",
-                description = "Intensive model paper solving, concept clarity sessions, and previous 10 years question reviews."
-            ),
-            EducationOffering(
-                title = "Python Programming & AI Basics for College Students",
-                provider = "Digital Hoode Initiative",
-                category = "Computer Skills",
-                audience = "PUC & Degree Students",
-                schedule = "Sundays, 2:00 PM – 5:00 PM (8 Weeks)",
-                contact = "+91 99000 88221",
-                description = "Hands-on coding workshop covering Python basics, Git GitHub, and building practical mini-projects."
-            ),
-            EducationOffering(
-                title = "Spoken English & Public Speaking Academy",
-                provider = "Crescent Learning Hub",
-                category = "Languages",
-                audience = "All Ages",
-                schedule = "Tue & Fri, 7:00 PM – 8:30 PM",
-                contact = "+91 97412 33445",
-                description = "Confidence building, grammar fundamentals, professional email writing, and interview practice."
-            )
-        )
-    )
+    private val _educationOfferings = MutableStateFlow<List<EducationOffering>>(emptyList())
     val educationOfferings: StateFlow<List<EducationOffering>> = _educationOfferings.asStateFlow()
 
-    fun addEducationOffering(offering: EducationOffering) {
-        _educationOfferings.value = listOf(offering) + _educationOfferings.value
-    }
+
 
     // ── F20: Our Huffaz ──────────────────────────────────────
-    private val _huffazList = MutableStateFlow(
-        listOf(
-            HuffazProfile(
-                name = "Hafiz Mohammed Zaid",
-                completionYear = "2023",
-                institution = "Jamia Islamia Bhatkal",
-                teacher = "Maulana Hafiz Abdul Bari",
-                biography = "Completed Hifz with distinction at age 14. Currently leads Taraweeh prayers at Masjid-ut-Taqwa and assists evening Maktab."
-            ),
-            HuffazProfile(
-                name = "Hafiz Bilal Ahmed Hoode",
-                completionYear = "2020",
-                institution = "Darul Uloom Sabeelur Rashad, Bangalore",
-                teacher = "Qari Nayeemuddin",
-                biography = "Represented Karnataka state in national Qur'an recitation competition; currently pursuing Bachelor in Computer Applications."
-            ),
-            HuffazProfile(
-                name = "Hafiz Rayan K.",
-                completionYear = "2025",
-                institution = "Markaz-ut-Tarteel, Hoode",
-                teacher = "Qari Hafiz Mushtaq",
-                biography = "Youngest resident Hafiz from Bengre ward, completing memorization in 2.5 years alongside regular schooling."
-            )
-        )
-    )
+    private val _huffazList = MutableStateFlow<List<HuffazProfile>>(emptyList())
     val huffazList: StateFlow<List<HuffazProfile>> = _huffazList.asStateFlow()
 
-    fun addHuffazProfile(profile: HuffazProfile) {
-        _huffazList.value = listOf(profile) + _huffazList.value
-    }
+
 
     // ── F21: Calendar Events ─────────────────────────────────
-    private val _calendarEvents = MutableStateFlow(
-        listOf(
-            CalendarEvent(dateStr = "2026-03-20", title = "Eid-ul-Fitr", type = "holiday"),
-            CalendarEvent(dateStr = "2026-05-27", title = "Eid-ul-Adha", type = "holiday"),
-            CalendarEvent(dateStr = "2026-09-15", title = "Hoode Beach Clean-up", type = "event"),
-            CalendarEvent(dateStr = "2026-09-22", title = "Annual Cricket Tournament", type = "event"),
-            CalendarEvent(dateStr = "2026-10-10", title = "Free Medical Camp", type = "event"),
-            CalendarEvent(dateStr = "2026-11-01", title = "Karnataka Rajyotsava", type = "holiday")
-        )
-    )
+    private val _calendarEvents = MutableStateFlow<List<CalendarEvent>>(emptyList())
     val calendarEvents: StateFlow<List<CalendarEvent>> = _calendarEvents.asStateFlow()
 
     // ── Cloud Sync & Content Moderation ──────────────────────
@@ -1466,47 +655,47 @@ object HoodeRepository {
     private val syncScope = CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO)
     private var syncJob: kotlinx.coroutines.Job? = null
 
-    @Synchronized fun syncWithCloud() {
-        if (syncJob?.isActive == true) return
-        syncJob = syncScope.launch {
+    @Synchronized fun syncWithCloud(): kotlinx.coroutines.Job {
+        syncJob?.takeIf { it.isActive }?.let { return it }
+        return syncScope.launch {
             if (!SupabaseConfig.isConfigured) return@launch
-
-            try {
-                // 1. Sync News
-                SupabaseClient.fetchNews("published").getOrNull()?.let { liveNews ->
-                    _newsArticles.value = liveNews
+            kotlinx.coroutines.supervisorScope {
+                fun refresh(label: String, action: suspend () -> Unit) = launch {
+                    try { action() }
+                    catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                    catch (error: Exception) { Log.w("HoodeRepository", "Could not refresh $label", error) }
                 }
-
-                // 2. Sync Events
-                SupabaseClient.fetchEvents("published").getOrNull()?.let { liveEvents ->
-                    _events.value = liveEvents
+                // Independent feeds load together; failure in one does not block the others.
+                refresh("news") {
+                    SupabaseClient.fetchNews("published").getOrNull()?.let { _newsArticles.value = it }
                 }
-
-                // 3. Sync Marketplace
-                SupabaseClient.fetchMarketplace("published").getOrNull()?.let { liveMarket ->
-                    _classifieds.value = liveMarket
+                refresh("events") {
+                    SupabaseClient.fetchEvents("published").getOrNull()?.let { _events.value = it }
+                    refreshEventAttendance()
                 }
-
-                // 4. Sync Blood Requests
-                SupabaseClient.fetchBloodRequests().getOrNull()?.let { liveBlood ->
-                    _bloodRequests.value = liveBlood
+                refresh("marketplace") {
+                    SupabaseClient.fetchMarketplace("published").getOrNull()?.let { _classifieds.value = it }
                 }
-
-                // 5. Sync Carousel Ads (Managed by Admin Console)
-                SupabaseClient.fetchCarouselAds().getOrNull()?.let { liveAds ->
-                    _adSlides.value = liveAds
+                refresh("blood requests") {
+                    SupabaseClient.fetchBloodRequests().getOrNull()?.let { _bloodRequests.value = it }
                 }
-
-                // 6. Sync Prayer Schedules (Managed by Admin Console)
-                SupabaseClient.fetchPrayerSchedules(_activeMosque.value.name).getOrNull()?.let { livePrayers ->
-                    if (livePrayers.isNotEmpty()) {
-                        updatePrayerTimingsFromCloud(livePrayers)
+                refresh("sponsorship") {
+                    SupabaseClient.fetchCarouselAds().getOrNull()?.let { _adSlides.value = it }
+                }
+                refresh("community") {
+                    refreshCommunityContent()
+                    refreshCivicSupport()
+                }
+                refresh("polls") { refreshPolls() }
+                refresh("account activity") { refreshAccountActivity() }
+                refresh("prayers") {
+                    val mosque = _activeMosque.value.name
+                    SupabaseClient.fetchPrayerSchedules(mosque).getOrNull()?.let {
+                        if (it.isNotEmpty() && _activeMosque.value.name == mosque) updatePrayerTimingsFromCloud(it)
                     }
                 }
-            } catch (e: Exception) {
-                Log.w("HoodeRepository", "Cloud sync notice", e)
             }
-        }
+        }.also { syncJob = it }
     }
 
     data class ModerationItem(
@@ -1556,4 +745,66 @@ object HoodeRepository {
         }
         success
     }
+    private val _highlights = MutableStateFlow<List<com.hoodeconnect.backend.CommunityEntry>>(emptyList())
+    val highlights = _highlights.asStateFlow()
+    suspend fun refreshCommunityContent() {
+        val entries=mutableListOf<com.hoodeconnect.backend.CommunityEntry>()
+        var offset=0
+        do {
+            val page=com.hoodeconnect.backend.CommunityApi.entries(offset=offset).getOrThrow()
+            entries.addAll(page);offset+=page.size
+        } while(page.size==50)
+        fun of(kind:String)=entries.filter{it.kind==kind}
+        _emergencyContacts.value=of("emergency").map{EmergencyContact(id=it.id,name=it.title,category=it.text("category"),phone=it.text("phone"),area=it.text("area"),lastVerified=it.createdAt.take(10))}
+        _providers.value=of("provider").map{ServiceProvider(id=it.id,name=it.title,category=it.text("category"),rating=0.0,reviewCount=0,phone=it.text("phone"),area=it.text("area"),availability=it.text("availability"))}
+        _huffazList.value=of("huffaz").map{HuffazProfile(id=it.id,name=it.title,completionYear=it.text("completion_year"),institution=it.text("institution"),teacher=it.text("teacher"),biography=it.text("biography"),imageUrl=it.imageUrl)}
+        _activities.value=of("activity").map{CommunityActivity(id=it.id,title=it.title,category=it.text("category"),organizer=it.text("organizer"),schedule=it.text("schedule"),venue=it.text("venue"),description=it.text("description"))}
+        _galleryItems.value=of("gallery").map{GalleryItem(id=it.id,title=it.title,caption=it.text("caption"),photographer=it.text("photographer"),imageUrl=it.imageUrl)}
+        _jobs.value=of("job").map{JobPosting(id=it.id,title=it.title,employer=it.text("employer"),type=it.text("type"),pay=it.text("pay"),location=it.text("location"),description=it.text("description"),deadline=it.text("deadline"))}
+        _lostFound.value=of("lost_found").map{LostFoundItem(id=it.id,title=it.title,isLost=it.payload.optBoolean("is_lost",true),category=it.text("category"),area=it.text("area"),date=it.text("date",it.createdAt.take(10)),description=it.text("description"),images=listOf(it.imageUrl).filter{url->url.isNotBlank()},contactPhone=it.text("phone"))}
+        _civicIssues.value=of("civic").map{CivicIssue(id=it.id,title=it.title,category=it.text("category"),location=it.text("location"),status="acknowledged",reportedDate=it.createdAt.take(10))}
+        _educationOfferings.value=of("education").map{EducationOffering(id=it.id,title=it.title,provider=it.text("provider"),category=it.text("category"),audience=it.text("audience"),schedule=it.text("schedule"),contact=it.text("contact"),description=it.text("description"))}
+        _registeredDonors.value=of("donor").map{DonorRegistration(id=it.id,name=it.title,bloodGroup=it.text("blood_group"),area=it.text("area"),phone=it.text("phone"))}
+        _tournaments.value=of("tournament").map{Tournament(it.id,it.title,it.text("sport"),it.text("venue"),it.text("dates"),it.text("format"),teamsCount=0)}
+        _fixtures.value=of("fixture").map{Fixture(id=it.id,tournamentId=it.text("tournament_id"),round=it.text("round"),teamA=it.text("team_a"),teamB=it.text("team_b"),time=it.text("time"),venue=it.text("venue"),scoreA=it.text("score_a").ifBlank{null},scoreB=it.text("score_b").ifBlank{null})}
+        _standings.value=of("standing").map{Standing(teamName=it.title,played=it.text("played").toIntOrNull()?:0,won=it.text("won").toIntOrNull()?:0,lost=it.text("lost").toIntOrNull()?:0,points=it.text("points").toIntOrNull()?:0,netRunRate=it.text("net_run_rate"),tournamentId=it.text("tournament_id"))}.sortedByDescending{it.points}
+        _calendarEvents.value=of("calendar").map{CalendarEvent(it.text("date"),it.title,it.text("type"))}
+        _ramadanTimetable.value=of("ramadan").map{RamadanTimetable(it.text("day").toIntOrNull()?:1,it.text("date"),it.text("suhoor_end"),it.text("iftar_time"))}.sortedBy{it.day}
+        _highlights.value=of("highlight")
+        val p=of("personality").firstOrNull()
+        _dailyPersonality.value=if(p==null)PersonalityProfile(name="",role="",featuredDate="",intro="",fullBiography="",contributions=emptyList(),quote="",imageUrl="") else
+            PersonalityProfile(id=p.id,name=p.title,role=p.text("role"),featuredDate=p.text("featured_date"),intro=p.text("intro"),fullBiography=p.text("biography"),contributions=p.text("contributions").lines().filter{it.isNotBlank()},quote=p.text("quote"),imageUrl=p.imageUrl)
+    }
+
+    private fun objects(raw:String):List<JSONObject> { val a=JSONArray(raw);return List(a.length()){a.getJSONObject(it)} }
+    private suspend fun refreshEventAttendance() {
+        com.hoodeconnect.backend.CommunityApi.rpc("hoode_event_attendance").onSuccess {raw->val states=objects(raw).associateBy{it.getString("id")}
+            _events.value=_events.value.map {event->states[event.id]?.let {event.copy(rsvpGoing=it.optInt("attending"),userRsvp=if(it.isNull("going"))null else it.getBoolean("going"))}?:event}
+        }
+    }
+    private suspend fun refreshCivicSupport() {
+        com.hoodeconnect.backend.CommunityApi.rpc("hoode_civic_support").onSuccess {raw->val states=objects(raw).associateBy{it.getString("id")}
+            _civicIssues.value=_civicIssues.value.map {issue->states[issue.id]?.let {issue.copy(endorsements=it.optInt("endorsements"),userEndorsed=it.optBoolean("endorsed"))}?:issue}
+        }
+    }
+    private suspend fun refreshPolls() {
+        com.hoodeconnect.backend.CommunityApi.rpc("hoode_poll_results").onSuccess {raw->_polls.value=objects(raw).map{r->
+            val p=r.getJSONObject("payload");val counts=r.getJSONObject("counts")
+            val options=p.getString("options").trim().lines().map{label->PollOption(label,label,counts.optInt(label))}
+            CommunityPoll(r.getString("id"),r.getString("title"),p.optString("description"),options,p.optString("closes_at"),r.optString("voted").takeUnless{it=="null"||it.isBlank()},options.sumOf{it.votes})
+        }}
+    }
+    private suspend fun refreshAccountActivity() {
+        if(!isLoggedIn())return
+        com.hoodeconnect.backend.CommunityApi.rpc("hoode_notifications").onSuccess {raw->_notifications.value=objects(raw).map{r->NotificationItem(r.getString("id"),r.getString("title"),
+            (if(r.optString("status")=="published")"Your submission was approved." else "Your submission was rejected.")+r.optString("rejection_reason").takeUnless{it=="null"}.orEmpty().let{if(it.isBlank())"" else "\n$it"},r.optString("created_at").take(10),"Review",r.optBoolean("is_read"))}}
+        com.hoodeconnect.backend.CommunityApi.rpc("hoode_contributions").onSuccess {raw->val r=JSONObject(raw)
+            _totalPoints.value=r.optInt("total");val items=r.getJSONArray("items")
+            _contributions.value=List(items.length()){i->val c=items.getJSONObject(i);ContributionRecord(c.getString("id"),"Approved: ${c.getString("title")}",c.getInt("points"),c.optString("created_at").take(10))}
+            _badges.value=listOf(CommunityBadge("contributor","Community contributor","One approved contribution","ic_badge",r.optInt("approved")>0),
+                CommunityBadge("neighbor","Helpful neighbor","Five approved contributions","ic_badge",r.optInt("approved")>=5),
+                CommunityBadge("donor","Registered donor","Donor registration approved","ic_blood",r.optBoolean("donor")))
+        }
+    }
+
 }

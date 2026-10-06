@@ -1,395 +1,56 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background"
-    android:orientation="vertical">
-
-    <!-- Top App Bar Header -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/screen_padding_horizontal"
-        android:paddingTop="20dp"
-        android:paddingBottom="12dp">
-
-        <ImageView
-            android:id="@+id/btn_back"
-            android:layout_width="@dimen/touch_target"
-            android:layout_height="@dimen/touch_target"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="@dimen/spacing_sm"
-            android:src="@drawable/ic_arrow_back"
-            android:contentDescription="@string/cd_back" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:text="Tournaments"
-            android:textColor="@color/text_primary"
-            android:textSize="20sp"
-            android:fontFamily="sans-serif-medium"
-            android:letterSpacing="-0.02" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_register_team"
-            android:layout_width="wrap_content"
-            android:layout_height="38dp"
-            android:backgroundTint="@color/accent_ink"
-            android:text="+ Register Team"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            android:fontFamily="sans-serif-medium"
-            app:cornerRadius="12dp"
-            app:icon="@drawable/ic_tournament"
-            app:iconSize="14dp"
-            app:iconTint="@color/white" />
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/background" android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/screen_padding_horizontal" android:paddingTop="20dp" android:paddingBottom="12dp">
+        <ImageView android:id="@+id/btn_back" android:layout_width="48dp" android:layout_height="48dp" android:background="?attr/selectableItemBackgroundBorderless" android:padding="12dp" android:src="@drawable/ic_arrow_back" android:contentDescription="@string/cd_back" android:focusable="true" android:minHeight="48dp" android:minWidth="48dp" android:clickable="true" android:foreground="?attr/selectableItemBackground" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="4dp" android:text="Tournaments" android:textColor="@color/text_primary" android:textSize="28sp" android:fontFamily="sans-serif-condensed" android:letterSpacing="-0.02" android:textStyle="bold" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_register_team" android:layout_width="wrap_content" android:layout_height="38dp" android:backgroundTint="@color/accent_ink" android:text="+ Register Team" android:textAllCaps="false" android:textColor="@color/white" android:textSize="12sp" android:fontFamily="sans-serif-medium" app:cornerRadius="12dp" app:icon="@drawable/ic_tournament" app:iconSize="14dp" app:iconTint="@color/white" />
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/border_faint" />
-
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:fillViewport="true"
-        android:paddingBottom="@dimen/bottom_nav_content_padding">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="14dp"
-            android:paddingBottom="24dp">
-
-            <!-- Sports Filter Chips Row -->
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/chip_sport_all"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:background="@drawable/bg_chip_black_border"
-                        android:gravity="center"
-                        android:paddingHorizontal="16dp"
-                        android:text="All Sports"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        android:fontFamily="sans-serif-medium" />
-
-                    <TextView
-                        android:id="@+id/chip_sport_cricket"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_chip_unselected"
-                        android:gravity="center"
-                        android:paddingHorizontal="16dp"
-                        android:text="🏏 Cricket"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp"
-                        android:fontFamily="sans-serif-medium" />
-
-                    <TextView
-                        android:id="@+id/chip_sport_football"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_chip_unselected"
-                        android:gravity="center"
-                        android:paddingHorizontal="16dp"
-                        android:text="⚽ Football"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp"
-                        android:fontFamily="sans-serif-medium" />
-
-                    <TextView
-                        android:id="@+id/chip_sport_badminton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_chip_unselected"
-                        android:gravity="center"
-                        android:paddingHorizontal="16dp"
-                        android:text="🏸 Badminton"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp"
-                        android:fontFamily="sans-serif-medium" />
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/border_faint" />
+    <androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:fillViewport="true" android:paddingBottom="@dimen/bottom_nav_content_padding">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="16dp" android:paddingTop="14dp" android:paddingBottom="24dp">
+            <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <TextView android:id="@+id/chip_sport_all" android:layout_width="wrap_content" android:layout_height="48dp" android:background="@drawable/bg_chip_black_border" android:gravity="center" android:paddingHorizontal="16dp" android:text="All Sports" android:textColor="@color/text_primary" android:textSize="13sp" android:fontFamily="sans-serif-medium" android:minHeight="48dp" android:minWidth="48dp" android:focusable="true" android:clickable="true" android:foreground="?attr/selectableItemBackground" />
+                    <TextView android:id="@+id/chip_sport_cricket" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginStart="8dp" android:background="@drawable/bg_chip_unselected" android:gravity="center" android:paddingHorizontal="16dp" android:text="🏏 Cricket" android:textColor="@color/text_secondary" android:textSize="13sp" android:fontFamily="sans-serif-medium" android:minHeight="48dp" android:minWidth="48dp" android:focusable="true" android:clickable="true" android:foreground="?attr/selectableItemBackground" />
+                    <TextView android:id="@+id/chip_sport_football" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginStart="8dp" android:background="@drawable/bg_chip_unselected" android:gravity="center" android:paddingHorizontal="16dp" android:text="⚽ Football" android:textColor="@color/text_secondary" android:textSize="13sp" android:fontFamily="sans-serif-medium" android:minHeight="48dp" android:minWidth="48dp" android:focusable="true" android:clickable="true" android:foreground="?attr/selectableItemBackground" />
+                    <TextView android:id="@+id/chip_sport_badminton" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginStart="8dp" android:background="@drawable/bg_chip_unselected" android:gravity="center" android:paddingHorizontal="16dp" android:text="🏸 Badminton" android:textColor="@color/text_secondary" android:textSize="13sp" android:fontFamily="sans-serif-medium" android:minHeight="48dp" android:minWidth="48dp" android:focusable="true" android:clickable="true" android:foreground="?attr/selectableItemBackground" />
                 </LinearLayout>
             </HorizontalScrollView>
-
-            <!-- Active Tournament Hero Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/border_green_soft"
-                app:cardBackgroundColor="@color/surface">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_pill_accent"
-                            android:paddingHorizontal="8dp"
-                            android:paddingVertical="3dp"
-                            android:text="COMMUNITY CRICKET TOURNAMENT"
-                            android:textColor="@color/accent_ink"
-                            android:textSize="10sp"
-                            android:fontFamily="sans-serif-bold" />
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_bottom_nav_item_selected"
-                            android:paddingHorizontal="8dp"
-                            android:paddingVertical="3dp"
-                            android:text="REGISTRATIONS OPEN"
-                            android:textColor="@color/accent_ink"
-                            android:textSize="10sp"
-                            android:fontFamily="sans-serif-bold" />
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" app:cardCornerRadius="18dp" app:cardElevation="2dp" app:strokeWidth="1dp" app:strokeColor="@color/border_green_soft" app:cardBackgroundColor="@color/surface" app:contentPadding="0dp" app:cardPreventCornerOverlap="false">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_pill_accent" android:paddingHorizontal="8dp" android:paddingVertical="3dp" android:text="COMMUNITY SPORTS" android:textColor="@color/accent_ink" android:textSize="10sp" android:fontFamily="sans-serif-bold" />
+                        <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_bottom_nav_item_selected" android:paddingHorizontal="8dp" android:paddingVertical="3dp" android:text="TOURNAMENT DESK" android:textColor="@color/accent_ink" android:textSize="10sp" android:fontFamily="sans-serif-bold" />
                     </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tv_tournament_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="Hoode Annual Cricket Tournament 2026"
-                        android:textColor="@color/text_primary"
-                        android:textSize="18sp"
-                        android:fontFamily="sans-serif-bold" />
-
-                    <TextView
-                        android:id="@+id/tv_tournament_venue"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Kemmannu Higher Primary Ground • 18–21 Sep 2026 • 12 Teams"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginVertical="12dp"
-                        android:background="@color/border_faint" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="🏆 Trophy, Medals &amp; Cash Awards"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp"
-                            android:fontFamily="sans-serif-medium" />
-
-                        <TextView
-                            android:id="@+id/btn_hero_register"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_pill_accent"
-                            android:paddingHorizontal="12dp"
-                            android:paddingVertical="6dp"
-                            android:text="Register Squad →"
-                            android:textColor="@color/accent_ink"
-                            android:textSize="12sp"
-                            android:fontFamily="sans-serif-bold" />
+                    <TextView android:id="@+id/tv_tournament_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Hoode Annual Cricket Tournament 2026" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="sans-serif-bold" />
+                    <TextView android:id="@+id/tv_tournament_venue" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Kemmannu Higher Primary Ground • 18–21 Sep 2026 • 12 Teams" android:textColor="@color/text_secondary" android:textSize="13sp" />
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginVertical="12dp" android:background="@color/border_faint" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Fixtures and standings from the community team" android:textColor="@color/text_secondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                        <TextView android:id="@+id/btn_hero_register" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_pill_accent" android:paddingHorizontal="12dp" android:paddingVertical="6dp" android:text="Register Squad →" android:textColor="@color/accent_ink" android:textSize="12sp" android:fontFamily="sans-serif-bold" android:minHeight="48dp" android:minWidth="48dp" android:focusable="true" android:clickable="true" android:foreground="?attr/selectableItemBackground" android:gravity="center" />
                     </LinearLayout>
-
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-
-            <!-- Points Table Section Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Points Table"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp"
-                    android:fontFamily="sans-serif-bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Group Stage"
-                    android:textColor="@color/text_muted"
-                    android:textSize="12sp" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Points Table" android:textColor="@color/text_primary" android:textSize="16sp" android:fontFamily="sans-serif-bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Team standings" android:textColor="@color/text_muted" android:textSize="12sp" />
             </LinearLayout>
-
-            <!-- Points Table Header Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
-                android:background="@drawable/bg_pill_neutral"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="24dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="#"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:fontFamily="sans-serif-bold" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="10dp"
-                    android:text="TEAM"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:fontFamily="sans-serif-bold" />
-
-                <TextView
-                    android:layout_width="26dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="P"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:fontFamily="sans-serif-bold" />
-
-                <TextView
-                    android:layout_width="26dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="W"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:fontFamily="sans-serif-bold" />
-
-                <TextView
-                    android:layout_width="26dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="L"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:fontFamily="sans-serif-bold" />
-
-                <TextView
-                    android:layout_width="44dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:gravity="center"
-                    android:text="PTS"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:fontFamily="sans-serif-bold" />
-
-                <TextView
-                    android:layout_width="48dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:text="NRR"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:fontFamily="sans-serif-bold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:paddingHorizontal="12dp" android:paddingVertical="6dp" android:background="@drawable/bg_pill_neutral" android:gravity="center_vertical" android:orientation="horizontal">
+                <TextView android:layout_width="24dp" android:layout_height="wrap_content" android:gravity="center" android:text="#" android:textColor="@color/text_secondary" android:textSize="11sp" android:fontFamily="sans-serif-bold" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="10dp" android:text="TEAM" android:textColor="@color/text_secondary" android:textSize="11sp" android:fontFamily="sans-serif-bold" />
+                <TextView android:layout_width="26dp" android:layout_height="wrap_content" android:gravity="center" android:text="P" android:textColor="@color/text_secondary" android:textSize="11sp" android:fontFamily="sans-serif-bold" />
+                <TextView android:layout_width="26dp" android:layout_height="wrap_content" android:gravity="center" android:text="W" android:textColor="@color/text_secondary" android:textSize="11sp" android:fontFamily="sans-serif-bold" />
+                <TextView android:layout_width="26dp" android:layout_height="wrap_content" android:gravity="center" android:text="L" android:textColor="@color/text_secondary" android:textSize="11sp" android:fontFamily="sans-serif-bold" />
+                <TextView android:layout_width="44dp" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:gravity="center" android:text="PTS" android:textColor="@color/text_secondary" android:textSize="11sp" android:fontFamily="sans-serif-bold" />
+                <TextView android:layout_width="48dp" android:layout_height="wrap_content" android:gravity="end" android:text="NRR" android:textColor="@color/text_secondary" android:textSize="11sp" android:fontFamily="sans-serif-bold" />
             </LinearLayout>
-
-            <!-- Standings Container -->
-            <LinearLayout
-                android:id="@+id/ll_standings_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:orientation="vertical" />
-
-            <!-- Fixtures Section Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Upcoming &amp; Live Fixtures"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp"
-                    android:fontFamily="sans-serif-bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Kemmannu Ground"
-                    android:textColor="@color/text_muted"
-                    android:textSize="12sp" />
+            <LinearLayout android:id="@+id/ll_standings_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:orientation="vertical" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Upcoming &amp; Live Fixtures" android:textColor="@color/text_primary" android:textSize="16sp" android:fontFamily="sans-serif-bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Match schedule" android:textColor="@color/text_muted" android:textSize="12sp" />
             </LinearLayout>
-
-            <!-- Fixtures Container -->
-            <LinearLayout
-                android:id="@+id/ll_fixtures_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="vertical" />
-
+            <LinearLayout android:id="@+id/ll_fixtures_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="vertical" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
 </LinearLayout>

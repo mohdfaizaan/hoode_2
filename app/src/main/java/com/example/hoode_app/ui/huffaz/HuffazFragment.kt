@@ -1,5 +1,6 @@
 package com.example.hoode_app.ui.huffaz
 
+import com.example.hoode_app.ui.common.showEmptyContent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -38,6 +39,7 @@ class HuffazFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             HoodeRepository.huffazList.collectLatest { list ->
                 binding.llHuffazContainer.removeAllViews()
+                if (list.isEmpty()) binding.llHuffazContainer.showEmptyContent("No Huffaz profiles to show")
                 for (huffaz in list) {
                     val cardBinding = ItemHuffazCardBinding.inflate(layoutInflater, binding.llHuffazContainer, false)
                     cardBinding.tvHuffazName.text = huffaz.name

@@ -167,15 +167,10 @@ object SupabaseClient {
                 val userMeta = userObj?.optJSONObject("user_metadata")
 
                 // Fetch Profile from Supabase profiles table
-                var profile = fetchProfile(uid)
-                if (profile == null) {
-                    // Profile row doesn't exist yet, insert/upsert default profile
-                    val defaultName = userMeta?.optString("name")?.takeIf { it.isNotBlank() }
-                        ?: userEmail.substringBefore("@").replaceFirstChar { it.uppercase() }
-                    val defaultWard = userMeta?.optString("ward")?.takeIf { it.isNotBlank() } ?: "Hoode"
-                    val defaultPhone = userMeta?.optString("phone")?.takeIf { it.isNotBlank() } ?: ""
-                    upsertProfileRow(uid, defaultName, userEmail, defaultPhone, defaultWard)
-                    profile = fetchProfile(uid)
+                val profile = fetchProfile(uid)
+                if(profile==null) {
+                    BackendSession.clear()
+                    throw IOException("Your account profile could not be loaded. Please retry signing in.")
                 }
 
                 if (profile?.optBoolean("is_banned", false) == true) {
@@ -198,9 +193,9 @@ object SupabaseClient {
                 val bloodGroup = profile?.optString("blood_group")?.takeIf { it.isNotBlank() && it != "null" }
                 val profession = profile?.optString("profession")?.takeIf { it.isNotBlank() && it != "null" }
                 val avatarUrl = profile?.optString("avatar_url")?.takeIf { it.isNotBlank() && it != "null" }
-                val bio = userMeta?.optString("bio")?.takeIf { it.isNotBlank() && it != "null" }
-                val username = userMeta?.optString("username")?.takeIf { it.isNotBlank() && it != "null" }
-                val coverUrl = userMeta?.optString("cover_url")?.takeIf { it.isNotBlank() && it != "null" }
+                val bio = profile?.optString("bio")?.takeIf { it.isNotBlank() && it != "null" }
+                val username = profile?.optString("username")?.takeIf { it.isNotBlank() && it != "null" }
+                val coverUrl = profile?.optString("cover_url")?.takeIf { it.isNotBlank() && it != "null" }
 
                 val user = User(
                     id = uid,
@@ -231,69 +226,21 @@ object SupabaseClient {
 
     suspend fun updateProfile(user: User): Result<User> = withContext(Dispatchers.IO) {
         runCatching {
-            val avatar = user.profilePicUri?.let {
-                if (it.startsWith("content://")) com.hoodeconnect.backend.MediaUploader.uploadUri(android.net.Uri.parse(it)).getOrThrow()
-                else it
+            suspend fun upload(value: String?): String? = value?.let {
+                if (it.startsWith("content://")) com.hoodeconnect.backend.MediaUploader.uploadUri(android.net.Uri.parse(it)).getOrThrow() else it
             }
-
-            // 1. Update profiles table in Supabase
+            val avatar = upload(user.profilePicUri)
+            val cover = upload(user.coverPicUri)
             val body = JSONObject().apply {
-                put("name", user.displayName)
-                put("phone", user.phone ?: "")
-                put("ward", user.locality ?: "Hoode")
-                put("age", user.age ?: "")
-                put("dob", user.dob ?: "")
-                put("father_name", user.fatherName ?: "")
-                put("blood_group", user.bloodGroup ?: "")
-                put("profession", user.profession ?: "")
-                put("avatar_url", avatar ?: JSONObject.NULL)
+                put("name", user.displayName); put("phone", user.phone ?: ""); put("ward", user.locality ?: "Hoode")
+                put("age", user.age ?: ""); put("dob", user.dob ?: ""); put("father_name", user.fatherName ?: "")
+                put("blood_group", user.bloodGroup ?: ""); put("profession", user.profession ?: "")
+                put("username", user.username ?: ""); put("bio", user.bio ?: "")
+                put("avatar_url", avatar ?: JSONObject.NULL); put("cover_url", cover ?: JSONObject.NULL)
             }
-
-            val request = Request.Builder()
-                .url("${SupabaseConfig.supabaseUrl}/rest/v1/profiles?id=eq.${user.id}")
-                .header("Prefer", "return=representation")
-                .patch(body.toString().toRequestBody(JSON_MEDIA))
-                .build()
-
-            httpClient.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    // If PATCH failed (e.g. record didn't exist yet), perform upsert
-                    body.put("id", user.id)
-                    body.put("email", user.email)
-                    body.put("role", user.roles.firstOrNull() ?: "approved_resident")
-                    val upsertReq = Request.Builder()
-                        .url("${SupabaseConfig.supabaseUrl}/rest/v1/profiles")
-                        .header("Prefer", "resolution=merge-duplicates,return=representation")
-                        .post(body.toString().toRequestBody(JSON_MEDIA))
-                        .build()
-                    httpClient.newCall(upsertReq).execute().close()
-                }
-            }
-
-            // 2. Also persist bio, username, and coverPicUri into Supabase Auth user metadata
-            try {
-                val metaBody = JSONObject().apply {
-                    put("data", JSONObject().apply {
-                        put("name", user.displayName)
-                        put("phone", user.phone ?: "")
-                        put("ward", user.locality ?: "Hoode")
-                        if (!user.bio.isNullOrBlank()) put("bio", user.bio)
-                        if (!user.username.isNullOrBlank()) put("username", user.username)
-                        if (!user.coverPicUri.isNullOrBlank()) put("cover_url", user.coverPicUri)
-                    })
-                }
-                val metaReq = Request.Builder()
-                    .url("${SupabaseConfig.supabaseUrl}/auth/v1/user")
-                    .addHeader("apikey", SupabaseConfig.supabaseKey)
-                    .addHeader("Authorization", getAuthHeader())
-                    .put(metaBody.toString().toRequestBody(JSON_MEDIA))
-                    .build()
-                httpClient.newCall(metaReq).execute().close()
-            } catch (e: Exception) {
-                Log.w(TAG, "Error updating auth user metadata", e)
-            }
-
-            user.copy(profilePicUri = avatar)
+            val rows = JSONArray(com.hoodeconnect.backend.CommunityApi.request("profiles?id=eq.${user.id}", "PATCH", body))
+            check(rows.length() == 1) { "Profile could not be saved. Sign in again and retry." }
+            user.copy(profilePicUri = avatar, coverPicUri = cover)
         }
     }
 
@@ -474,32 +421,12 @@ object SupabaseClient {
         }
     }
 
-    suspend fun submitEvent(event: CommunityEvent): Result<Boolean> = withContext(Dispatchers.IO) {
-        try {
-            val url = "${SupabaseConfig.supabaseUrl}/rest/v1/events"
-            val body = JSONObject().apply {
-                put("title", event.title)
-                put("description", "${event.category} - ${event.time}")
-                put("category", event.category)
-                put("date_text", "${event.date} ${event.time}".trim())
-                put("location", event.venue)
-                put("organizer", event.organizer)
-                put("status", "pending")
-                if (!currentUserId.isNullOrBlank()) put("author_id", currentUserId)
-            }
-            val req = Request.Builder()
-                .url(url)
-                .addHeader("apikey", SupabaseConfig.supabaseKey)
-                .addHeader("Authorization", getAuthHeader())
-                .addHeader("Content-Type", "application/json")
-                .post(body.toString().toRequestBody(JSON_MEDIA))
-                .build()
-            httpClient.newCall(req).execute().use { resp ->
-                if (resp.isSuccessful) Result.success(true) else Result.failure(IOException("Submit event error: ${resp.code}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    suspend fun submitEvent(event: CommunityEvent): Result<Boolean> = com.hoodeconnect.backend.CommunityApi.safely {
+        val body=JSONObject().put("title",event.title).put("description",event.description)
+            .put("category",event.category).put("date_text","${event.date} ${event.time}".trim())
+            .put("location",event.venue).put("organizer",event.organizer).put("status","pending")
+        com.hoodeconnect.backend.CommunityApi.submitRow("events",body,event.id)
+        true
     }
 
     suspend fun updateEventStatus(eventId: String, newStatus: String): Result<Boolean> = withContext(Dispatchers.IO) {
@@ -525,74 +452,32 @@ object SupabaseClient {
 
     // ── Marketplace ───────────────────────────────────────────────────────────
 
-    suspend fun fetchMarketplace(status: String = "published"): Result<List<ClassifiedItem>> = withContext(Dispatchers.IO) {
-        try {
-            val url = "${SupabaseConfig.supabaseUrl}/rest/v1/marketplace?status=eq.$status&order=created_at.desc&select=*"
-            val req = Request.Builder()
-                .url(url)
-                .addHeader("apikey", SupabaseConfig.supabaseKey)
-                .addHeader("Authorization", getAuthHeader())
-                .get()
-                .build()
-
-            httpClient.newCall(req).execute().use { resp ->
-                if (!resp.isSuccessful) return@withContext Result.failure(IOException("Fetch market failed"))
-                val arr = JSONArray(resp.body?.string() ?: "[]")
-                val list = mutableListOf<ClassifiedItem>()
-                for (i in 0 until arr.length()) {
-                    val it = arr.getJSONObject(i)
-                    val img = it.optString("image_url")
-                    list.add(
-                        ClassifiedItem(
-                            id = it.optString("id"),
-                            title = it.optString("title"),
-                            price = it.optString("price"),
-                            type = "Sell",
-                            category = it.optString("category", "General"),
-                            area = "Hoode",
-                            description = it.optString("description"),
-                            sellerName = it.optString("seller_name", "Resident"),
-                            date = it.optString("created_at").take(10),
-                            images = if (img.isNotBlank()) listOf(img) else emptyList(),
-                            phone = it.optString("phone", "9876543210")
-                        )
-                    )
-                }
-                Result.success(list)
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
+    suspend fun fetchMarketplace(status: String = "published"): Result<List<ClassifiedItem>> = com.hoodeconnect.backend.CommunityApi.safely {
+        val raw = if(status=="published") com.hoodeconnect.backend.CommunityApi.request("rpc/hoode_marketplace_feed","POST",JSONObject().put("page_size",100))
+            else com.hoodeconnect.backend.CommunityApi.request("marketplace?status=eq.$status&order=created_at.desc&limit=100")
+        val rows=JSONArray(raw)
+        List(rows.length()) { index ->
+            val r=rows.getJSONObject(index)
+            val photos=r.optJSONArray("images") ?: JSONArray()
+            val images=List(photos.length()){photos.optString(it)}.filter{it.isNotBlank()}
+            val cover=r.optString("image_url").takeUnless{it=="null"}.orEmpty()
+            ClassifiedItem(id=r.getString("id"),title=r.optString("title"),price=r.optString("price"),
+                type=r.optString("listing_type","Sell"),category=r.optString("category","General"),area=r.optString("area","Hoode"),
+                description=r.optString("description"),sellerName=r.optString("seller_name","Resident"),date=r.optString("created_at").take(10),
+                images=images.ifEmpty{listOf(cover).filter{it.isNotBlank()}},phone=r.optString("phone"),sellerUserId=r.optString("author_id"),
+                isSold=r.optBoolean("is_sold"),isBooked=r.optBoolean("is_booked"),bookedByUserId=r.optString("booked_by_user_id").takeUnless{it=="null"},
+                bookedByName=r.optString("booked_by_name").takeUnless{it=="null"},bookedByPhone=r.optString("booked_by_phone").takeUnless{it=="null"},
+                bookingNote=r.optString("booking_note").takeUnless{it=="null"},bookedAtTimestamp=runCatching{java.time.Instant.parse(r.optString("booked_at")).toEpochMilli()}.getOrDefault(0L))
         }
     }
-
-    suspend fun submitMarketplace(item: ClassifiedItem): Result<Boolean> = withContext(Dispatchers.IO) {
-        try {
-            val url = "${SupabaseConfig.supabaseUrl}/rest/v1/marketplace"
-            val body = JSONObject().apply {
-                put("title", item.title)
-                put("description", item.description)
-                put("price", item.price)
-                put("category", item.category)
-                put("image_url", item.images.firstOrNull() ?: "")
-                put("seller_name", item.sellerName)
-                put("area", item.area)
-                put("phone", item.phone)
-                put("status", "pending")
-                if (!currentUserId.isNullOrBlank()) put("author_id", currentUserId)
-            }
-            val req = Request.Builder()
-                .url(url)
-                .addHeader("apikey", SupabaseConfig.supabaseKey)
-                .addHeader("Authorization", getAuthHeader())
-                .addHeader("Content-Type", "application/json")
-                .post(body.toString().toRequestBody(JSON_MEDIA))
-                .build()
-            httpClient.newCall(req).execute().use { resp ->
-                if (resp.isSuccessful) Result.success(true) else Result.failure(IOException("Submit market error"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    suspend fun submitMarketplace(item:ClassifiedItem):Result<Boolean> = com.hoodeconnect.backend.CommunityApi.safely {
+        check(!BackendSession.token().isNullOrBlank()) { "Please sign in to submit a listing." }
+        val photos=item.images.map { if(it.startsWith("content://")) com.hoodeconnect.backend.MediaUploader.uploadUri(android.net.Uri.parse(it)).getOrThrow() else it }
+        val body=JSONObject().put("title",item.title).put("description",item.description).put("price",item.price)
+            .put("category",item.category).put("listing_type",item.type).put("image_url",photos.firstOrNull()?:"").put("images",JSONArray(photos))
+            .put("seller_name",item.sellerName).put("area",item.area).put("phone",item.phone).put("status","pending")
+        com.hoodeconnect.backend.CommunityApi.submitRow("marketplace",body,item.id)
+        true
     }
 
     suspend fun updateMarketplaceStatus(itemId: String, newStatus: String): Result<Boolean> = withContext(Dispatchers.IO) {
@@ -620,7 +505,7 @@ object SupabaseClient {
 
     suspend fun fetchBloodRequests(): Result<List<BloodRequest>> = withContext(Dispatchers.IO) {
         try {
-            val url = "${SupabaseConfig.supabaseUrl}/rest/v1/blood_requests?order=created_at.desc&select=*"
+            val url = "${SupabaseConfig.supabaseUrl}/rest/v1/blood_requests?moderation_status=eq.published&order=created_at.desc&select=*"
             val req = Request.Builder()
                 .url(url)
                 .addHeader("apikey", SupabaseConfig.supabaseKey)
@@ -654,31 +539,12 @@ object SupabaseClient {
         }
     }
 
-    suspend fun submitBloodRequest(reqItem: BloodRequest): Result<Boolean> = withContext(Dispatchers.IO) {
-        try {
-            val url = "${SupabaseConfig.supabaseUrl}/rest/v1/blood_requests"
-            val body = JSONObject().apply {
-                put("patient_name", reqItem.patientNamePlaceholder)
-                put("blood_group", reqItem.bloodGroup)
-                put("units_needed", reqItem.unitsNeeded)
-                put("hospital", reqItem.hospital)
-                put("contact_phone", reqItem.coordinatorPhone)
-                put("status", reqItem.urgency)
-                if (!currentUserId.isNullOrBlank()) put("author_id", currentUserId)
-            }
-            val req = Request.Builder()
-                .url(url)
-                .addHeader("apikey", SupabaseConfig.supabaseKey)
-                .addHeader("Authorization", getAuthHeader())
-                .addHeader("Content-Type", "application/json")
-                .post(body.toString().toRequestBody(JSON_MEDIA))
-                .build()
-            httpClient.newCall(req).execute().use { resp ->
-                if (resp.isSuccessful) Result.success(true) else Result.failure(IOException("Blood request failed"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    suspend fun submitBloodRequest(reqItem: BloodRequest): Result<Boolean> = com.hoodeconnect.backend.CommunityApi.safely {
+        val body=JSONObject().put("patient_name",reqItem.patientNamePlaceholder).put("blood_group",reqItem.bloodGroup)
+            .put("units_needed",reqItem.unitsNeeded).put("hospital",reqItem.hospital)
+            .put("contact_phone",reqItem.coordinatorPhone).put("status",reqItem.urgency).put("moderation_status","pending")
+        com.hoodeconnect.backend.CommunityApi.submitRow("blood_requests",body,reqItem.id)
+        true
     }
 
     // ── Storage (Private Bucket Media) ─────────────────────────────────────────
@@ -706,7 +572,8 @@ object SupabaseClient {
                         com.example.hoode_app.data.model.AdCarouselSlide(
                             slotIndex = obj.optInt("slot_index", i + 1) + 1,
                             headline = obj.optString("headline"),
-                            subheadline = obj.optString("advertiser"),
+                            subheadline = obj.optString("subheadline"),
+                            description = obj.optString("description"),
                             advertiser = obj.optString("advertiser"),
                             ctaLabel = obj.optString("action_label", "Explore Now"),
                             ctaUrl = obj.optString("action_url"),

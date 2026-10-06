@@ -32,13 +32,6 @@ class GalleryFragment : Fragment() {
     private var _binding: FragmentGalleryBinding? = null
     private val binding get() = _binding!!
 
-    private var onPhotoPicked: ((android.net.Uri) -> Unit)? = null
-    private val pickPhotoLauncher = registerForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
-    ) { uri: android.net.Uri? ->
-        uri?.let { onPhotoPicked?.invoke(it) }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -61,129 +54,32 @@ class GalleryFragment : Fragment() {
 
         binding.rvGalleryGrid.layoutManager = GridLayoutManager(requireContext(), 2)
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            HoodeRepository.galleryItems.collectLatest { items ->
-                binding.tvGalleryCount.text = "${items.size} Photos"
-                binding.rvGalleryGrid.adapter = GalleryAdapter(items) { item, pos, total ->
-                    showFullscreenViewer(item, pos + 1, total)
-                }
-            }
-        }
+        binding.btnGalleryRefresh.setOnClickListener { loadPhotos(false) }
+        binding.btnGalleryMore.setOnClickListener { loadPhotos(true) }
+        binding.btnMyPhotos.setOnClickListener { findNavController().navigate(R.id.profileFragment) }
+        loadPhotos(false)
     }
 
+    private val photos=mutableListOf<GalleryItem>()
+    private var loadJob:kotlinx.coroutines.Job?=null
     private fun showAddPhotoDialog() {
-        val user = HoodeRepository.currentUser.value
-        val defaultName = user?.displayName ?: "Verified Resident"
-
-        val dialog = Dialog(requireContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar)
-        val formBinding = com.example.hoode_app.databinding.DialogFormAddPhotoBinding.inflate(layoutInflater)
-        dialog.setContentView(formBinding.root)
-
-        dialog.window?.setLayout(
-            (resources.displayMetrics.widthPixels * 0.94).toInt(),
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-        formBinding.etPhotographer.setText(defaultName)
-
-        var selectedTag = "Beach & Nature"
-        val tagChips = listOf(
-            formBinding.chipGalNature to "Beach & Nature",
-            formBinding.chipGalSports to "Sports",
-            formBinding.chipGalMosques to "Mosques",
-            formBinding.chipGalCommunity to "Community"
-        )
-
-        for ((view, tag) in tagChips) {
-            view.setOnClickListener {
-                selectedTag = tag
-                for ((v, t) in tagChips) {
-                    if (t == selectedTag) {
-                        v.setBackgroundResource(R.drawable.bg_chip_black_border)
-                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-                    } else {
-                        v.setBackgroundResource(R.drawable.bg_chip_unselected)
-                        v.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
-                    }
-                }
-            }
+        com.example.hoode_app.ui.common.CommunityPostForm.showGallery(this) { loadPhotos(false) }
+    }
+    private fun loadPhotos(append:Boolean) {
+        loadJob?.cancel()
+        binding.tvGalleryStatus.text="Loading photos…"
+        binding.btnGalleryMore.isEnabled=false
+        if(!append)photos.clear()
+        loadJob=viewLifecycleOwner.lifecycleScope.launch {
+            com.hoodeconnect.backend.CommunityApi.entries("gallery",offset=if(append)photos.size else 0).onSuccess { rows->
+                photos.addAll(rows.map { GalleryItem(id=it.id,title=it.title,caption=it.text("caption"),photographer=it.text("photographer"),imageUrl=it.imageUrl) })
+                binding.tvGalleryCount.text="${photos.size} photos"
+                binding.tvGalleryStatus.text=if(photos.isEmpty())"No approved photos yet. Share the first view of Hoode." else "Tap a photo to open it. New photos appear after approval."
+                binding.rvGalleryGrid.adapter=GalleryAdapter(photos.toList()) { item,pos,total->showFullscreenViewer(item,pos+1,total) }
+                binding.btnGalleryMore.visibility=if(rows.size==50)View.VISIBLE else View.GONE
+            }.onFailure { binding.tvGalleryStatus.text=it.message ?: "Could not load photos. Tap Refresh." }
+            binding.btnGalleryMore.isEnabled=true
         }
-
-        fun updatePreview(url: String) {
-            if (url.isNotBlank()) {
-                formBinding.ivPhotoPreview.load(url) {
-                    crossfade(true)
-                    placeholder(R.drawable.bg_gallery_luxury_gradient)
-                    error(R.drawable.bg_gallery_luxury_gradient)
-                }
-            } else {
-                formBinding.ivPhotoPreview.setImageResource(R.drawable.bg_gallery_luxury_gradient)
-            }
-        }
-
-        updatePreview(formBinding.etPhotoUrl.text.toString())
-        formBinding.etPhotoUrl.addTextChangedListener(object : android.text.TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                updatePreview(s?.toString()?.trim() ?: "")
-            }
-            override fun afterTextChanged(s: android.text.Editable?) {}
-        })
-
-        // Pick Photo from Gallery
-        val launchPicker = View.OnClickListener {
-            onPhotoPicked = { uri ->
-                formBinding.etPhotoUrl.setText(uri.toString())
-                updatePreview(uri.toString())
-                Toast.makeText(requireContext(), "Photo selected from gallery", Toast.LENGTH_SHORT).show()
-            }
-            pickPhotoLauncher.launch(
-                androidx.activity.result.PickVisualMediaRequest(
-                    androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
-                )
-            )
-        }
-        formBinding.btnUploadPhoto.setOnClickListener(launchPicker)
-        formBinding.flPhotoPreviewContainer.setOnClickListener(launchPicker)
-
-        formBinding.btnClosePhoto.setOnClickListener {
-            dialog.dismiss()
-        }
-
-        formBinding.btnSubmitPhoto.setOnClickListener {
-            val url = formBinding.etPhotoUrl.text.toString().trim()
-            val title = formBinding.etPhotoTitle.text.toString().trim()
-            val photoName = formBinding.etPhotographer.text.toString().trim().ifBlank { defaultName }
-            val caption = formBinding.etPhotoCaption.text.toString().trim()
-
-            if (url.isBlank()) {
-                formBinding.tilPhotoUrl.error = "Please enter an image URL"
-                return@setOnClickListener
-            }
-            formBinding.tilPhotoUrl.error = null
-
-            if (title.isBlank()) {
-                formBinding.tilPhotoTitle.error = "Please enter a photo title"
-                return@setOnClickListener
-            }
-            formBinding.tilPhotoTitle.error = null
-
-            val newItem = GalleryItem(
-                id = "gal_${System.currentTimeMillis()}",
-                title = title,
-                imageUrl = url,
-                photographer = photoName,
-                caption = if (caption.isNotBlank()) "$caption • $selectedTag" else selectedTag,
-                sortOrder = 0
-            )
-
-            HoodeRepository.addGalleryItem(newItem)
-            Toast.makeText(requireContext(), "Photo published to Community Gallery!", Toast.LENGTH_SHORT).show()
-            dialog.dismiss()
-        }
-
-        dialog.show()
     }
 
     private fun showFullscreenViewer(item: GalleryItem, currentPos: Int, total: Int) {
@@ -207,11 +103,16 @@ class GalleryFragment : Fragment() {
         }
 
         btnClose.setOnClickListener { dialog.dismiss() }
+        tvUploader.setOnClickListener { com.example.hoode_app.ui.common.PostDiscussion.show(this,"community_content",item.id,item.title) }
+        tvUploader.text="By ${item.photographer} · Likes & comments"
+        tvUploader.contentDescription="Open photo likes and comments"
+        tvUploader.isFocusable=true
         dialog.show()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        loadJob?.cancel()
         _binding = null
     }
 
@@ -224,6 +125,7 @@ class GalleryFragment : Fragment() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val b = ItemGalleryThumbnailBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            b.root.layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (210 * parent.resources.displayMetrics.density).toInt())
             return ViewHolder(b)
         }
 

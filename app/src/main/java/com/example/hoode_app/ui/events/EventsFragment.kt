@@ -1,5 +1,8 @@
 package com.example.hoode_app.ui.events
 
+import com.example.hoode_app.ui.common.submitForReview
+import com.example.hoode_app.ui.common.saveAction
+import com.example.hoode_app.ui.common.showEmptyContent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -48,6 +51,7 @@ class EventsFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             HoodeRepository.events.collectLatest { eventsList ->
                 binding.llEventsContainer.removeAllViews()
+                if (eventsList.isEmpty()) binding.llEventsContainer.showEmptyContent("No events to show")
                 for (event in eventsList) {
                     val itemBinding = ItemEventCardBinding.inflate(layoutInflater, binding.llEventsContainer, false)
                     itemBinding.tvEventCategory.text = event.category
@@ -56,7 +60,7 @@ class EventsFragment : Fragment() {
                     itemBinding.tvEventTitle.text = event.title
                     itemBinding.tvEventDatetime.text = "${event.date} • ${event.time}"
                     itemBinding.tvEventVenue.text = "${event.venue} • Organizer: ${event.organizer}"
-                    itemBinding.tvEventRsvpCount.text = "${event.rsvpGoing} / ${event.rsvpTotalCapacity} Attending"
+                    itemBinding.tvEventRsvpCount.text = "${event.rsvpGoing} attending"
 
                     if (event.userRsvp == true) {
                         itemBinding.btnRsvpGoing.text = "✓ Going"
@@ -66,13 +70,11 @@ class EventsFragment : Fragment() {
                     }
 
                     itemBinding.btnRsvpGoing.setOnClickListener {
-                        HoodeRepository.rsvpEvent(event.id, true)
-                        Toast.makeText(requireContext(), "RSVP confirmed for ${event.title}!", Toast.LENGTH_SHORT).show()
+                        saveAction(itemBinding.btnRsvpGoing,"Attendance saved.") { HoodeRepository.rsvpEvent(event.id, true) }
                     }
 
                     itemBinding.btnRsvpNotGoing.setOnClickListener {
-                        HoodeRepository.rsvpEvent(event.id, false)
-                        Toast.makeText(requireContext(), "Marked as not attending", Toast.LENGTH_SHORT).show()
+                        saveAction(itemBinding.btnRsvpNotGoing,"Attendance updated.") { HoodeRepository.rsvpEvent(event.id, false) }
                     }
 
                     binding.llEventsContainer.addView(itemBinding.root)
@@ -145,8 +147,9 @@ class EventsFragment : Fragment() {
             }
             formBinding.tilEventVenue.error = null
 
-            Toast.makeText(requireContext(), "Event '$title' ($selectedCategory) submitted for community review!", Toast.LENGTH_LONG).show()
-            dialog.dismiss()
+            val event=CommunityEvent(title=title,organizer=organizer.ifBlank { HoodeRepository.currentUser.value?.displayName ?: "Resident" },
+                category=selectedCategory,date=date,time="",venue=venue,description=desc)
+            submitForReview(formBinding.btnSubmitEvent,dialog) { HoodeRepository.postEvent(event) }
         }
 
         dialog.show()

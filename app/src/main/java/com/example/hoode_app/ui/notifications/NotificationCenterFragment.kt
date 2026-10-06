@@ -1,5 +1,6 @@
 package com.example.hoode_app.ui.notifications
 
+import com.example.hoode_app.ui.common.saveAction
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -39,15 +40,16 @@ class NotificationCenterFragment : Fragment() {
         }
 
         binding.btnMarkAllRead.setOnClickListener {
-            Toast.makeText(requireContext(), "All notifications marked as read.", Toast.LENGTH_SHORT).show()
+            saveAction(binding.btnMarkAllRead,"Shown notifications marked as read.") { HoodeRepository.markNotificationsRead(HoodeRepository.notifications.value.map{it.id}) }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
             HoodeRepository.notifications.collectLatest { list ->
                 binding.llNotificationsContainer.removeAllViews()
+                if(list.isEmpty())binding.llNotificationsContainer.addView(android.widget.TextView(requireContext()).apply{text="Review updates will appear here."})
                 for (notif in list) {
                     val itemBinding = ItemNotificationCardBinding.inflate(layoutInflater, binding.llNotificationsContainer, false)
-                    itemBinding.tvNotifCategory.text = notif.category
+                    itemBinding.tvNotifCategory.text = if(notif.isRead)"Read review" else "New review"
                     itemBinding.tvNotifTimestamp.text = notif.timestamp
                     itemBinding.tvNotifTitle.text = notif.title
                     itemBinding.tvNotifBody.text = notif.body
@@ -63,41 +65,9 @@ class NotificationCenterFragment : Fragment() {
     }
 
     private fun handleNotificationClick(notif: NotificationItem) {
-        val cat = notif.category.lowercase()
-        val title = notif.title.lowercase()
-
-        when {
-            cat.contains("prayer") || title.contains("iqamah") || title.contains("adhan") -> {
-                findNavController().navigate(R.id.prayerDetailFragment)
-            }
-            cat.contains("blood") || title.contains("blood") || title.contains("donor") -> {
-                findNavController().navigate(R.id.bloodNetworkFragment)
-            }
-            cat.contains("sports") || cat.contains("tournament") || title.contains("cricket") -> {
-                findNavController().navigate(R.id.tournamentsFragment)
-            }
-            cat.contains("news") || title.contains("update") || title.contains("official") -> {
-                findNavController().navigate(R.id.newsFragment)
-            }
-            cat.contains("classified") || cat.contains("marketplace") -> {
-                findNavController().navigate(R.id.marketplaceFragment)
-            }
-            cat.contains("job") -> {
-                findNavController().navigate(R.id.jobsFragment)
-            }
-            cat.contains("emergency") -> {
-                findNavController().navigate(R.id.emergencyFragment)
-            }
-            cat.contains("poll") -> {
-                findNavController().navigate(R.id.pollsFragment)
-            }
-            else -> {
-                AlertDialog.Builder(requireContext())
-                    .setTitle(notif.title)
-                    .setMessage("${notif.body}\n\nReceived: ${notif.timestamp} • Category: ${notif.category}")
-                    .setPositiveButton("Dismiss", null)
-                    .show()
-            }
+        viewLifecycleOwner.lifecycleScope.launch {
+            HoodeRepository.markNotificationsRead(listOf(notif.id)).onSuccess { findNavController().navigate(R.id.profileFragment) }
+                .onFailure { Toast.makeText(requireContext(),it.message,Toast.LENGTH_LONG).show() }
         }
     }
 

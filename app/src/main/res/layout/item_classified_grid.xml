@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- OLX-style compact 2-column listing card -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:id="@+id/card_grid_root" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" app:cardCornerRadius="14dp" app:cardElevation="0dp" app:cardBackgroundColor="@color/surface" app:strokeColor="@color/border_soft" app:strokeWidth="1dp" app:contentPadding="0dp" app:cardPreventCornerOverlap="false" android:clickable="true" android:focusable="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+        <FrameLayout android:layout_width="match_parent" android:layout_height="138dp">
+            <ImageView android:id="@+id/iv_grid_image" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:background="@drawable/bg_gallery_luxury_gradient" android:contentDescription="Listing photo" />
+            <TextView android:id="@+id/tv_grid_status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="top|start" android:layout_margin="8dp" android:background="@drawable/bg_pill_accent" android:paddingHorizontal="8dp" android:paddingVertical="3dp" android:textSize="9.5sp" android:textStyle="bold" android:letterSpacing="0.06" tools:text="AVAILABLE" />
+            <TextView android:id="@+id/tv_grid_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="top|end" android:layout_margin="8dp" android:background="@drawable/bg_gallery_pill" android:paddingHorizontal="8dp" android:paddingVertical="3dp" android:textColor="@color/white" android:textSize="9.5sp" android:textStyle="bold" tools:text="FOR SALE" />
+            <TextView android:id="@+id/tv_grid_image_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="bottom|end" android:layout_margin="8dp" android:background="@drawable/bg_gallery_pill" android:paddingHorizontal="8dp" android:paddingVertical="3dp" android:textColor="@color/white" android:textSize="10sp" android:textStyle="bold" tools:text="1 / 3" />
+        </FrameLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+            <TextView android:id="@+id/tv_grid_price" android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-black" android:textColor="@color/text_primary" android:textSize="16.5sp" tools:text="₹ 3,75,000" />
+            <TextView android:id="@+id/tv_grid_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:minHeight="32dp" android:ellipsize="end" android:fontFamily="sans-serif-medium" android:maxLines="2" android:textColor="@color/text_primary" android:textSize="12.5sp" tools:text="HERCULES ROADEO 26T MOUNTAIN BICYCLE" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <ImageView android:layout_width="12dp" android:layout_height="12dp" android:src="@drawable/ic_location_pin" app:tint="@color/text_muted" android:importantForAccessibility="no" />
+                <TextView android:id="@+id/tv_grid_location" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:ellipsize="end" android:maxLines="1" android:textColor="@color/text_muted" android:textSize="10.5sp" tools:text="Kemmannu Road • Today" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
